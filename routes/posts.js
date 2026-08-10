@@ -1,3 +1,9 @@
+const express = require('express');
+const router = express.Router(); // <-- Объявление router
+
+const Post = require('../models/Post');
+const Comment = require('../models/Comment');
+
 // Получение поста по shortId или ObjectId
 router.get('/post/:id', async (req, res) => {
   try {
@@ -40,3 +46,7 @@ router.get('/post/:id', async (req, res) => {
     res.status(500).render('404');
   }
 });
+
+// Добавьте сюда остальные маршруты постов (если они есть), например router.post('/create', ...)
+
+module.exports = router; // <-- Экспорт router

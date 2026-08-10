@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twix</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/modal-styles.css">
+</head>
+<body>
+
+  <!-- Хедер / Шапка -->
+  <header class="main-header">
+    <div class="container">
+      <a href="/" class="logo">Twix</a>
+      <% if (typeof user !== 'undefined' && user) { %>
+        <div class="user-menu">
+          <span>Привет, <%= user.username %></span>
+          <a href="/logout" class="btn btn-secondary">Выйти</a>
+        </div>
+      <% } else { %>
+        <div class="auth-links">
+          <a href="/login" class="btn">Войти</a>
+          <a href="/register" class="btn btn-primary">Регистрация</a>
+        </div>
+      <% } %>
+    </div>
+  </header>
+
+  <!-- Основной контент страницы -->
+  <main class="container content">
+    
+    <!-- Форма создания нового поста (если пользователь авторизован) -->
+    <% if (typeof user !== 'undefined' && user) { %>
+      <section class="create-post-section">
+        <h2>Создать новый пост</h2>
+        <form action="/posts" method="POST" class="post-form">
+          <input type="text" name="title" placeholder="Заголовок поста" required>
+          <textarea name="description" placeholder="Описание..." rows="3"></textarea>
+          <input type="url" name="imageUrl" placeholder="Ссылка на изображение (http://...)">
+          <button type="submit" class="btn btn-primary">Опубликовать</button>
+        </form>
+      </section>
+    <% } %>
+
+    <!-- Лента / Сетка постов -->
+    <section class="posts-feed">
+      <h2>Лента постов</h2>
+      
+      <% if (posts && posts.length > 0) { %>
+        <div class="posts-grid">
+          <% posts.forEach(post => { %>
+            <article class="post-card" data-id="<%= post.shortId || post._id %>">
+              <% if (post.imageUrl) { %>
+                <div class="post-card-media">
+                  <img src="<%= post.imageUrl %>" alt="<%= post.title %>" loading="lazy">
+                </div>
+              <% } %>
+              <div class="post-card-body">
+                <h3 class="post-card-title"><%= post.title %></h3>
+                <p class="post-card-desc"><%= post.description %></p>
+                <div class="post-card-footer">
+                  <span class="views-count">👁 <%= post.views || 0 %></span>
+                  <span class="post-date"><%= new Date(post.createdAt).toLocaleDateString('ru-RU') %></span>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="no-posts">Постов пока нет. Будьте первым, кто опубликует!</p>
+      <% } %>
+    </section>
+
+  </main>
+
+  <!-- Модальное окно (поп-ап) -->
+  <div id="postModal" class="post-modal-overlay" style="display: none;">
+    <div class="post-modal-container">
+      <button class="modal-close-btn">&times;</button>
+      <div id="modalContent" class="modal-body">
+        <div class="modal-spinner">Загрузка...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/post-modal.js"></script>
+</body>
+</html>
