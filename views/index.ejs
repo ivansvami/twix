@@ -85,5 +85,16 @@
   </div>
 
   <script src="/js/post-modal.js"></script>
+<!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ПОСТА -->
+<div id="postModal" class="post-modal-overlay" onclick="closePostModal(event)">
+  <div class="post-modal-container" onclick="event.stopPropagation()">
+    <button class="modal-close-btn" onclick="closePostModal(event, true)">&times;</button>
+    <div id="modalContent" class="modal-body">
+      <div class="modal-spinner">Загрузка...</div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/post-modal.js"></script>
 </body>
 </html>
