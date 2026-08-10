@@ -1,0 +1,22 @@
+<!-- ПОП-АП МОДАЛЬНОЕ ОКНО ДЛЯ ПРОСМОТРА ПОСТА -->
+<!-- Сохраните этот фрагмент в ваш HTML/EJS макет перед закрывающим тегом </body> -->
+
+<div id="postModal" class="post-modal-overlay" onclick="closePostModal(event)">
+  <button class="post-modal-close" onclick="closePostModal(event, true)">&times;</button>
+  
+  <div class="post-modal-container" onclick="event.stopPropagation()">
+    <!-- Левая часть: медиаконтент (картинка / видео) -->
+    <div id="modalMedia" class="post-modal-media">
+      <div class="modal-loader">Загрузка...</div>
+    </div>
+    
+    <!-- Правая часть: информация о посте, автор и комментарии -->
+    <div id="modalSidebar" class="post-modal-sidebar">
+      <div class="post-modal-header">
+        <div id="modalAuthor" class="modal-author-info"></div>
+      </div>
+      <div id="modalTitle" class="modal-post-title"></div>
+      <div id="modalComments" class="modal-comments-list"></div>
+    </div>
+  </div>
+</div>
