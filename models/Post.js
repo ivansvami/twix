@@ -7,6 +7,7 @@ const postSchema = new mongoose.Schema({
   files: [{ url: String, publicId: String, resourceType: String }],
   isNsfw: { type: Boolean, default: false },
   views: { type: Number, default: 0 },
+  viewedBy: [{ type: String }], // Храним IP-адреса для защиты от повторных просмотров
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   commentsCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
