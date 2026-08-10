@@ -1,7 +1,7 @@
 {
-  "name": "myfeed",
+  "name": "twix-by-salonamasle",
   "version": "1.0.0",
-  "description": "Файлообменник с лентой: изображения, видео, аудио, альбомы",
+  "description": "twix by salonamasle — файлообменник с лентой: изображения, видео, аудио, альбомы",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
