@@ -1,15 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const path = require('path');
 const imagekit = require('../config/imagekit');
 const { requireAuth } = require('../middleware/auth');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
 
+// Валидация разрешенных типов файлов
+const fileFilter = (req, file, cb) => {
+  // Разрешенные MIME-типы (включая image/webp и image/gif)
+  const allowedMimeTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'video/mp4',
+    'video/webm',
+    'audio/mpeg',
+    'audio/wav'
+  ];
+
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Неподдерживаемый формат файла. Разрешены JPEG, PNG, GIF, WEBP, MP4, WEBM, MP3, WAV.'), false);
+  }
+};
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 200 * 1024 * 1024 }
+  limits: { fileSize: 200 * 1024 * 1024 }, // 200 MB
+  fileFilter: fileFilter
 });
 
 function resourceTypeFromMime(mimetype) {
@@ -114,7 +138,7 @@ router.post('/new', requireAuth, upload.array('files', 10), async (req, res) => 
     res.redirect('/post/' + post._id);
   } catch (err) {
     console.error(err);
-    res.render('upload', { error: 'Ошибка загрузки. Проверьте формат/размер файлов.' });
+    res.render('upload', { error: err.message || 'Ошибка загрузки. Проверьте формат/размер файлов.' });
   }
 });
 
