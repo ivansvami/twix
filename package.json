@@ -1,0 +1,23 @@
+{
+  "name": "myfeed",
+  "version": "1.0.0",
+  "description": "Файлообменник с лентой: изображения, видео, аудио, альбомы",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-mongo": "^5.1.0",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "imagekit": "^5.2.0",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.4.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}

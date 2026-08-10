@@ -1,0 +1,22 @@
+<%- include('partials/header', { pageTitle: 'Уведомления - MyFeed' }) %>
+
+<div class="form-page">
+  <h1>Уведомления</h1>
+  <% if (list.length === 0) { %>
+    <p class="empty">Пока нет уведомлений</p>
+  <% } %>
+  <% list.forEach(function(n) { %>
+    <div class="notif-item <%= n.isRead ? '' : 'unread' %>">
+      <% if (n.type === 'like') { %>
+        <p>@<%= n.fromUser.username %> оценил(а) ваш пост</p>
+      <% } else if (n.type === 'comment') { %>
+        <p>@<%= n.fromUser.username %> прокомментировал(а) ваш пост</p>
+      <% } else { %>
+        <p>@<%= n.fromUser.username %> ответил(а) на ваш комментарий</p>
+      <% } %>
+      <% if (n.post) { %><a href="/post/<%= n.post._id %>">Перейти к посту</a><% } %>
+    </div>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>

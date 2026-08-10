@@ -1,0 +1,73 @@
+<%- include('partials/header', { pageTitle: 'Лента - MyFeed', activeNav }) %>
+
+<form class="filters" method="GET" action="<%= activeNav === 'videos' ? '/videos' : '/' %>">
+  <label>
+    Категория
+    <select name="category" onchange="this.form.submit()">
+      <option value="all" <%= category==='all'?'selected':'' %>>Всё</option>
+      <option value="image" <%= category==='image'?'selected':'' %>>Изображения</option>
+      <option value="video" <%= category==='video'?'selected':'' %>>Видео</option>
+      <option value="audio" <%= category==='audio'?'selected':'' %>>Аудио</option>
+      <option value="album" <%= category==='album'?'selected':'' %>>Альбомы</option>
+    </select>
+  </label>
+  <label>
+    Сортировка
+    <select name="sort" onchange="this.form.submit()">
+      <option value="new" <%= sort==='new'?'selected':'' %>>Новые</option>
+      <option value="views" <%= sort==='views'?'selected':'' %>>По просмотрам</option>
+      <option value="likes" <%= sort==='likes'?'selected':'' %>>По лайкам</option>
+      <option value="comments" <%= sort==='comments'?'selected':'' %>>По комментариям</option>
+    </select>
+  </label>
+  <label>
+    Период
+    <select name="period" onchange="this.form.submit()">
+      <option value="today" <%= period==='today'?'selected':'' %>>Сегодня</option>
+      <option value="week" <%= period==='week'?'selected':'' %>>Неделя</option>
+      <option value="month" <%= period==='month'?'selected':'' %>>Месяц</option>
+      <option value="year" <%= period==='year'?'selected':'' %>>Год</option>
+      <option value="all" <%= period==='all'?'selected':'' %>>Всё время</option>
+    </select>
+  </label>
+</form>
+
+<div class="grid">
+  <% if (posts.length === 0) { %>
+    <p class="empty">Нет файлов для отображения</p>
+  <% } %>
+  <% posts.forEach(function(post) { %>
+    <a class="card" href="/post/<%= post._id %>">
+      <div class="card-media">
+        <% if (post.files && post.files[0]) {
+             const f = post.files[0]; %>
+          <% if (f.resourceType === 'video') { %>
+            <video src="<%= f.url %>" muted preload="metadata"></video>
+          <% } else if (f.resourceType === 'audio') { %>
+            <div class="audio-thumb">🎵</div>
+          <% } else { %>
+            <img src="<%= f.url %>" alt="">
+          <% } %>
+        <% } %>
+        <% if (post.isNsfw) { %><span class="tag-nsfw">18+</span><% } %>
+      </div>
+      <div class="card-body">
+        <p class="card-title"><%= post.title || 'Без названия' %></p>
+        <p class="card-meta">
+          <span>👁 <%= post.views %></span>
+          <span>❤ <%= post.likesCount !== undefined ? post.likesCount : (post.likes ? post.likes.length : 0) %></span>
+          <span>💬 <%= post.commentsCount %></span>
+        </p>
+        <p class="card-author">@<%= post.author.username %></p>
+      </div>
+    </a>
+  <% }) %>
+</div>
+
+<% if (posts.length >= 24) { %>
+  <div class="load-more">
+    <a href="?category=<%= category %>&sort=<%= sort %>&period=<%= period %>&page=<%= page+1 %>" class="btn-outline">Загрузить ещё</a>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>
