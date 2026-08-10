@@ -9,6 +9,22 @@ const connectDB = require('./config/db');
 const { loadUser } = require('./middleware/auth');
 
 const app = express();
+const express = require("express");
+const app = express();
+
+// === ВСТАВЛЯТЬ СЮДА (Редирект на HTTPS для Render) ===
+app.set("trust proxy", 1);
+
+app.use((req, res, next) => {
+  if (req.secure || req.headers["x-forwarded-proto"] === "https") {
+    return next();
+  }
+  return res.redirect(301, `https://${req.headers.host}${req.url}`);
+});
+// ====================================================
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 const PORT = process.env.PORT || 3000;
 
 connectDB();
