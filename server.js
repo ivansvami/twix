@@ -8,7 +8,7 @@ const methodOverride = require('method-override');
 const connectDB = require('./config/db');
 const { loadUser } = require('./middleware/auth');
 
-const app = express();
+const app = express(); 
 
 // === ВСТАВЛЯТЬ СЮДА (Редирект на HTTPS для Render) ===
 app.set("trust proxy", 1);
