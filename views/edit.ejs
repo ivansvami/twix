@@ -1,0 +1,56 @@
+<%- include('partials/header', { pageTitle: 'Редактирование поста - twix by salonamasle' }) %>
+
+<div class="form-page">
+  <h1>Редактирование поста</h1>
+  <% if (error) { %><p class="error"><%= error %></p><% } %>
+
+  <form action="/post/<%= post.shortId %>/edit" method="POST" enctype="multipart/form-data">
+    <label>
+      Заголовок
+      <input type="text" name="title" maxlength="200" value="<%= post.title %>">
+    </label>
+    <label>
+      Категория
+      <select name="category">
+        <option value="image" <%= post.category==='image'?'selected':'' %>>Изображение</option>
+        <option value="video" <%= post.category==='video'?'selected':'' %>>Видео</option>
+        <option value="audio" <%= post.category==='audio'?'selected':'' %>>Аудио</option>
+        <option value="album" <%= post.category==='album'?'selected':'' %>>Альбом (несколько файлов)</option>
+      </select>
+    </label>
+
+    <div class="existing-files">
+      <p class="field-label">Текущие файлы (отметьте, что удалить)</p>
+      <% post.files.forEach(function(f) { %>
+        <label class="file-row">
+          <input type="checkbox" name="removeFiles" value="<%= f.publicId %>">
+          <% if (f.resourceType === 'video') { %>
+            <video src="<%= f.url %>" muted></video>
+          <% } else if (f.resourceType === 'audio') { %>
+            <span class="audio-thumb-small">🎵</span>
+          <% } else { %>
+            <img src="<%= f.url %>" alt="">
+          <% } %>
+          <span>Удалить</span>
+        </label>
+      <% }) %>
+    </div>
+
+    <label>
+      Добавить файлы (необязательно)
+      <input type="file" name="newFiles" multiple>
+    </label>
+
+    <label class="checkbox">
+      <input type="checkbox" name="isNsfw" <%= post.isNsfw ? 'checked' : '' %>> Отметить как «не для стрима» (18+)
+    </label>
+
+    <button type="submit" class="btn-primary">Сохранить</button>
+  </form>
+
+  <form action="/post/<%= post.shortId %>/delete" method="POST" class="delete-form" onsubmit="return confirm('Удалить пост безвозвратно?');">
+    <button type="submit" class="btn-danger">Удалить пост</button>
+  </form>
+</div>
+
+<%- include('partials/footer') %>

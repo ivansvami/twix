@@ -37,7 +37,7 @@
     <p class="empty">Нет файлов для отображения</p>
   <% } %>
   <% posts.forEach(function(post) { %>
-    <a class="card" href="/post/<%= post._id %>">
+    <a class="card js-post-link" href="/post/<%= post.shortId %>" data-shortid="<%= post.shortId %>">
       <div class="card-media">
         <% if (post.files && post.files[0]) {
              const f = post.files[0]; %>

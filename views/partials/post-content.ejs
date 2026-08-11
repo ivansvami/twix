@@ -1,0 +1,74 @@
+<div class="post-modal-inner">
+  <a href="/" class="post-close js-close-post" aria-label="Закрыть">✕</a>
+
+  <div class="post-media-area">
+    <% post.files.forEach(function(f) { %>
+      <% if (f.resourceType === 'video') { %>
+        <video src="<%= f.url %>" controls></video>
+      <% } else if (f.resourceType === 'audio') { %>
+        <div class="audio-wrap">
+          <div class="audio-icon">🎵</div>
+          <audio src="<%= f.url %>" controls></audio>
+        </div>
+      <% } else { %>
+        <img src="<%= f.url %>" alt="">
+      <% } %>
+    <% }) %>
+  </div>
+
+  <div class="post-side">
+    <div class="post-info">
+      <h1><%= post.title || 'Без названия' %></h1>
+      <p class="post-author">Автор: @<%= post.author.username %></p>
+      <p class="post-meta">👁 <%= post.views %> просмотров · 💬 <%= post.commentsCount %> комментариев</p>
+
+      <button id="like-btn" data-shortid="<%= post.shortId %>" class="btn-like <%= currentUser && post.likes.some(id => id.toString() === currentUser._id.toString()) ? 'liked' : '' %>">
+        ❤ <span id="like-count"><%= post.likes.length %></span>
+      </button>
+
+      <% if (currentUser && (currentUser._id.toString() === post.author._id.toString() || currentUser.isAdmin)) { %>
+        <div class="post-owner-actions">
+          <a href="/post/<%= post.shortId %>/edit" class="btn-outline">Редактировать</a>
+          <form action="/post/<%= post.shortId %>/delete" method="POST" onsubmit="return confirm('Удалить пост безвозвратно?');">
+            <button type="submit" class="btn-danger">Удалить</button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="comments">
+      <h2>Комментарии</h2>
+      <% if (currentUser) { %>
+        <form action="/post/<%= post.shortId %>/comment" method="POST" class="comment-form">
+          <textarea name="text" placeholder="Написать комментарий..." required></textarea>
+          <button type="submit" class="btn-primary">Отправить</button>
+        </form>
+      <% } else { %>
+        <p><a href="/login">Войдите</a>, чтобы оставить комментарий.</p>
+      <% } %>
+
+      <% comments.forEach(function(c) { %>
+        <div class="comment">
+          <p class="comment-author">@<%= c.author.username %></p>
+          <p class="comment-text"><%= c.text %></p>
+          <% c.replies.forEach(function(r) { %>
+            <div class="comment reply">
+              <p class="comment-author">@<%= r.author.username %></p>
+              <p class="comment-text"><%= r.text %></p>
+            </div>
+          <% }) %>
+          <% if (currentUser) { %>
+            <details>
+              <summary>Ответить</summary>
+              <form action="/post/<%= post.shortId %>/comment" method="POST" class="comment-form">
+                <input type="hidden" name="parent" value="<%= c._id %>">
+                <textarea name="text" placeholder="Ответ..." required></textarea>
+                <button type="submit" class="btn-outline">Ответить</button>
+              </form>
+            </details>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>

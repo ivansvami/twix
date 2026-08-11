@@ -11,6 +11,10 @@ const { loadUser } = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Render (и большинство хостингов) работают через обратный прокси —
+// без этого req.ip будет показывать внутренний IP прокси, а не реальный IP посетителя
+app.set('trust proxy', true);
+
 connectDB();
 
 app.set('view engine', 'ejs');

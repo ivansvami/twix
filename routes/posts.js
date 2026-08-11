@@ -1,40 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
+const crypto = require('crypto');
 const imagekit = require('../config/imagekit');
 const { requireAuth } = require('../middleware/auth');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
-
-// Валидация разрешенных типов файлов
-const fileFilter = (req, file, cb) => {
-  // Разрешенные MIME-типы (включая image/webp и image/gif)
-  const allowedMimeTypes = [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'video/mp4',
-    'video/webm',
-    'audio/mpeg',
-    'audio/wav'
-  ];
-
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Неподдерживаемый формат файла. Разрешены JPEG, PNG, GIF, WEBP, MP4, WEBM, MP3, WAV.'), false);
-  }
-};
+const PostView = require('../models/PostView');
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 200 * 1024 * 1024 }, // 200 MB
-  fileFilter: fileFilter
+  limits: { fileSize: 200 * 1024 * 1024 }
 });
+
+function hashIp(ip) {
+  const salt = process.env.SESSION_SECRET || 'change_me_please';
+  return crypto.createHash('sha256').update(salt + '|' + ip).digest('hex');
+}
 
 function resourceTypeFromMime(mimetype) {
   if (mimetype.startsWith('video')) return 'video';
@@ -135,50 +118,65 @@ router.post('/new', requireAuth, upload.array('files', 10), async (req, res) => 
       files,
       isNsfw
     });
-    res.redirect('/post/' + post._id);
+    res.redirect('/post/' + post.shortId);
   } catch (err) {
     console.error(err);
-    res.render('upload', { error: err.message || 'Ошибка загрузки. Проверьте формат/размер файлов.' });
+    res.render('upload', { error: 'Ошибка загрузки. Проверьте формат/размер файлов.' });
   }
 });
 
-// Просмотр отдельного поста с уникальным подчетом по IP
-router.get('/post/:id', async (req, res) => {
+async function loadPostData(shortId, req) {
+  const post = await Post.findOne({ shortId }).populate('author').lean();
+  if (!post) return null;
+
+  const ip = req.ip || (req.socket && req.socket.remoteAddress) || 'unknown';
+  const ipHash = hashIp(ip);
+
   try {
-    const userIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip;
-
-    // Ищем пост и увеличиваем просмотр только если этого IP еще нет в массиве viewedBy
-    let post = await Post.findOneAndUpdate(
-      { _id: req.params.id, viewedBy: { $ne: userIp } },
-      { 
-        $addToSet: { viewedBy: userIp },
-        $inc: { views: 1 } 
-      },
+    await PostView.create({ post: post._id, ipHash });
+    const updated = await Post.findByIdAndUpdate(
+      post._id,
+      { $inc: { views: 1 } },
       { new: true }
-    ).populate('author').lean();
-
-    // Если IP уже был учтён раньше, просто получаем данные поста без увеличения просмотров
-    if (!post) {
-      post = await Post.findById(req.params.id).populate('author').lean();
-    }
-
-    if (!post) return res.status(404).render('404');
-
-    const comments = await Comment.find({ post: post._id, parent: null })
-      .populate('author').sort({ createdAt: -1 }).lean();
-    for (const c of comments) {
-      c.replies = await Comment.find({ parent: c._id }).populate('author').sort({ createdAt: 1 }).lean();
-    }
-
-    res.render('post', { post, comments });
+    ).lean();
+    post.views = updated.views;
   } catch (err) {
-    console.error(err);
-    res.status(500).render('404');
+    if (err.code !== 11000) {
+      console.error('Ошибка учёта просмотра:', err.message);
+    }
+    // код 11000 = дубликат (этот IP уже засчитан для этого поста) — просмотр не увеличиваем
   }
+
+  const comments = await Comment.find({ post: post._id, parent: null })
+    .populate('author').sort({ createdAt: -1 }).lean();
+  for (const c of comments) {
+    c.replies = await Comment.find({ parent: c._id }).populate('author').sort({ createdAt: 1 }).lean();
+  }
+  return { post, comments };
+}
+
+// Полная страница поста (для прямых ссылок / шаринга)
+router.get('/post/:shortId', async (req, res) => {
+  const data = await loadPostData(req.params.shortId, req);
+  if (!data) return res.status(404).render('404');
+  res.render('post', data);
 });
 
-router.post('/post/:id/like', requireAuth, async (req, res) => {
-  const post = await Post.findById(req.params.id);
+// Данные поста для попапа (AJAX)
+router.get('/api/post/:shortId', async (req, res) => {
+  const data = await loadPostData(req.params.shortId, req);
+  if (!data) return res.status(404).json({ ok: false });
+  res.render('partials/post-content', { ...data, currentUser: res.locals.currentUser }, (err, html) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false });
+    }
+    res.json({ ok: true, html });
+  });
+});
+
+router.post('/post/:shortId/like', requireAuth, async (req, res) => {
+  const post = await Post.findOne({ shortId: req.params.shortId });
   if (!post) return res.status(404).json({ ok: false });
   const uid = req.user._id.toString();
   const idx = post.likes.findIndex(id => id.toString() === uid);
@@ -195,6 +193,72 @@ router.post('/post/:id/like', requireAuth, async (req, res) => {
   }
   await post.save();
   res.json({ ok: true, liked, count: post.likes.length });
+});
+
+router.get('/post/:shortId/edit', requireAuth, async (req, res) => {
+  const post = await Post.findOne({ shortId: req.params.shortId }).lean();
+  if (!post) return res.status(404).render('404');
+  if (post.author.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+    return res.status(403).send('Вы не можете редактировать чужой пост');
+  }
+  res.render('edit', { post, error: null });
+});
+
+router.post('/post/:shortId/edit', requireAuth, upload.array('newFiles', 10), async (req, res) => {
+  const post = await Post.findOne({ shortId: req.params.shortId });
+  if (!post) return res.status(404).render('404');
+  if (post.author.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+    return res.status(403).send('Вы не можете редактировать чужой пост');
+  }
+
+  try {
+    post.title = (req.body.title || '').trim();
+    post.category = req.body.category || post.category;
+    post.isNsfw = req.body.isNsfw === 'on';
+
+    // Удаляем отмеченные файлы (и в ImageKit, и из поста)
+    const removeIds = [].concat(req.body.removeFiles || []);
+    if (removeIds.length) {
+      const toRemove = post.files.filter(f => removeIds.includes(f.publicId));
+      await Promise.all(toRemove.map(f =>
+        imagekit.deleteFile(f.publicId).catch(err => console.error('ImageKit delete error:', err.message))
+      ));
+      post.files = post.files.filter(f => !removeIds.includes(f.publicId));
+    }
+
+    // Добавляем новые файлы, если загружены
+    if (req.files && req.files.length) {
+      const newFiles = await Promise.all(req.files.map(uploadFileToImageKit));
+      post.files.push(...newFiles);
+    }
+
+    if (post.files.length === 0) {
+      return res.render('edit', { post, error: 'У поста должен остаться хотя бы один файл' });
+    }
+
+    await post.save();
+    res.redirect('/post/' + post.shortId);
+  } catch (err) {
+    console.error(err);
+    res.render('edit', { post, error: 'Ошибка сохранения. Попробуйте ещё раз.' });
+  }
+});
+
+router.post('/post/:shortId/delete', requireAuth, async (req, res) => {
+  const post = await Post.findOne({ shortId: req.params.shortId });
+  if (!post) return res.status(404).render('404');
+  if (post.author.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+    return res.status(403).send('Вы не можете удалить чужой пост');
+  }
+
+  await Promise.all(post.files.map(f =>
+    imagekit.deleteFile(f.publicId).catch(err => console.error('ImageKit delete error:', err.message))
+  ));
+  await Comment.deleteMany({ post: post._id });
+  await Notification.deleteMany({ post: post._id });
+  await post.deleteOne();
+
+  res.redirect('/');
 });
 
 module.exports = router;

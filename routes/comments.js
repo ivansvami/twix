@@ -5,11 +5,11 @@ const Comment = require('../models/Comment');
 const Post = require('../models/Post');
 const Notification = require('../models/Notification');
 
-router.post('/post/:id/comment', requireAuth, async (req, res) => {
-  const post = await Post.findById(req.params.id);
+router.post('/post/:shortId/comment', requireAuth, async (req, res) => {
+  const post = await Post.findOne({ shortId: req.params.shortId });
   if (!post) return res.status(404).send('Пост не найден');
   const text = (req.body.text || '').trim();
-  if (!text) return res.redirect('/post/' + post._id);
+  if (!text) return res.redirect('/post/' + post.shortId);
   const parentId = req.body.parent || null;
 
   const comment = await Comment.create({
@@ -34,7 +34,7 @@ router.post('/post/:id/comment', requireAuth, async (req, res) => {
     });
   }
 
-  res.redirect('/post/' + post._id);
+  res.redirect('/post/' + post.shortId);
 });
 
 router.post('/comment/:id/like', requireAuth, async (req, res) => {
