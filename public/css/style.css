@@ -177,7 +177,7 @@ a { color: inherit; text-decoration: none; }
 .form-page form { display: flex; flex-direction: column; gap: 14px; }
 .form-page label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--text-dim); }
 .form-page input[type=text], .form-page input[type=email], .form-page input[type=password], .form-page select, .form-page input[type=file] {
-  background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px;
+  background: var(--bg-card); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 14px;
 }
 .form-page .checkbox { flex-direction: row; align-items: center; gap: 8px; }
 .error { color: #ff6b6b; }
