@@ -3,29 +3,30 @@
     const dropPrompt = document.getElementById('drop-prompt');
     const previewContainer = document.getElementById('file-preview-container');
 
-    function formatBytes(bytes, decimals = 2) {
+    function formatBytes(bytes) {
         if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    // Основная функция рендера списка файлов
-    function renderFiles(fileList) {
+    // Функция обновления отображения
+    function updateUI() {
+        const files = fileInput.files;
+        
+        // Очищаем контейнер перед отрисовкой
         previewContainer.innerHTML = '';
         
-        if (fileList && fileList.length > 0) {
+        if (files.length > 0) {
             dropPrompt.style.display = 'none';
             previewContainer.style.display = 'flex';
 
-            Array.from(fileList).forEach((file, index) => {
+            Array.from(files).forEach((file, index) => {
                 const card = document.createElement('div');
                 card.className = 'file-preview-card';
-                
                 card.innerHTML = `
                     <div class="file-info-left">
-                        <div class="file-thumb-icon">📄</div>
+                        <div class="file-thumb-icon">🖼️</div>
                         <div class="file-details">
                             <span class="file-name">${file.name}</span>
                             <span class="file-size">${formatBytes(file.size)}</span>
@@ -34,49 +35,41 @@
                     <button type="button" class="file-remove-btn">🗑️</button>
                 `;
 
+                // Кнопка удаления конкретного файла
                 card.querySelector('.file-remove-btn').addEventListener('click', (e) => {
-                    e.preventDefault();
                     e.stopPropagation();
-
-                    // Создаем новый список, исключая удаляемый файл
                     const dt = new DataTransfer();
-                    for (let i = 0; i < fileList.length; i++) {
-                        if (i !== index) dt.items.add(fileList[i]);
+                    for (let i = 0; i < files.length; i++) {
+                        if (i !== index) dt.items.add(files[i]);
                     }
-                    
-                    // Обновляем инпут
                     fileInput.files = dt.files;
-                    // Вызываем рендер заново
-                    renderFiles(fileInput.files);
+                    updateUI(); // Рекурсивно обновляем UI
                 });
 
                 previewContainer.appendChild(card);
             });
         } else {
+            // Если файлов нет, возвращаем вид "по умолчанию"
             dropPrompt.style.display = 'flex';
             previewContainer.style.display = 'none';
+            fileInput.value = ''; // ВАЖНО: сбрасываем инпут
         }
     }
 
-    // Слушатель выбора через кнопку
-    fileInput.addEventListener('change', () => {
-        renderFiles(fileInput.files);
-    });
+    // Слушатели событий
+    fileInput.addEventListener('change', updateUI);
 
-    // Обработка Ctrl+V
     document.addEventListener('paste', (e) => {
         const dt = new DataTransfer();
         const items = e.clipboardData.items;
-
         for (let i = 0; i < items.length; i++) {
             if (items[i].type.startsWith('image/')) {
                 dt.items.add(items[i].getAsFile());
             }
         }
-
         if (dt.files.length > 0) {
             fileInput.files = dt.files;
-            renderFiles(fileInput.files);
+            updateUI();
         }
     });
 </script>
