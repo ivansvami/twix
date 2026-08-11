@@ -4,12 +4,10 @@
   <h1>Новый пост</h1>
   <% if (error) { %><p class="error"><%= error %></p><% } %>
   <form action="/new" method="POST" enctype="multipart/form-data">
-    
     <label>
       Заголовок
       <input type="text" name="title" maxlength="200" placeholder="Необязательно">
     </label>
-
     <label>
       Категория
       <select name="category" required>
@@ -19,114 +17,17 @@
         <option value="album">Альбом (несколько файлов)</option>
       </select>
     </label>
-
-    <!-- Стилизованное поле загрузки файлов -->
-    <div class="form-group">
-      <span class="field-label">Файлы</span>
-      <label class="file-input-box" id="drop-zone">
-        <input type="file" name="files" id="files-input" multiple required hidden>
-        
-        <!-- Текст по умолчанию -->
-        <div id="drop-prompt" class="drop-prompt">
-          <span class="drop-icon">📁</span>
-          <span class="drop-text">Выберите или перенесите сюда файлы</span>
-        </div>
-
-        <!-- Контейнер для карточки выбранного файла -->
-        <div id="file-preview-container" class="file-preview-container" style="display: none;"></div>
-      </label>
-    </div>
-
+    <label>
+      Файлы
+      <input type="file" name="files" id="files-input" multiple required>
+    </label>
     <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
-
+    <div id="paste-preview" class="paste-preview"></div>
     <label class="checkbox">
       <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
     </label>
-
     <button type="submit" class="btn-primary">Опубликовать</button>
   </form>
 </div>
-
-<!-- Интерактивные скрипты: превью, удаление через иконку корзины и поддержка Ctrl+V -->
-<script>
-    const fileInput = document.getElementById('files-input');
-    const dropPrompt = document.getElementById('drop-prompt');
-    const previewContainer = document.getElementById('file-preview-container');
-
-    function formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
-
-    fileInput.addEventListener('change', function() {
-        previewContainer.innerHTML = '';
-        
-        if (this.files && this.files.length > 0) {
-            dropPrompt.style.display = 'none';
-            previewContainer.style.display = 'flex';
-
-            Array.from(this.files).forEach((file, index) => {
-                const card = document.createElement('div');
-                card.className = 'file-preview-card';
-                
-                card.innerHTML = `
-                    <div class="file-info-left">
-                        <div class="file-thumb-icon">🖼️</div>
-                        <div class="file-details">
-                            <span class="file-name">${file.name}</span>
-                            <span class="file-size">${formatBytes(file.size)}</span>
-                        </div>
-                    </div>
-                    <button type="button" class="file-remove-btn" title="Удалить файл">🗑️</button>
-                `;
-
-                // Удаление файла по клику на иконку корзины
-                card.querySelector('.file-remove-btn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    const dt = new DataTransfer();
-                    const { files } = fileInput;
-
-                    for (let i = 0; i < files.length; i++) {
-                        if (i !== index) dt.items.add(files[i]);
-                    }
-
-                    fileInput.files = dt.files;
-                    fileInput.dispatchEvent(new Event('change'));
-                });
-
-                previewContainer.appendChild(card);
-            });
-        } else {
-            dropPrompt.style.display = 'flex';
-            previewContainer.style.display = 'none';
-        }
-    });
-
-    // Обработка вставки через Ctrl+V / Cmd+V
-    document.addEventListener('paste', function(e) {
-        const items = e.clipboardData.items;
-        const dt = new DataTransfer();
-
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                const file = items[i].getAsFile();
-                if (file) {
-                    dt.items.add(file);
-                }
-            }
-        }
-
-        if (dt.files.length > 0) {
-            fileInput.files = dt.files;
-            fileInput.dispatchEvent(new Event('change'));
-        }
-    });
-</script>
 
 <%- include('partials/footer') %>
