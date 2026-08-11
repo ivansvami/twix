@@ -41,6 +41,7 @@ app.use('/', require('./routes/twitchAuth'));
 app.use('/', require('./routes/posts'));
 app.use('/', require('./routes/comments'));
 app.use('/', require('./routes/notifications'));
+app.use('/', require('./routes/suggestedVideos'));
 
 app.use((req, res) => {
   res.status(404).render('404');
