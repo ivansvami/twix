@@ -4,11 +4,7 @@
         const dropPrompt = document.getElementById('drop-prompt');
         const previewContainer = document.getElementById('file-preview-container');
 
-        // Если какого-то из ключевых элементов нет в разметке — не выполняем код дальше
-        if (!fileInput || !dropPrompt || !previewContainer) {
-            console.error("Один из элементов интерфейса не найден. Проверьте ID в HTML.");
-            return;
-        }
+        if (!fileInput || !dropPrompt || !previewContainer) return;
 
         function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
@@ -28,10 +24,9 @@
                 Array.from(fileList).forEach((file, index) => {
                     const card = document.createElement('div');
                     card.className = 'file-preview-card';
-                    
                     card.innerHTML = `
                         <div class="file-info-left">
-                            <div class="file-thumb-icon">📄</div>
+                            <div class="file-thumb-icon">🖼️</div>
                             <div class="file-details">
                                 <span class="file-name">${file.name}</span>
                                 <span class="file-size">${formatBytes(file.size)}</span>
