@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const SuggestedVideo = require('../models/SuggestedVideo');
+const Post = require('../models/Post'); // <-- Добавили модель Поста
 
 const ALLOWED_CATEGORIES = ['Смешные', 'Трукрайм', 'Разоблачения', 'Трейлеры', 'Разное'];
 
@@ -29,12 +30,26 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
     }
     const finalCategory = ALLOWED_CATEGORIES.includes(category) ? category : 'Разное';
 
+    // 1. Сохраняем в таблицу предложенных видео (для истории/модерации)
     await SuggestedVideo.create({
       url: url.trim(),
       youtubeId,
       category: finalCategory,
       comment: (comment || '').trim().slice(0, 150),
       submittedBy: req.user._id
+    });
+
+    // 2. СОЗДАЁМ ПОСТ В ОСНОВНОЙ ЛЕНТЕ
+    await Post.create({
+      author: req.user._id,
+      title: (comment || '').trim().slice(0, 100) || 'Предложенное видео',
+      category: 'video', // чтобы попадало во вкладку "Видео"
+      files: [{
+        url: url.trim(),
+        resourceType: 'video'
+      }],
+      imageUrl: url.trim(),
+      isNsfw: false
     });
 
     res.json({ ok: true });
