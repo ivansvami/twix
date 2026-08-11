@@ -50,7 +50,11 @@
       <% if (posts && posts.length > 0) { %>
         <div class="posts-grid">
           <% posts.forEach(post => { %>
-            <article class="post-card" data-id="<%= post.shortId || post._id %>">
+            <article 
+              class="post-card" 
+              onclick="openPostModal(event, '<%= post.shortId || post._id %>')"
+              data-id="<%= post.shortId || post._id %>"
+            >
               <% if (post.imageUrl) { %>
                 <div class="post-card-media">
                   <img src="<%= post.imageUrl %>" alt="<%= post.title %>" loading="lazy">
@@ -74,10 +78,10 @@
 
   </main>
 
-  <!-- Модальное окно (поп-ап) -->
-  <div id="postModal" class="post-modal-overlay" style="display: none;">
-    <div class="post-modal-container">
-      <button class="modal-close-btn">&times;</button>
+  <!-- Модальное окно просмотра/редактирования поста -->
+  <div id="postModal" class="post-modal-overlay" onclick="closePostModal(event)">
+    <div class="post-modal-container" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closePostModal(event, true)">&times;</button>
       <div id="modalContent" class="modal-body">
         <div class="modal-spinner">Загрузка...</div>
       </div>
@@ -85,16 +89,5 @@
   </div>
 
   <script src="/js/post-modal.js"></script>
-<!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ПОСТА -->
-<div id="postModal" class="post-modal-overlay" onclick="closePostModal(event)">
-  <div class="post-modal-container" onclick="event.stopPropagation()">
-    <button class="modal-close-btn" onclick="closePostModal(event, true)">&times;</button>
-    <div id="modalContent" class="modal-body">
-      <div class="modal-spinner">Загрузка...</div>
-    </div>
-  </div>
-</div>
-
-<script src="/js/post-modal.js"></script>
 </body>
 </html>
