@@ -3,6 +3,7 @@
 <div class="form-page">
   <h1>Новый пост</h1>
   <% if (error) { %><p class="error"><%= error %></p><% } %>
+  
   <form action="/new" method="POST" enctype="multipart/form-data">
     
     <label>
@@ -20,21 +21,21 @@
       </select>
     </label>
 
-    <!-- Стилизованное поле загрузки файлов (как на референсе) -->
+    <!-- Блок загрузки файлов -->
     <div class="form-group">
       <span class="field-label">Файлы</span>
-      <label class="file-input-box" id="drop-zone">
+      <div class="file-input-box" id="drop-zone" onclick="document.getElementById('files-input').click()">
         <input type="file" name="files" id="files-input" multiple required hidden>
         
-        <!-- Текст по умолчанию -->
+        <!-- Текст, который виден, пока файл не выбран -->
         <div id="drop-prompt" class="drop-prompt">
           <span class="drop-icon">📁</span>
           <span class="drop-text">Выберите или перенесите сюда файлы</span>
         </div>
 
-        <!-- Контейнер для карточки выбранного файла -->
+        <!-- Контейнер, который появится после выбора файла -->
         <div id="file-preview-container" class="file-preview-container" style="display: none;"></div>
-      </label>
+      </div>
     </div>
 
     <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
@@ -47,12 +48,12 @@
   </form>
 </div>
 
-<!-- Скрипт: интерактивное превью, удаление через корзину и поддержка Ctrl+V -->
 <script>
     const fileInput = document.getElementById('files-input');
     const dropPrompt = document.getElementById('drop-prompt');
     const previewContainer = document.getElementById('file-preview-container');
 
+    // Функция форматирования размера файла
     function formatBytes(bytes, decimals = 2) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -62,6 +63,7 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
+    // Обработка выбора файлов
     fileInput.addEventListener('change', function() {
         previewContainer.innerHTML = '';
         
@@ -108,7 +110,7 @@
         }
     });
 
-    // Обработка вставки из буфера обмена (Ctrl+V / Cmd+V)
+    // Обработка вставки из буфера обмена (Ctrl+V)
     document.addEventListener('paste', function(e) {
         const items = e.clipboardData.items;
         const dt = new DataTransfer();
