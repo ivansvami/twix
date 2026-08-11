@@ -5,15 +5,42 @@ function generateShortId() {
   return Math.random().toString(36).substring(2, 9);
 }
 
+// Преобразование любой YouTube-ссылки (embed, shorts, youtu.be) в прямую страницу видео
+function getYouTubeWatchUrl(url) {
+  if (!url) return null;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+  return match ? 'https://www.youtube.com/watch?v=' + match[1] : null;
+}
+
 // Открытие модалки поста
 async function openPostModal(event, postId, shortId, mediaUrl, title, author) {
-  // 1. Проверяем, является ли ссылка роликом с YouTube
-  const isYouTube = mediaUrl && (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be'));
-  
-  if (isYouTube) {
-    if (event) event.preventDefault();
-    window.open(mediaUrl, '_blank'); // Открываем YouTube в новой вкладке
-    return;                           // Не открываем модальное окно
+  // 1. Поиск ссылок во всех возможных источниках кликнутой карточки
+  let candidateUrl = mediaUrl || '';
+
+  if (event && event.target) {
+    const cardLink = event.target.closest('a');
+    if (cardLink && cardLink.href) {
+      candidateUrl = candidateUrl || cardLink.href;
+    }
+    const cardElement = event.target.closest('.card');
+    if (cardElement) {
+      const iframe = cardElement.querySelector('iframe');
+      if (iframe && iframe.src) {
+        candidateUrl = iframe.src;
+      }
+    }
+  }
+
+  // 2. Проверка, является ли пост ролик с YouTube
+  const ytWatchUrl = getYouTubeWatchUrl(candidateUrl) || getYouTubeWatchUrl(mediaUrl);
+
+  if (ytWatchUrl) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    window.open(ytWatchUrl, '_blank'); // Переход прямо на сайт YouTube
+    return;                            // Прерываем вызов модалки
   }
 
   if (event) event.preventDefault();
@@ -28,10 +55,10 @@ async function openPostModal(event, postId, shortId, mediaUrl, title, author) {
   const modalSidebar = document.getElementById("modalSidebar");
 
   // Отрисовка медиа
-  if (mediaUrl.endsWith('.mp4') || mediaUrl.endsWith('.webm')) {
+  if (mediaUrl && (mediaUrl.endsWith('.mp4') || mediaUrl.endsWith('.webm'))) {
     modalMedia.innerHTML = `<video src="${mediaUrl}" controls autoplay loop></video>`;
   } else {
-    modalMedia.innerHTML = `<img src="${mediaUrl}" alt="Post Media">`;
+    modalMedia.innerHTML = `<img src="${mediaUrl || ''}" alt="Post Media">`;
   }
 
   // Отрисовка информации
