@@ -1,63 +1,69 @@
 <script>
-    const fileInput = document.getElementById('files-input');
-    const dropPrompt = document.getElementById('drop-prompt');
-    const previewContainer = document.getElementById('file-preview-container');
-    function formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
-    }
-    function renderFiles(fileList) {
-        previewContainer.innerHTML = '';
-        if (fileList && fileList.length > 0) {
-            dropPrompt.style.display = 'none';
-            previewContainer.style.display = 'flex';
-            Array.from(fileList).forEach((file, index) => {
-                const card = document.createElement('div');
-                card.className = 'file-preview-card';
-                card.innerHTML = `
-                    <div class="file-info-left">
-                        <div class="file-thumb-icon">📄</div>
-                        <div class="file-details">
-                            <span class="file-name">${file.name}</span>
-                            <span class="file-size">${formatBytes(file.size)}</span>
-                        </div>
-                    </div>
-                    <button type="button" class="file-remove-btn">🗑️</button>
-                `;
-                card.querySelector('.file-remove-btn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const dt = new DataTransfer();
-                    for (let i = 0; i < fileList.length; i++) {
-                        if (i !== index) dt.items.add(fileList[i]);
-                    }
-                    fileInput.files = dt.files;
-                    renderFiles(fileInput.files);
-                });
-                previewContainer.appendChild(card);
-            });
-        } else {
-            dropPrompt.style.display = 'flex';
-            previewContainer.style.display = 'none';
+    document.addEventListener('DOMContentLoaded', () => {
+        const fileInput = document.getElementById('files-input');
+        const dropPrompt = document.getElementById('drop-prompt');
+        const previewContainer = document.getElementById('file-preview-container');
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
         }
-    }
-    fileInput.addEventListener('change', () => {
-        renderFiles(fileInput.files);
-    });
-    document.addEventListener('paste', (e) => {
-        const dt = new DataTransfer();
-        const items = e.clipboardData.items;
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.startsWith('image/')) {
-                dt.items.add(items[i].getAsFile());
+
+        function renderFiles(fileList) {
+            previewContainer.innerHTML = '';
+            if (fileList && fileList.length > 0) {
+                dropPrompt.style.display = 'none';
+                previewContainer.style.display = 'flex';
+                Array.from(fileList).forEach((file, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'file-preview-card';
+                    card.innerHTML = `
+                        <div class="file-info-left">
+                            <div class="file-thumb-icon">📄</div>
+                            <div class="file-details">
+                                <span class="file-name">${file.name}</span>
+                                <span class="file-size">${formatBytes(file.size)}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="file-remove-btn">🗑️</button>
+                    `;
+                    card.querySelector('.file-remove-btn').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const dt = new DataTransfer();
+                        for (let i = 0; i < fileList.length; i++) {
+                            if (i !== index) dt.items.add(fileList[i]);
+                        }
+                        fileInput.files = dt.files;
+                        renderFiles(fileInput.files);
+                    });
+                    previewContainer.appendChild(card);
+                });
+            } else {
+                dropPrompt.style.display = 'flex';
+                previewContainer.style.display = 'none';
             }
         }
-        if (dt.files.length > 0) {
-            fileInput.files = dt.files;
+
+        fileInput.addEventListener('change', () => {
             renderFiles(fileInput.files);
-        }
+        });
+
+        document.addEventListener('paste', (e) => {
+            const dt = new DataTransfer();
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.startsWith('image/')) {
+                    dt.items.add(items[i].getAsFile());
+                }
+            }
+            if (dt.files.length > 0) {
+                fileInput.files = dt.files;
+                renderFiles(fileInput.files);
+            }
+        });
     });
 </script>
