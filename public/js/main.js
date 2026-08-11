@@ -173,4 +173,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
   setupPasteUpload('files-input', 'paste-preview');
   setupPasteUpload('newfiles-input', 'edit-paste-preview');
+
+  // ===== Проигрывание YouTube-превью при наведении курсора =====
+  var youtubeCards = document.querySelectorAll('.card-youtube');
+  youtubeCards.forEach(function (card) {
+    var iframe = card.querySelector('.yt-preview-iframe');
+    if (!iframe) return;
+    var baseSrc = iframe.dataset.baseSrc;
+    var hoverTimer = null;
+
+    card.addEventListener('mouseenter', function () {
+      hoverTimer = setTimeout(function () {
+        var sep = baseSrc.indexOf('?') > -1 ? '&' : '?';
+        iframe.src = baseSrc + sep + 'autoplay=1&mute=1&controls=0&modestbranding=1&rel=0';
+      }, 500);
+    });
+
+    card.addEventListener('mouseleave', function () {
+      clearTimeout(hoverTimer);
+      iframe.src = baseSrc;
+    });
+  });
 });
