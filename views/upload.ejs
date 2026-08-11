@@ -19,8 +19,10 @@
     </label>
     <label>
       Файлы
-      <input type="file" name="files" multiple required>
+      <input type="file" name="files" id="files-input" multiple required>
     </label>
+    <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
+    <div id="paste-preview" class="paste-preview"></div>
     <label class="checkbox">
       <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
     </label>
