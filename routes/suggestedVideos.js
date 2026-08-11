@@ -29,10 +29,28 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
       return res.status(400).json({ ok: false, error: 'Не удалось распознать ссылку на YouTube-видео' });
     }
     const finalCategory = ALLOWED_CATEGORIES.includes(category) ? category : 'Разное';
+    const cleanUrl = url.trim();
+
+    // Получаем настоящее название ролика через официальный oEmbed YouTube (без API-ключа)
+    let videoTitle = 'Предложенное видео';
+    try {
+      const oembedRes = await fetch(
+        'https://www.youtube.com/oembed?url=' + encodeURIComponent(cleanUrl) + '&format=json'
+      );
+      if (oembedRes.ok) {
+        const oembedData = await oembedRes.json();
+        if (oembedData && oembedData.title) {
+          videoTitle = oembedData.title.slice(0, 100);
+        }
+      }
+    } catch (oembedErr) {
+      console.error('Не удалось получить название видео с YouTube:', oembedErr.message);
+      // не критично — используем запасной заголовок
+    }
 
     // 1. Сохраняем в таблицу предложенных видео (для истории/модерации)
     await SuggestedVideo.create({
-      url: url.trim(),
+      url: cleanUrl,
       youtubeId,
       category: finalCategory,
       comment: (comment || '').trim().slice(0, 150),
@@ -42,13 +60,13 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
     // 2. СОЗДАЁМ ПОСТ В ОСНОВНОЙ ЛЕНТЕ
     await Post.create({
       author: req.user._id,
-      title: (comment || '').trim().slice(0, 100) || 'Предложенное видео',
+      title: videoTitle,
       category: 'video', // чтобы попадало во вкладку "Видео"
       files: [{
-        url: url.trim(),
+        url: cleanUrl,
         resourceType: 'video'
       }],
-      imageUrl: url.trim(),
+      imageUrl: cleanUrl,
       isNsfw: false
     });
 
