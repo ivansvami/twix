@@ -4,6 +4,59 @@
   <div id="post-overlay-content" class="post-overlay-content"></div>
 </div>
 
+<div id="suggest-video-overlay" class="post-overlay" hidden>
+  <div class="suggest-video-modal">
+    <div class="suggest-video-head">
+      <div>
+        <p class="suggest-video-kicker">ПРЕДЛОЖКА</p>
+        <h2>Предложить видео</h2>
+      </div>
+      <button type="button" id="close-suggest-video" class="post-close" aria-label="Закрыть">✕</button>
+    </div>
+
+    <form id="suggest-video-form" class="suggest-video-body">
+      <div class="suggest-video-preview" id="sv-preview">
+        <div class="sv-preview-placeholder" id="sv-preview-placeholder">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <span>Превью видео</span>
+        </div>
+        <img id="sv-preview-img" alt="Превью видео" hidden>
+      </div>
+
+      <div class="suggest-video-fields">
+        <label>
+          Ссылка на видео
+          <input type="url" id="sv-url" name="url" placeholder="https://www.youtube.com/watch?v=..." required>
+        </label>
+
+        <div class="sv-field-block">
+          <p class="field-label">Категория</p>
+          <div class="sv-category-pills">
+            <button type="button" class="sv-pill" data-category="Смешные">Смешные</button>
+            <button type="button" class="sv-pill" data-category="Трукрайм">Трукрайм</button>
+            <button type="button" class="sv-pill" data-category="Разоблачения">Разоблачения</button>
+            <button type="button" class="sv-pill" data-category="Трейлеры">Трейлеры</button>
+            <button type="button" class="sv-pill active" data-category="Разное">Разное</button>
+          </div>
+          <input type="hidden" name="category" id="sv-category" value="Разное">
+        </div>
+
+        <label>
+          <span class="sv-comment-label">
+            Комментарий <span class="sv-optional">(не обязательно)</span>
+            <span class="sv-counter" id="sv-counter">0/150</span>
+          </span>
+          <textarea id="sv-comment" name="comment" maxlength="150" placeholder="Добавить комментарий"></textarea>
+        </label>
+
+        <p id="sv-error" class="error sv-error" hidden></p>
+
+        <button type="submit" id="sv-submit" class="btn-primary sv-submit" disabled>Отправить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <footer class="footer">
   <p>twix by salonamasle — учебный проект. Все файлы загружаются пользователями.</p>
   <a href="https://t.me/sapozhkiposkidke" target="_blank" rel="noopener" class="made-by">
@@ -11,6 +64,42 @@
     сделано by salonamasle
   </a>
 </footer>
+
+<nav class="mobile-bottom-nav">
+  <a href="/" class="mb-item <%= typeof activeNav !== 'undefined' && activeNav === 'feed' ? 'active' : '' %>">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+    <span>Лента</span>
+  </a>
+  <a href="/videos" class="mb-item <%= typeof activeNav !== 'undefined' && activeNav === 'videos' ? 'active' : '' %>">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 9l4-2v10l-4-2"/></svg>
+    <span>Видео</span>
+  </a>
+  <a href="<%= currentUser ? '/new' : '/login' %>" class="mb-item mb-item-add">
+    <span class="mb-add-circle">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+    </span>
+  </a>
+  <a href="/notifications" class="mb-item">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+    <span>Увед.</span>
+    <span id="mb-notif-count" class="mb-badge" hidden></span>
+  </a>
+  <% if (currentUser) { %>
+    <form action="/logout" method="POST" class="mb-item mb-item-form">
+      <button type="submit">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a5 5 0 100-10 5 5 0 000 10z"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+        <span><%= currentUser.username %></span>
+      </button>
+    </form>
+  <% } else { %>
+    <a href="/login" class="mb-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a5 5 0 100-10 5 5 0 000 10z"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+      <span>Войти</span>
+    </a>
+  <% } %>
+</nav>
+
 <script src="/js/main.js"></script>
+<script src="/js/suggest-video.js"></script>
 </body>
 </html>
