@@ -114,6 +114,7 @@ router.post('/new', requireAuth, upload.array('files', 10), async (req, res) => 
     const post = await Post.create({
       author: req.user._id,
       title: (req.body.title || '').trim(),
+      description: (req.body.description || '').trim(),
       category,
       files,
       isNsfw
@@ -213,6 +214,7 @@ router.post('/post/:shortId/edit', requireAuth, upload.array('newFiles', 10), as
 
   try {
     post.title = (req.body.title || '').trim();
+    post.description = (req.body.description || '').trim();
     post.category = req.body.category || post.category;
     post.isNsfw = req.body.isNsfw === 'on';
 
