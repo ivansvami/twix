@@ -1,14 +1,57 @@
+<%- include('partials/header', { pageTitle: 'Новый пост - twix by salonamasle' }) %>
+
+<div class="form-page">
+  <h1>Новый пост</h1>
+  <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
+  
+  <form action="/new" method="POST" enctype="multipart/form-data">
+    
+    <label>
+      Заголовок
+      <input type="text" name="title" maxlength="200" placeholder="Необязательно">
+    </label>
+
+    <label>
+      Категория
+      <select name="category" required>
+        <option value="image">Изображение</option>
+        <option value="video">Видео</option>
+        <option value="audio">Аудио</option>
+        <option value="album">Альбом (несколько файлов)</option>
+      </select>
+    </label>
+
+    <div class="form-group">
+      <span class="field-label">Файлы</span>
+      <div class="file-input-box" id="drop-zone" onclick="document.getElementById('files-input').click()">
+        <input type="file" name="files" id="files-input" multiple required hidden>
+        
+        <div id="drop-prompt" class="drop-prompt">
+          <span class="drop-icon">📁</span>
+          <span class="drop-text">Выберите или перенесите сюда файлы</span>
+        </div>
+
+        <div id="file-preview-container" class="file-preview-container" style="display: none;"></div>
+      </div>
+    </div>
+
+    <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
+
+    <label class="checkbox">
+      <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
+    </label>
+
+    <button type="submit" class="btn-primary">Опубликовать</button>
+  </form>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const fileInput = document.getElementById('files-input');
         const dropPrompt = document.getElementById('drop-prompt');
         const previewContainer = document.getElementById('file-preview-container');
 
-        // Если какого-то из ключевых элементов нет в разметке — не выполняем код дальше
-        if (!fileInput || !dropPrompt || !previewContainer) {
-            console.error("Один из элементов интерфейса не найден. Проверьте ID в HTML.");
-            return;
-        }
+        if (!fileInput || !dropPrompt || !previewContainer) return;
 
         function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
@@ -28,10 +71,9 @@
                 Array.from(fileList).forEach((file, index) => {
                     const card = document.createElement('div');
                     card.className = 'file-preview-card';
-                    
                     card.innerHTML = `
                         <div class="file-info-left">
-                            <div class="file-thumb-icon">📄</div>
+                            <div class="file-thumb-icon">🖼️</div>
                             <div class="file-details">
                                 <span class="file-name">${file.name}</span>
                                 <span class="file-size">${formatBytes(file.size)}</span>
@@ -83,3 +125,5 @@
         });
     });
 </script>
+
+<%- include('partials/footer') %>
