@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Лайк на отдельной (не модальной) странице поста
   attachLikeHandler();
 
   function openPostModal(shortId, pushState) {
@@ -81,7 +80,6 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    // Клик по пустому месту (по самому оверлею, не по контенту) закрывает попап
     if (e.target === overlay) {
       closePostModal(true);
     }
@@ -115,4 +113,64 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       });
   }
+
+  // ===== Вставка изображений из буфера обмена (Ctrl+V) на формах загрузки/редактирования =====
+  function renderPastePreview(input, previewEl) {
+    if (!previewEl) return;
+    previewEl.innerHTML = '';
+    Array.prototype.forEach.call(input.files, function (file) {
+      if (file.type.indexOf('image') !== 0) return;
+      var img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.className = 'paste-thumb';
+      previewEl.appendChild(img);
+    });
+  }
+
+  function setupPasteUpload(inputId, previewId) {
+    var input = document.getElementById(inputId);
+    var previewEl = document.getElementById(previewId);
+    if (!input) return;
+
+    input.addEventListener('change', function () {
+      renderPastePreview(input, previewEl);
+    });
+
+    document.addEventListener('paste', function (e) {
+      var clipboard = e.clipboardData || window.clipboardData;
+      if (!clipboard || !clipboard.items) return;
+
+      var imageFiles = [];
+      for (var i = 0; i < clipboard.items.length; i++) {
+        var item = clipboard.items[i];
+        if (item.type && item.type.indexOf('image') === 0) {
+          var file = item.getAsFile();
+          if (file) imageFiles.push(file);
+        }
+      }
+      if (imageFiles.length === 0) return;
+
+      e.preventDefault();
+
+      var dataTransfer = new DataTransfer();
+      Array.prototype.forEach.call(input.files, function (f) {
+        dataTransfer.items.add(f);
+      });
+      imageFiles.forEach(function (file, idx) {
+        var ext = (file.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+        var named = new File(
+          [file],
+          'pasted-' + Date.now() + '-' + idx + '.' + ext,
+          { type: file.type }
+        );
+        dataTransfer.items.add(named);
+      });
+
+      input.files = dataTransfer.files;
+      renderPastePreview(input, previewEl);
+    });
+  }
+
+  setupPasteUpload('files-input', 'paste-preview');
+  setupPasteUpload('newfiles-input', 'edit-paste-preview');
 });
