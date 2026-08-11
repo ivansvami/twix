@@ -38,8 +38,10 @@
 
     <label>
       Добавить файлы (необязательно)
-      <input type="file" name="newFiles" multiple>
+      <input type="file" name="newFiles" id="newfiles-input" multiple>
     </label>
+    <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
+    <div id="edit-paste-preview" class="paste-preview"></div>
 
     <label class="checkbox">
       <input type="checkbox" name="isNsfw" <%= post.isNsfw ? 'checked' : '' %>> Отметить как «не для стрима» (18+)
