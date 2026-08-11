@@ -42,19 +42,48 @@
   <% } %>
   <% posts.forEach(function(post) { %>
     <a class="card js-post-link" href="/post/<%= post.shortId %>" data-shortid="<%= post.shortId %>">
+      
       <div class="card-media">
-        <% if (post.files && post.files[0]) {
-             const f = post.files[0]; %>
-          <% if (f.resourceType === 'video') { %>
-            <video src="<%= f.url %>" muted preload="metadata"></video>
-          <% } else if (f.resourceType === 'audio') { %>
-            <div class="audio-thumb">🎵</div>
-          <% } else { %>
-            <img src="<%= f.url %>" alt="">
-          <% } %>
+        <% 
+          // 1. Достаём ссылку откуда бы она ни пришла (files, imageUrl, videoUrl, url)
+          const rawUrl = (post.files && post.files[0]) ? post.files[0].url : (post.imageUrl || post.videoUrl || post.url || '');
+
+          // 2. Проверяем, ссылка ли это на YouTube
+          function getYouTubeEmbed(url) {
+            if (!url) return null;
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+            return match ? 'https://www.youtube.com/embed/' + match[1] : null;
+          }
+
+          const ytEmbedUrl = getYouTubeEmbed(rawUrl);
+          const isDirectVideo = (post.files && post.files[0] && post.files[0].resourceType === 'video') || 
+                                (rawUrl && rawUrl.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i));
+          const isAudio = (post.files && post.files[0] && post.files[0].resourceType === 'audio') || 
+                          (rawUrl && rawUrl.match(/\.(mp3|wav|ogg)(\?.*)?$/i));
+        %>
+
+        <% if (ytEmbedUrl) { %>
+          <!-- Если YouTube — выводим встроенный плеер -->
+          <iframe 
+            src="<%= ytEmbedUrl %>" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen
+            style="width: 100%; height: 100%; aspect-ratio: 16/9; border: none; pointer-events: none;"
+          ></iframe>
+        <% } else if (isDirectVideo) { %>
+          <!-- Если прямой видеофайл (.mp4) -->
+          <video src="<%= rawUrl %>" muted preload="metadata"></video>
+        <% } else if (isAudio) { %>
+          <div class="audio-thumb">🎵</div>
+        <% } else if (rawUrl) { %>
+          <!-- Если картинка -->
+          <img src="<%= rawUrl %>" alt="">
         <% } %>
+
         <% if (post.isNsfw) { %><span class="tag-nsfw">18+</span><% } %>
       </div>
+
       <div class="card-body">
         <p class="card-title"><%= post.title || 'Без названия' %></p>
         <p class="card-meta">
@@ -62,7 +91,7 @@
           <span>❤ <%= post.likesCount !== undefined ? post.likesCount : (post.likes ? post.likes.length : 0) %></span>
           <span>💬 <%= post.commentsCount %></span>
         </p>
-        <p class="card-author">@<%= post.author.username %></p>
+        <p class="card-author">@<%= post.author ? post.author.username : 'аноним' %></p>
       </div>
     </a>
   <% }) %>
