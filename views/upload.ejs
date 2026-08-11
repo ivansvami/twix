@@ -44,9 +44,8 @@
                         if (i !== index) dt.items.add(fileList[i]);
                     }
                     
-                    // Обновляем инпут
+                    // Обновляем инпут и перерисовываем
                     fileInput.files = dt.files;
-                    // Вызываем рендер заново
                     renderFiles(fileInput.files);
                 });
 
@@ -55,6 +54,7 @@
         } else {
             dropPrompt.style.display = 'flex';
             previewContainer.style.display = 'none';
+            fileInput.value = ''; // ИСПРАВЛЕНИЕ: принудительно очищаем значение инпута, если файлов не осталось
         }
     }
 
