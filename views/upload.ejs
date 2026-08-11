@@ -1,33 +1,66 @@
 <%- include('partials/header', { pageTitle: 'Новый пост - twix by salonamasle' }) %>
 
+
+
 <div class="form-page">
+
   <h1>Новый пост</h1>
+
   <% if (error) { %><p class="error"><%= error %></p><% } %>
+
   <form action="/new" method="POST" enctype="multipart/form-data">
+
     <label>
+
       Заголовок
+
       <input type="text" name="title" maxlength="200" placeholder="Необязательно">
+
     </label>
+
     <label>
+
       Категория
+
       <select name="category" required>
+
         <option value="image">Изображение</option>
+
         <option value="video">Видео</option>
+
         <option value="audio">Аудио</option>
+
         <option value="album">Альбом (несколько файлов)</option>
+
       </select>
+
     </label>
+
     <label>
+
       Файлы
+
       <input type="file" name="files" id="files-input" multiple required>
+
     </label>
+
     <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
+
     <div id="paste-preview" class="paste-preview"></div>
+
     <label class="checkbox">
+
       <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
+
     </label>
+
     <button type="submit" class="btn-primary">Опубликовать</button>
+
   </form>
+
 </div>
 
-<%- include('partials/footer') %>
+
+
+<%- include('partials/footer') %> 
+
