@@ -1,50 +1,3 @@
-<%- include('partials/header', { pageTitle: 'Новый пост - twix by salonamasle' }) %>
-
-<div class="form-page">
-  <h1>Новый пост</h1>
-  <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
-  
-  <form action="/new" method="POST" enctype="multipart/form-data">
-    
-    <label>
-      Заголовок
-      <input type="text" name="title" maxlength="200" placeholder="Необязательно">
-    </label>
-
-    <label>
-      Категория
-      <select name="category" required>
-        <option value="image">Изображение</option>
-        <option value="video">Видео</option>
-        <option value="audio">Аудио</option>
-        <option value="album">Альбом (несколько файлов)</option>
-      </select>
-    </label>
-
-    <div class="form-group">
-      <span class="field-label">Файлы</span>
-      <div class="file-input-box" id="drop-zone" onclick="document.getElementById('files-input').click()">
-        <input type="file" name="files" id="files-input" multiple required hidden>
-        
-        <div id="drop-prompt" class="drop-prompt">
-          <span class="drop-icon">📁</span>
-          <span class="drop-text">Выберите или перенесите сюда файлы</span>
-        </div>
-
-        <div id="file-preview-container" class="file-preview-container" style="display: none;"></div>
-      </div>
-    </div>
-
-    <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
-
-    <label class="checkbox">
-      <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
-    </label>
-
-    <button type="submit" class="btn-primary">Опубликовать</button>
-  </form>
-</div>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const fileInput = document.getElementById('files-input');
@@ -125,5 +78,3 @@
         });
     });
 </script>
-
-<%- include('partials/footer') %>
