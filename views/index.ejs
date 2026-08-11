@@ -3,34 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Twix</title>
+  <title>twix by salonamasle</title>
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/modal-styles.css">
 </head>
 <body>
 
-  <!-- Хедер / Шапка -->
+  <!-- Шапка сайта -->
   <header class="main-header">
     <div class="container">
-      <a href="/" class="logo">Twix</a>
-      <% if (typeof user !== 'undefined' && user) { %>
-        <div class="user-menu">
-          <span>Привет, <%= user.username %></span>
-          <a href="/logout" class="btn btn-secondary">Выйти</a>
-        </div>
-      <% } else { %>
-        <div class="auth-links">
-          <a href="/login" class="btn">Войти</a>
-          <a href="/register" class="btn btn-primary">Регистрация</a>
-        </div>
-      <% } %>
+      <a href="/" class="logo">twix by salonamasle</a>
+      <nav class="nav-links">
+        <a href="/">Лента</a>
+        <a href="/video">Видео</a>
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/posts/new">Новый пост</a>
+          <a href="/notifications">Уведомления</a>
+          <span class="user-name"><%= user.username %></span>
+          <form action="/logout" method="POST" style="display:inline;">
+            <button type="submit" class="btn-logout">Выйти</button>
+          </form>
+        <% } else { %>
+          <a href="/login">Войти</a>
+          <a href="/register">Регистрация</a>
+        <% } %>
+      </nav>
     </div>
   </header>
 
-  <!-- Основной контент страницы -->
+  <!-- Основное содержимое -->
   <main class="container content">
-    
-    <!-- Форма создания нового поста (если пользователь авторизован) -->
+
+    <!-- Форма создания нового поста -->
     <% if (typeof user !== 'undefined' && user) { %>
       <section class="create-post-section">
         <h2>Создать новый пост</h2>
@@ -43,29 +47,32 @@
       </section>
     <% } %>
 
-    <!-- Лента / Сетка постов -->
+    <!-- Лента постов -->
     <section class="posts-feed">
       <h2>Лента постов</h2>
-      
-      <% if (posts && posts.length > 0) { %>
+
+      <% if (typeof posts !== 'undefined' && posts && posts.length > 0) { %>
         <div class="posts-grid">
           <% posts.forEach(post => { %>
+            <% const postId = post.shortId || post._id || ''; %>
             <article 
               class="post-card" 
-              onclick="openPostModal(event, '<%= post.shortId || post._id %>')"
-              data-id="<%= post.shortId || post._id %>"
+              onclick="openPostModal(event, '<%= postId %>')"
+              data-id="<%= postId %>"
             >
               <% if (post.imageUrl) { %>
                 <div class="post-card-media">
-                  <img src="<%= post.imageUrl %>" alt="<%= post.title %>" loading="lazy">
+                  <img src="<%= post.imageUrl %>" alt="<%= post.title || '' %>" loading="lazy">
                 </div>
               <% } %>
               <div class="post-card-body">
-                <h3 class="post-card-title"><%= post.title %></h3>
-                <p class="post-card-desc"><%= post.description %></p>
+                <h3 class="post-card-title"><%= post.title || 'Без названия' %></h3>
+                <p class="post-card-desc"><%= post.description || '' %></p>
                 <div class="post-card-footer">
                   <span class="views-count">👁 <%= post.views || 0 %></span>
-                  <span class="post-date"><%= new Date(post.createdAt).toLocaleDateString('ru-RU') %></span>
+                  <span class="post-date">
+                    <%= post.createdAt ? new Date(post.createdAt).toLocaleDateString('ru-RU') : '' %>
+                  </span>
                 </div>
               </div>
             </article>
@@ -77,6 +84,14 @@
     </section>
 
   </main>
+
+  <!-- Подвал сайта -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>twix by salonamasle — учебный проект. Все файлы загружаются пользователями.</p>
+      <a href="https://t.me/salonamasle" target="_blank" rel="noopener noreferrer">сделано by salonamasle</a>
+    </div>
+  </footer>
 
   <!-- Модальное окно просмотра/редактирования поста -->
   <div id="postModal" class="post-modal-overlay" onclick="closePostModal(event)">
