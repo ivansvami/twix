@@ -60,11 +60,20 @@
               onclick="openPostModal(event, '<%= postId %>')"
               data-id="<%= postId %>"
             >
-              <% if (post.imageUrl) { %>
-                <div class="post-card-media">
+              <div class="post-card-media">
+                <% if (post.files && post.files.length > 0) {
+                     const f = post.files[0]; %>
+                  <% if (f.resourceType === 'video') { %>
+                    <video src="<%= f.url %>" muted autoplay loop playsinline preload="metadata"></video>
+                  <% } else if (f.resourceType === 'audio') { %>
+                    <div class="audio-thumb">🎵</div>
+                  <% } else { %>
+                    <img src="<%= f.url %>" alt="<%= post.title || '' %>" loading="lazy">
+                  <% } %>
+                <% } else if (post.imageUrl) { %>
                   <img src="<%= post.imageUrl %>" alt="<%= post.title || '' %>" loading="lazy">
-                </div>
-              <% } %>
+                <% } %>
+              </div>
               <div class="post-card-body">
                 <h3 class="post-card-title"><%= post.title || 'Без названия' %></h3>
                 <p class="post-card-desc"><%= post.description || '' %></p>
