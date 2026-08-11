@@ -1,82 +1,125 @@
-<script>
-    const fileInput = document.getElementById('files-input');
-    const dropPrompt = document.getElementById('drop-prompt');
-    const previewContainer = document.getElementById('file-preview-container');
+<%- include('partials/header', { pageTitle: 'Новый пост - twix by salonamasle' }) %>
 
-    function formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
-    }
+<div class="form-page">
+  <h1>Новый пост</h1>
+  <% if (error) { %><p class="error"><%= error %></p><% } %>
+  
+  <form action="/new" method="POST" enctype="multipart/form-data">
+    
+    <label>
+      Заголовок
+      <input type="text" name="title" maxlength="200" placeholder="Необязательно">
+    </label>
 
-    // Основная функция рендера списка файлов
-    function renderFiles(fileList) {
-        previewContainer.innerHTML = '';
+    <label>
+      Категория
+      <select name="category" required>
+        <option value="image">Изображение</option>
+        <option value="video">Видео</option>
+        <option value="audio">Аудио</option>
+        <option value="album">Альбом (несколько файлов)</option>
+      </select>
+    </label>
+
+    <div class="form-group">
+      <span class="field-label">Файлы</span>
+      <div class="file-input-box" id="drop-zone" onclick="document.getElementById('files-input').click()">
+        <input type="file" name="files" id="files-input" multiple required hidden>
         
-        if (fileList && fileList.length > 0) {
-            dropPrompt.style.display = 'none';
-            previewContainer.style.display = 'flex';
+        <div id="drop-prompt" class="drop-prompt">
+          <span class="drop-icon">📁</span>
+          <span class="drop-text">Выберите или перенесите сюда файлы</span>
+        </div>
 
-            Array.from(fileList).forEach((file, index) => {
-                const card = document.createElement('div');
-                card.className = 'file-preview-card';
-                
-                card.innerHTML = `
-                    <div class="file-info-left">
-                        <div class="file-thumb-icon">📄</div>
-                        <div class="file-details">
-                            <span class="file-name">${file.name}</span>
-                            <span class="file-size">${formatBytes(file.size)}</span>
-                        </div>
-                    </div>
-                    <button type="button" class="file-remove-btn">🗑️</button>
-                `;
+        <div id="file-preview-container" class="file-preview-container" style="display: none;"></div>
+      </div>
+    </div>
 
-                card.querySelector('.file-remove-btn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+    <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
 
-                    // Создаем новый список, исключая удаляемый файл
-                    const dt = new DataTransfer();
-                    for (let i = 0; i < fileList.length; i++) {
-                        if (i !== index) dt.items.add(fileList[i]);
-                    }
-                    
-                    // Обновляем инпут и перерисовываем
-                    fileInput.files = dt.files;
-                    renderFiles(fileInput.files);
-                });
+    <label class="checkbox">
+      <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
+    </label>
 
-                previewContainer.appendChild(card);
-            });
-        } else {
-            dropPrompt.style.display = 'flex';
-            previewContainer.style.display = 'none';
-            fileInput.value = ''; // ИСПРАВЛЕНИЕ: принудительно очищаем значение инпута, если файлов не осталось
-        }
+    <button type="submit" class="btn-primary">Опубликовать</button>
+  </form>
+</div>
+
+<script>
+  const fileInput = document.getElementById('files-input');
+  const dropPrompt = document.getElementById('drop-prompt');
+  const previewContainer = document.getElementById('file-preview-container');
+
+  function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  function renderFiles(fileList) {
+    previewContainer.innerHTML = '';
+    
+    if (fileList && fileList.length > 0) {
+      dropPrompt.style.display = 'none';
+      previewContainer.style.display = 'flex';
+
+      Array.from(fileList).forEach((file, index) => {
+        const card = document.createElement('div');
+        card.className = 'file-preview-card';
+        
+        card.innerHTML = `
+          <div class="file-info-left">
+            <div class="file-thumb-icon">📄</div>
+            <div class="file-details">
+              <span class="file-name">${file.name}</span>
+              <span class="file-size">${formatBytes(file.size)}</span>
+            </div>
+          </div>
+          <button type="button" class="file-remove-btn">🗑️</button>
+        `;
+
+        card.querySelector('.file-remove-btn').addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const dt = new DataTransfer();
+          for (let i = 0; i < fileList.length; i++) {
+            if (i !== index) dt.items.add(fileList[i]);
+          }
+          
+          fileInput.files = dt.files;
+          renderFiles(fileInput.files);
+        });
+
+        previewContainer.appendChild(card);
+      });
+    } else {
+      dropPrompt.style.display = 'flex';
+      previewContainer.style.display = 'none';
+      fileInput.value = '';
+    }
+  }
+
+  fileInput.addEventListener('change', () => {
+    renderFiles(fileInput.files);
+  });
+
+  document.addEventListener('paste', (e) => {
+    const dt = new DataTransfer();
+    const items = e.clipboardData.items;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        dt.items.add(items[i].getAsFile());
+      }
     }
 
-    // Слушатель выбора через кнопку
-    fileInput.addEventListener('change', () => {
-        renderFiles(fileInput.files);
-    });
-
-    // Обработка Ctrl+V
-    document.addEventListener('paste', (e) => {
-        const dt = new DataTransfer();
-        const items = e.clipboardData.items;
-
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.startsWith('image/')) {
-                dt.items.add(items[i].getAsFile());
-            }
-        }
-
-        if (dt.files.length > 0) {
-            fileInput.files = dt.files;
-            renderFiles(fileInput.files);
-        }
-    });
+    if (dt.files.length > 0) {
+      fileInput.files = dt.files;
+      renderFiles(fileInput.files);
+    }
+  });
 </script>
+
+<%- include('partials/footer') %>
