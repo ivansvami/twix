@@ -1,132 +1,120 @@
-<%- include('partials/header', { pageTitle: 'Новый пост - twix by salonamasle' }) %>
+/* ===== Стили для кастомной зоны загрузки файлов и превью ===== */
 
-<div class="form-page">
-  <h1>Новый пост</h1>
-  <% if (error) { %><p class="error"><%= error %></p><% } %>
-  <form action="/new" method="POST" enctype="multipart/form-data">
-    
-    <label>
-      Заголовок
-      <input type="text" name="title" maxlength="200" placeholder="Необязательно">
-    </label>
+.file-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 14px;
+  width: 100%;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
 
-    <label>
-      Категория
-      <select name="category" required>
-        <option value="image">Изображение</option>
-        <option value="video">Видео</option>
-        <option value="audio">Аудио</option>
-        <option value="album">Альбом (несколько файлов)</option>
-      </select>
-    </label>
+.file-input-box:hover {
+  border-color: var(--accent);
+}
 
-    <!-- Стилизованное поле загрузки файлов -->
-    <div class="form-group">
-      <span class="field-label">Файлы</span>
-      <label class="file-input-box" id="drop-zone">
-        <input type="file" name="files" id="files-input" multiple required hidden>
-        
-        <!-- Текст по умолчанию -->
-        <div id="drop-prompt" class="drop-prompt">
-          <span class="drop-icon">📁</span>
-          <span class="drop-text">Выберите или перенесите сюда файлы</span>
-        </div>
+.drop-prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
 
-        <!-- Контейнер для карточки выбранного файла -->
-        <div id="file-preview-container" class="file-preview-container" style="display: none;"></div>
-      </label>
-    </div>
+.drop-icon {
+  font-size: 16px;
+  line-height: 1;
+}
 
-    <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
+.drop-text {
+  font-size: 14px;
+  color: var(--text-dim);
+}
 
-    <label class="checkbox">
-      <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
-    </label>
+.file-preview-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-    <button type="submit" class="btn-primary">Опубликовать</button>
-  </form>
-</div>
+.file-preview-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  width: 100%;
+}
 
-<!-- Интерактивные скрипты: превью, удаление с иконкой корзины и поддержка Ctrl+V -->
-<script>
-    const fileInput = document.getElementById('files-input');
-    const dropPrompt = document.getElementById('drop-prompt');
-    const previewContainer = document.getElementById('file-preview-container');
+.file-info-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
 
-    function formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
+.file-thumb-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #1e261f;
+  border-radius: 4px;
+  border: 1px solid #334436;
+  font-size: 14px;
+}
 
-    fileInput.addEventListener('change', function() {
-        previewContainer.innerHTML = '';
-        
-        if (this.files && this.files.length > 0) {
-            dropPrompt.style.display = 'none';
-            previewContainer.style.display = 'flex';
+.file-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  text-align: left;
+}
 
-            Array.from(this.files).forEach((file, index) => {
-                const card = document.createElement('div');
-                card.className = 'file-preview-card';
-                
-                card.innerHTML = `
-                    <div class="file-info-left">
-                        <div class="file-thumb-icon">🖼️</div>
-                        <div class="file-details">
-                            <span class="file-name">${file.name}</span>
-                            <span class="file-size">${formatBytes(file.size)}</span>
-                        </div>
-                    </div>
-                    <button type="button" class="file-remove-btn" title="Удалить файл">🗑️</button>
-                `;
+.file-name {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-                // Удаление файла по клику на корзину
-                card.querySelector('.file-remove-btn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+.file-size {
+  font-size: 11px;
+  color: var(--text-dim);
+}
 
-                    const dt = new DataTransfer();
-                    const { files } = fileInput;
+.file-remove-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
 
-                    for (let i = 0; i < files.length; i++) {
-                        if (i !== index) dt.items.add(files[i]);
-                    }
+.file-remove-btn:hover {
+  background: #d3333322;
+  border-color: #d33;
+  color: #ff6b6b;
+}
 
-                    fileInput.files = dt.files;
-                    fileInput.dispatchEvent(new Event('change'));
-                });
-
-                previewContainer.appendChild(card);
-            });
-        } else {
-            dropPrompt.style.display = 'flex';
-            previewContainer.style.display = 'none';
-        }
-    });
-
-    // Обработка вставки через Ctrl+V / Cmd+V
-    document.addEventListener('paste', function(e) {
-        const items = e.clipboardData.items;
-        const dt = new DataTransfer();
-
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                const file = items[i].getAsFile();
-                if (file) {
-                    dt.items.add(file);
-                }
-            }
-        }
-
-        if (dt.files.length > 0) {
-            fileInput.files = dt.files;
-            fileInput.dispatchEvent(new Event('change'));
-        }
-    });
-</script>
-
-<%- include('partials/footer') %>
+.field-label {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  display: block;
+}
