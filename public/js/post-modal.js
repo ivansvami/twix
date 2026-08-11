@@ -1,5 +1,4 @@
 // КЛИЕНТСКИЙ СКРИПТ ДЛЯ ОТКРЫТИЯ МОДАЛКИ И КОРОТКИХ ССЫЛОК (7 символов)
-// Сохраните в ваш JS файл (например: public/js/post-modal.js)
 
 // Генерация 7-символьного ID (если требуется на клиенте)
 function generateShortId() {
@@ -8,6 +7,15 @@ function generateShortId() {
 
 // Открытие модалки поста
 async function openPostModal(event, postId, shortId, mediaUrl, title, author) {
+  // 1. Проверяем, является ли ссылка роликом с YouTube
+  const isYouTube = mediaUrl && (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be'));
+  
+  if (isYouTube) {
+    if (event) event.preventDefault();
+    window.open(mediaUrl, '_blank'); // Открываем YouTube в новой вкладке
+    return;                           // Не открываем модальное окно
+  }
+
   if (event) event.preventDefault();
 
   // Берем 7-значный ID или генерируем короткий
