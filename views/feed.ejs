@@ -41,29 +41,36 @@
     <p class="empty">Нет файлов для отображения</p>
   <% } %>
   <% posts.forEach(function(post) { %>
-    <a class="card js-post-link" href="/post/<%= post.shortId %>" data-shortid="<%= post.shortId %>">
-      
+    <% 
+      // 1. Достаём ссылку
+      const rawUrl = (post.files && post.files[0]) ? post.files[0].url : (post.imageUrl || post.videoUrl || post.url || '');
+
+      // 2. Проверяем YouTube
+      function getYouTubeEmbed(url) {
+        if (!url) return null;
+        const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+        return match ? 'https://www.youtube.com/embed/' + match[1] : null;
+      }
+
+      const ytEmbedUrl = getYouTubeEmbed(rawUrl);
+      const isDirectVideo = (post.files && post.files[0] && post.files[0].resourceType === 'video') || 
+                            (rawUrl && rawUrl.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i));
+      const isAudio = (post.files && post.files[0] && post.files[0].resourceType === 'audio') || 
+                      (rawUrl && rawUrl.match(/\.(mp3|wav|ogg)(\?.*)?$/i));
+
+      // Если это YouTube — ведём прямиком на YouTube в новой вкладке
+      const cardHref = ytEmbedUrl ? rawUrl : ('/post/' + post.shortId);
+      const cardClass = ytEmbedUrl ? 'card' : 'card js-post-link';
+    %>
+
+    <a 
+      class="<%= cardClass %>" 
+      href="<%= cardHref %>" 
+      <% if (ytEmbedUrl) { %> target="_blank" rel="noopener noreferrer" <% } else { %> data-shortid="<%= post.shortId %>" <% } %>
+    >
       <div class="card-media">
-        <% 
-          // 1. Достаём ссылку откуда бы она ни пришла (files, imageUrl, videoUrl, url)
-          const rawUrl = (post.files && post.files[0]) ? post.files[0].url : (post.imageUrl || post.videoUrl || post.url || '');
-
-          // 2. Проверяем, ссылка ли это на YouTube
-          function getYouTubeEmbed(url) {
-            if (!url) return null;
-            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-            return match ? 'https://www.youtube.com/embed/' + match[1] : null;
-          }
-
-          const ytEmbedUrl = getYouTubeEmbed(rawUrl);
-          const isDirectVideo = (post.files && post.files[0] && post.files[0].resourceType === 'video') || 
-                                (rawUrl && rawUrl.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i));
-          const isAudio = (post.files && post.files[0] && post.files[0].resourceType === 'audio') || 
-                          (rawUrl && rawUrl.match(/\.(mp3|wav|ogg)(\?.*)?$/i));
-        %>
-
         <% if (ytEmbedUrl) { %>
-          <!-- Если YouTube — выводим встроенный плеер -->
+          <!-- Если YouTube — выводим превью/плеер -->
           <iframe 
             src="<%= ytEmbedUrl %>" 
             frameborder="0" 
