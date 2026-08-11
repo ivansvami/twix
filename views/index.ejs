@@ -54,14 +54,48 @@
       <% if (typeof posts !== 'undefined' && posts && posts.length > 0) { %>
         <div class="posts-grid">
           <% posts.forEach(post => { %>
-            <% const postId = post.shortId || post._id || ''; %>
+            <% 
+              const postId = post.shortId || post._id || ''; 
+              // 1. Извлекаем исходную ссылку
+              const rawUrl = (post.files && post.files[0]) ? post.files[0].url : (post.imageUrl || post.videoUrl || post.url || '');
+
+              // 2. Проверяем YouTube
+              function getYouTubeWatchUrl(url) {
+                if (!url) return null;
+                const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+                return match ? 'https://www.youtube.com/watch?v=' + match[1] : null;
+              }
+
+              function getYouTubeEmbedUrl(url) {
+                if (!url) return null;
+                const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+                return match ? 'https://www.youtube.com/embed/' + match[1] : null;
+              }
+
+              const ytWatchUrl = getYouTubeWatchUrl(rawUrl);
+              const ytEmbedUrl = getYouTubeEmbedUrl(rawUrl);
+            %>
+
             <article 
               class="post-card" 
-              onclick="openPostModal(event, '<%= postId %>')"
+              <% if (ytWatchUrl) { %>
+                onclick="window.open('<%= ytWatchUrl %>', '_blank')"
+              <% } else { %>
+                onclick="openPostModal(event, '<%= postId %>', '<%= postId %>', '<%= rawUrl %>')"
+              <% } %>
               data-id="<%= postId %>"
+              style="cursor: pointer;"
             >
               <div class="post-card-media">
-                <% if (post.files && post.files.length > 0) {
+                <% if (ytEmbedUrl) { %>
+                  <!-- Видео YouTube -->
+                  <iframe 
+                    src="<%= ytEmbedUrl %>" 
+                    frameborder="0" 
+                    allowfullscreen
+                    style="width: 100%; height: 100%; aspect-ratio: 16/9; border: none; pointer-events: none;"
+                  ></iframe>
+                <% } else if (post.files && post.files.length > 0) {
                      const f = post.files[0]; %>
                   <% if (f.resourceType === 'video') { %>
                     <video src="<%= f.url %>" muted autoplay loop playsinline preload="metadata"></video>
@@ -74,6 +108,7 @@
                   <img src="<%= post.imageUrl %>" alt="<%= post.title || '' %>" loading="lazy">
                 <% } %>
               </div>
+
               <div class="post-card-body">
                 <h3 class="post-card-title"><%= post.title || 'Без названия' %></h3>
                 <p class="post-card-desc"><%= post.description || '' %></p>
