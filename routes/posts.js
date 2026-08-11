@@ -1,15 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const path = require('path');
 const imagekit = require('../config/imagekit');
 const { requireAuth } = require('../middleware/auth');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
 
+// Валидация разрешенных типов файлов
+const fileFilter = (req, file, cb) => {
+  // Разрешенные MIME-типы (включая image/webp и image/gif)
+  const allowedMimeTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'video/mp4',
+    'video/webm',
+    'audio/mpeg',
+    'audio/wav'
+  ];
+
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Неподдерживаемый формат файла. Разрешены JPEG, PNG, GIF, WEBP, MP4, WEBM, MP3, WAV.'), false);
+  }
+};
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 200 * 1024 * 1024 }
+  limits: { fileSize: 200 * 1024 * 1024 }, // 200 MB
+  fileFilter: fileFilter
 });
 
 function resourceTypeFromMime(mimetype) {
@@ -114,23 +138,43 @@ router.post('/new', requireAuth, upload.array('files', 10), async (req, res) => 
     res.redirect('/post/' + post._id);
   } catch (err) {
     console.error(err);
-    res.render('upload', { error: 'Ошибка загрузки. Проверьте формат/размер файлов.' });
+    res.render('upload', { error: err.message || 'Ошибка загрузки. Проверьте формат/размер файлов.' });
   }
 });
 
+// Просмотр отдельного поста с уникальным подчетом по IP
 router.get('/post/:id', async (req, res) => {
-  const post = await Post.findByIdAndUpdate(
-    req.params.id,
-    { $inc: { views: 1 } },
-    { new: true }
-  ).populate('author').lean();
-  if (!post) return res.status(404).render('404');
-  const comments = await Comment.find({ post: post._id, parent: null })
-    .populate('author').sort({ createdAt: -1 }).lean();
-  for (const c of comments) {
-    c.replies = await Comment.find({ parent: c._id }).populate('author').sort({ createdAt: 1 }).lean();
+  try {
+    const userIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip;
+
+    // Ищем пост и увеличиваем просмотр только если этого IP еще нет в массиве viewedBy
+    let post = await Post.findOneAndUpdate(
+      { _id: req.params.id, viewedBy: { $ne: userIp } },
+      { 
+        $addToSet: { viewedBy: userIp },
+        $inc: { views: 1 } 
+      },
+      { new: true }
+    ).populate('author').lean();
+
+    // Если IP уже был учтён раньше, просто получаем данные поста без увеличения просмотров
+    if (!post) {
+      post = await Post.findById(req.params.id).populate('author').lean();
+    }
+
+    if (!post) return res.status(404).render('404');
+
+    const comments = await Comment.find({ post: post._id, parent: null })
+      .populate('author').sort({ createdAt: -1 }).lean();
+    for (const c of comments) {
+      c.replies = await Comment.find({ parent: c._id }).populate('author').sort({ createdAt: 1 }).lean();
+    }
+
+    res.render('post', { post, comments });
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('404');
   }
-  res.render('post', { post, comments });
 });
 
 router.post('/post/:id/like', requireAuth, async (req, res) => {
