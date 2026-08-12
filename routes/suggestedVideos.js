@@ -21,8 +21,8 @@ function extractYoutubeId(url) {
 
 router.post('/api/suggest-video', requireAuth, async (req, res) => {
   try {
-    const { url, comment } = req.body;
-    const youtubeId = extractYoutubeId(url);
+    const { url, category, comment } = req.body;
+    const youtubeId = extractYoutubeId((url || '').trim());
     if (!youtubeId) {
       return res.status(400).json({ ok: false, error: 'Не удалось распознать ссылку на YouTube-видео' });
     }
@@ -30,10 +30,13 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
     const cleanUrl = url.trim();
     const imageUrl = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
 
+    const allowedCategories = new Set(['Смешные', 'Трукрайм', 'Разоблачения', 'Трейлеры', 'Разное']);
+    const selectedCategory = allowedCategories.has(category) ? category : 'Разное';
+
     await SuggestedVideo.create({
       url: cleanUrl,
       youtubeId,
-      category: 'Разное',
+      category: selectedCategory,
       comment: (comment || '').trim().slice(0, 150),
       submittedBy: req.user._id
     });
@@ -44,7 +47,7 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
       category: 'video',
       files: [{
         url: cleanUrl,
-        publicId: youtubeId, // Передаем youtubeId как publicId, чтобы фронтенд его увидел
+        publicId: youtubeId,
         resourceType: 'video'
       }],
       imageUrl: imageUrl,

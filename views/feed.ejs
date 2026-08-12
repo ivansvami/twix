@@ -40,22 +40,58 @@
   <% if (posts.length === 0) { %>
     <p class="empty">Нет файлов для отображения</p>
   <% } %>
-  <% posts.forEach(function(post) { %>
-    <% 
-      // 1. Достаём ссылку
-      const rawUrl = (post.files && post.files[0]) ? post.files[0].url : (post.imageUrl || post.videoUrl || post.url || '');
 
-      // 2. Проверяем YouTube
-      function getYouTubeEmbed(url) {
-        if (!url) return null;
-        const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-        return match ? 'https://www.youtube.com/embed/' + match[1] : null;
-      }
+  <% posts.forEach(function(post) {
+    const firstFile = post.files && post.files[0];
+    const rawUrl = firstFile ? firstFile.url : '';
+    const ytMatch = rawUrl && rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+    const ytEmbedUrl = ytMatch ? 'https://www.youtube.com/embed/' + ytMatch[1] : null;
+    const isYoutube = Boolean(ytEmbedUrl);
+    const mediaUrl = rawUrl || '';
+  %>
+    <a
+      href="/post/<%= post.shortId %>"
+      class="card js-post-link <%= isYoutube ? 'card-youtube' : '' %>"
+      data-shortid="<%= post.shortId %>"
+      aria-label="Открыть пост <%= post.title || 'Без названия' %>"
+    >
+      <div class="card-media">
+        <% if (isYoutube) { %>
+          <iframe
+            class="yt-preview-iframe"
+            src="<%= ytEmbedUrl %>"
+            data-base-src="<%= ytEmbedUrl %>"
+            title="<%= post.title || 'YouTube видео' %>"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            style="width:100%;height:100%;border:0;pointer-events:none"
+          ></iframe>
+        <% } else if (firstFile) { %>
+          <% if (firstFile.resourceType === 'video') { %>
+            <video src="<%= mediaUrl %>" muted playsinline preload="metadata"></video>
+          <% } else if (firstFile.resourceType === 'audio') { %>
+            <div class="audio-thumb" aria-label="Аудиофайл">🎵</div>
+          <% } else { %>
+            <img src="<%= mediaUrl %>" alt="<%= post.title || 'Изображение' %>" loading="lazy">
+          <% } %>
+        <% } %>
 
-      const ytEmbedUrl = getYouTubeEmbed(rawUrl);
-      const isDirectVideo = (post.files && post.files[0] && post.files[0].resourceType === 'video') || post.videoUrl;
-    %>
-  
+        <% if (post.isNsfw) { %>
+          <span class="tag-nsfw">18+</span>
+        <% } %>
+      </div>
+
+      <div class="card-body">
+        <h3 class="card-title"><%= post.title || 'Без названия' %></h3>
+        <p class="card-meta">
+          <span>👁 <%= post.views || 0 %></span>
+          <span>❤ <%= post.likesCount || 0 %></span>
+          <span>💬 <%= post.commentsCount || 0 %></span>
+        </p>
+        <p class="card-author">@<%= post.author.username %></p>
+      </div>
+    </a>
   <% }) %>
 </div>
 

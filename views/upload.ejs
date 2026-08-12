@@ -75,12 +75,14 @@
                         <div class="file-info-left">
                             <div class="file-thumb-icon">🖼️</div>
                             <div class="file-details">
-                                <span class="file-name">${file.name}</span>
-                                <span class="file-size">${formatBytes(file.size)}</span>
+                                <span class="file-name"></span>
+                                <span class="file-size"></span>
                             </div>
                         </div>
-                        <button type="button" class="file-remove-btn">🗑️</button>
+                        <button type="button" class="file-remove-btn" aria-label="Удалить файл">🗑️</button>
                     `;
+                    card.querySelector('.file-name').textContent = file.name;
+                    card.querySelector('.file-size').textContent = formatBytes(file.size);
 
                     card.querySelector('.file-remove-btn').addEventListener('click', (e) => {
                         e.preventDefault();

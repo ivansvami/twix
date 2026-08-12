@@ -40,6 +40,9 @@ postSchema.pre('save', async function (next) {
     exists = await Post.exists({ shortId: candidate });
     attempts++;
   }
+  if (exists) {
+    return next(new Error('Не удалось сгенерировать уникальный shortId'));
+  }
   this.shortId = candidate;
   next();
 });

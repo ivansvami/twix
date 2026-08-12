@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 // Render (и большинство хостингов) работают через обратный прокси —
 // без этого req.ip будет показывать внутренний IP прокси, а не реальный IP посетителя
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 connectDB();
 
@@ -31,7 +31,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-  cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 }
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 30,
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
+  }
 }));
 
 app.use(loadUser);
@@ -45,6 +50,17 @@ app.use('/', require('./routes/suggestedVideos'));
 
 app.use((req, res) => {
   res.status(404).render('404');
+});
+
+app.use((err, req, res, next) => {
+  console.error('Unhandled request error:', err);
+  if (res.headersSent) return next(err);
+
+  if (req.path.startsWith('/api/')) {
+    return res.status(500).json({ ok: false, error: 'Внутренняя ошибка сервера' });
+  }
+
+  res.status(500).send('Внутренняя ошибка сервера');
 });
 
 app.listen(PORT, () => {

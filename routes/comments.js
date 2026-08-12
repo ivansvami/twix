@@ -1,16 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
+const asyncHandler = require('../middleware/asyncHandler');
 const Comment = require('../models/Comment');
 const Post = require('../models/Post');
 const Notification = require('../models/Notification');
 
-router.post('/post/:shortId/comment', requireAuth, async (req, res) => {
+router.post('/post/:shortId/comment', requireAuth, asyncHandler(async (req, res) => {
   const post = await Post.findOne({ shortId: req.params.shortId });
   if (!post) return res.status(404).send('Пост не найден');
   const text = (req.body.text || '').trim();
   if (!text) return res.redirect('/post/' + post.shortId);
   const parentId = req.body.parent || null;
+
+  if (parentId) {
+    const parent = await Comment.findOne({ _id: parentId, post: post._id });
+    if (!parent) return res.status(400).send('Некорректный комментарий для ответа');
+  }
 
   const comment = await Comment.create({
     post: post._id,
@@ -35,9 +41,9 @@ router.post('/post/:shortId/comment', requireAuth, async (req, res) => {
   }
 
   res.redirect('/post/' + post.shortId);
-});
+}));
 
-router.post('/comment/:id/like', requireAuth, async (req, res) => {
+router.post('/comment/:id/like', requireAuth, asyncHandler(async (req, res) => {
   const comment = await Comment.findById(req.params.id);
   if (!comment) return res.status(404).json({ ok: false });
   const uid = req.user._id.toString();
@@ -47,6 +53,6 @@ router.post('/comment/:id/like', requireAuth, async (req, res) => {
   else { comment.likes.push(req.user._id); liked = true; }
   await comment.save();
   res.json({ ok: true, liked, count: comment.likes.length });
-});
+}));
 
 module.exports = router;

@@ -4,6 +4,7 @@ const multer = require('multer');
 const crypto = require('crypto');
 const imagekit = require('../config/imagekit');
 const { requireAuth } = require('../middleware/auth');
+const asyncHandler = require('../middleware/asyncHandler');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
@@ -19,15 +20,16 @@ function hashIp(ip) {
   return crypto.createHash('sha256').update(salt + '|' + ip).digest('hex');
 }
 
-function resourceTypeFromMime(mimetype) {
-  if (mimetype.startsWith('video')) return 'video';
-  if (mimetype.startsWith('audio')) return 'audio';
-  return 'image';
+function resourceTypeFromMime(mimetype = '') {
+  if (mimetype.startsWith('video/')) return 'video';
+  if (mimetype.startsWith('audio/')) return 'audio';
+  if (mimetype.startsWith('image/')) return 'image';
+  return null;
 }
 
 async function uploadFileToImageKit(file) {
   const result = await imagekit.upload({
-    file: file.buffer.toString('base64'),
+    file: new Blob([file.buffer], { type: file.mimetype }),
     fileName: file.originalname,
     folder: '/myfeed',
     useUniqueFileName: true
@@ -96,8 +98,8 @@ async function renderFeed(req, res, forcedCategory) {
   });
 }
 
-router.get('/', (req, res) => renderFeed(req, res, null));
-router.get('/videos', (req, res) => renderFeed(req, res, 'video'));
+router.get('/', asyncHandler((req, res) => renderFeed(req, res, null)));
+router.get('/videos', asyncHandler((req, res) => renderFeed(req, res, 'video')));
 
 router.get('/new', requireAuth, (req, res) => {
   res.render('upload', { error: null });
@@ -108,7 +110,17 @@ router.post('/new', requireAuth, upload.array('files', 10), async (req, res) => 
     if (!req.files || req.files.length === 0) {
       return res.render('upload', { error: 'Выберите хотя бы один файл' });
     }
+    const allowedCategories = new Set(['image', 'video', 'audio', 'album']);
     const category = req.body.category || 'image';
+    if (!allowedCategories.has(category)) {
+      return res.status(400).render('upload', { error: 'Недопустимая категория' });
+    }
+
+    const types = req.files.map(file => resourceTypeFromMime(file.mimetype));
+    if (types.some(type => !type)) {
+      return res.status(400).render('upload', { error: 'Поддерживаются только изображения, видео и аудио' });
+    }
+
     const isNsfw = req.body.isNsfw === 'on';
     const files = await Promise.all(req.files.map(uploadFileToImageKit));
     const post = await Post.create({
@@ -157,14 +169,14 @@ async function loadPostData(shortId, req) {
 }
 
 // Полная страница поста (для прямых ссылок / шаринга)
-router.get('/post/:shortId', async (req, res) => {
+router.get('/post/:shortId', asyncHandler(async (req, res) => {
   const data = await loadPostData(req.params.shortId, req);
   if (!data) return res.status(404).render('404');
   res.render('post', data);
-});
+}));
 
 // Данные поста для попапа (AJAX)
-router.get('/api/post/:shortId', async (req, res) => {
+router.get('/api/post/:shortId', asyncHandler(async (req, res) => {
   const data = await loadPostData(req.params.shortId, req);
   if (!data) return res.status(404).json({ ok: false });
   res.render('partials/post-content', { ...data, currentUser: res.locals.currentUser }, (err, html) => {
@@ -174,9 +186,9 @@ router.get('/api/post/:shortId', async (req, res) => {
     }
     res.json({ ok: true, html });
   });
-});
+}));
 
-router.post('/post/:shortId/like', requireAuth, async (req, res) => {
+router.post('/post/:shortId/like', requireAuth, asyncHandler(async (req, res) => {
   const post = await Post.findOne({ shortId: req.params.shortId });
   if (!post) return res.status(404).json({ ok: false });
   const uid = req.user._id.toString();
@@ -194,7 +206,7 @@ router.post('/post/:shortId/like', requireAuth, async (req, res) => {
   }
   await post.save();
   res.json({ ok: true, liked, count: post.likes.length });
-});
+}));
 
 router.get('/post/:shortId/edit', requireAuth, async (req, res) => {
   const post = await Post.findOne({ shortId: req.params.shortId }).lean();
@@ -215,8 +227,18 @@ router.post('/post/:shortId/edit', requireAuth, upload.array('newFiles', 10), as
   try {
     post.title = (req.body.title || '').trim();
     post.description = (req.body.description || '').trim();
-    post.category = req.body.category || post.category;
+    const allowedCategories = new Set(['image', 'video', 'audio', 'album']);
+    if (req.body.category && allowedCategories.has(req.body.category)) {
+      post.category = req.body.category;
+    }
     post.isNsfw = req.body.isNsfw === 'on';
+
+    if (req.files && req.files.length) {
+      const types = req.files.map(file => resourceTypeFromMime(file.mimetype));
+      if (types.some(type => !type)) {
+        return res.render('edit', { post, error: 'Поддерживаются только изображения, видео и аудио' });
+      }
+    }
 
     // Удаляем отмеченные файлы (и в ImageKit, и из поста)
     const removeIds = [].concat(req.body.removeFiles || []);
@@ -246,7 +268,7 @@ router.post('/post/:shortId/edit', requireAuth, upload.array('newFiles', 10), as
   }
 });
 
-router.post('/post/:shortId/delete', requireAuth, async (req, res) => {
+router.post('/post/:shortId/delete', requireAuth, asyncHandler(async (req, res) => {
   const post = await Post.findOne({ shortId: req.params.shortId });
   if (!post) return res.status(404).render('404');
   if (post.author.toString() !== req.user._id.toString() && !req.user.isAdmin) {
@@ -261,6 +283,6 @@ router.post('/post/:shortId/delete', requireAuth, async (req, res) => {
   await post.deleteOne();
 
   res.redirect('/');
-});
+}));
 
 module.exports = router;

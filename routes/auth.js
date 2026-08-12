@@ -9,7 +9,9 @@ router.get('/register', (req, res) => {
 
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password, password2 } = req.body;
+    const username = (req.body.username || '').trim();
+    const email = (req.body.email || '').trim().toLowerCase();
+    const { password, password2 } = req.body;
     if (!username || !email || !password) {
       return res.render('register', { error: 'Заполните все поля' });
     }
@@ -19,7 +21,7 @@ router.post('/register', async (req, res) => {
     if (password !== password2) {
       return res.render('register', { error: 'Пароли не совпадают' });
     }
-    const exists = await User.findOne({ $or: [{ email: email.toLowerCase() }, { username }] });
+    const exists = await User.findOne({ $or: [{ email }, { username }] });
     if (exists) {
       return res.render('register', { error: 'Пользователь с таким именем или email уже существует' });
     }
@@ -41,9 +43,10 @@ router.get('/login', (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { emailOrUsername, password, next } = req.body;
+    const emailOrUsername = (req.body.emailOrUsername || '').trim();
+    const { password, next } = req.body;
     const user = await User.findOne({
-      $or: [{ email: (emailOrUsername || '').toLowerCase() }, { username: emailOrUsername }]
+      $or: [{ email: emailOrUsername.toLowerCase() }, { username: emailOrUsername }]
     });
     if (!user || !(await user.checkPassword(password))) {
       return res.render('login', { error: 'Неверный логин или пароль', next: next || '/' });
