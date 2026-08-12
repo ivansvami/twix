@@ -44,6 +44,7 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
       category: 'video',
       files: [{
         url: cleanUrl,
+        publicId: youtubeId,
         resourceType: 'video'
       }],
       imageUrl: imageUrl,
