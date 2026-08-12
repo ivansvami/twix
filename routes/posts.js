@@ -66,7 +66,7 @@ function buildSort(sort) {
 async function renderFeed(req, res, forcedCategory) {
   const category = forcedCategory || req.query.category || 'all';
   const sort = req.query.sort || 'new';
-  const period = req.query.period || 'today';
+  const period = req.query.period || 'all';
   const page = Math.max(parseInt(req.query.page) || 1, 1);
   const perPage = 24;
 
