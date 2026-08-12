@@ -55,9 +55,7 @@
       const ytEmbedUrl = getYouTubeEmbed(rawUrl);
       const isDirectVideo = (post.files && post.files[0] && post.files[0].resourceType === 'video') || post.videoUrl;
     %>
-    
-    <%- include('partials/post-card', { post, currentUser, ytEmbedUrl, isDirectVideo }) %>
-
+  
   <% }) %>
 </div>
 
