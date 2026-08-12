@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const SuggestedVideo = require('../models/SuggestedVideo');
-const Post = require('../models/Post'); // <-- Добавили модель Поста
+const Post = require('../models/Post');
 
 const ALLOWED_CATEGORIES = ['Смешные', 'Трукрайм', 'Разоблачения', 'Трейлеры', 'Разное'];
 
@@ -31,22 +31,8 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
     const finalCategory = ALLOWED_CATEGORIES.includes(category) ? category : 'Разное';
     const cleanUrl = url.trim();
 
-    // Получаем настоящее название ролика через официальный oEmbed YouTube (без API-ключа)
-    let videoTitle = 'Предложенное видео';
-    try {
-      const oembedRes = await fetch(
-        'https://www.youtube.com/oembed?url=' + encodeURIComponent(cleanUrl) + '&format=json'
-      );
-      if (oembedRes.ok) {
-        const oembedData = await oembedRes.json();
-        if (oembedData && oembedData.title) {
-          videoTitle = oembedData.title.slice(0, 100);
-        }
-      }
-    } catch (oembedErr) {
-      console.error('Не удалось получить название видео с YouTube:', oembedErr.message);
-      // не критично — используем запасной заголовок
-    }
+    // Запасной заголовок по умолчанию, чтобы избежать внешних fetch-запросов, блокируемых на Vercel
+    let videoTitle = 'Предложенное видео с YouTube';
 
     // 1. Сохраняем в таблицу предложенных видео (для истории/модерации)
     await SuggestedVideo.create({
