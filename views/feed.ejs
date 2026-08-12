@@ -4,98 +4,188 @@
   <label>
     Категория
     <select name="category" onchange="this.form.submit()">
-      <option value="all" <%= category==='all'?'selected':'' %>>Всё</option>
-      <option value="image" <%= category==='image'?'selected':'' %>>Изображения</option>
-      <option value="video" <%= category==='video'?'selected':'' %>>Видео</option>
-      <option value="audio" <%= category==='audio'?'selected':'' %>>Аудио</option>
-      <option value="album" <%= category==='album'?'selected':'' %>>Альбомы</option>
+      <option value="all" <%= category === 'all' ? 'selected' : '' %>>Всё</option>
+      <option value="image" <%= category === 'image' ? 'selected' : '' %>>Изображения</option>
+      <option value="video" <%= category === 'video' ? 'selected' : '' %>>Видео</option>
+      <option value="audio" <%= category === 'audio' ? 'selected' : '' %>>Аудио</option>
+      <option value="album" <%= category === 'album' ? 'selected' : '' %>>Альбомы</option>
     </select>
   </label>
+
   <label>
     Сортировка
     <select name="sort" onchange="this.form.submit()">
-      <option value="new" <%= sort==='new'?'selected':'' %>>Новые</option>
-      <option value="views" <%= sort==='views'?'selected':'' %>>По просмотрам</option>
-      <option value="likes" <%= sort==='likes'?'selected':'' %>>По лайкам</option>
-      <option value="comments" <%= sort==='comments'?'selected':'' %>>По комментариям</option>
+      <option value="new" <%= sort === 'new' ? 'selected' : '' %>>Новые</option>
+      <option value="views" <%= sort === 'views' ? 'selected' : '' %>>По просмотрам</option>
+      <option value="likes" <%= sort === 'likes' ? 'selected' : '' %>>По лайкам</option>
+      <option value="comments" <%= sort === 'comments' ? 'selected' : '' %>>По комментариям</option>
     </select>
   </label>
+
   <label>
     Период
     <select name="period" onchange="this.form.submit()">
-      <option value="today" <%= period==='today'?'selected':'' %>>Сегодня</option>
-      <option value="week" <%= period==='week'?'selected':'' %>>Неделя</option>
-      <option value="month" <%= period==='month'?'selected':'' %>>Месяц</option>
-      <option value="year" <%= period==='year'?'selected':'' %>>Год</option>
-      <option value="all" <%= period==='all'?'selected':'' %>>Всё время</option>
+      <option value="today" <%= period === 'today' ? 'selected' : '' %>>Сегодня</option>
+      <option value="week" <%= period === 'week' ? 'selected' : '' %>>Неделя</option>
+      <option value="month" <%= period === 'month' ? 'selected' : '' %>>Месяц</option>
+      <option value="year" <%= period === 'year' ? 'selected' : '' %>>Год</option>
+      <option value="all" <%= period === 'all' ? 'selected' : '' %>>Всё время</option>
     </select>
   </label>
 </form>
 
 <div class="suggest-video-row">
-  <button type="button" id="open-suggest-video" class="btn-suggest-video">Предложить видео</button>
+  <button
+    type="button"
+    id="open-suggest-video"
+    class="btn-suggest-video"
+  >
+    Предложить видео
+  </button>
 </div>
 
-<div class="grid">
+<div class="grid" id="posts-grid">
   <% if (posts.length === 0) { %>
-    <p class="empty">Нет файлов для отображения</p>
+    <p class="empty" id="empty-feed">Нет файлов для отображения</p>
   <% } %>
 
   <% posts.forEach(function(post) {
     const firstFile = post.files && post.files[0];
     const rawUrl = firstFile ? firstFile.url : '';
-    const ytMatch = rawUrl && rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-    const ytEmbedUrl = ytMatch ? 'https://www.youtube.com/embed/' + ytMatch[1] : null;
-    const isYoutube = Boolean(ytEmbedUrl);
+
+    const ytMatch =
+      rawUrl &&
+      rawUrl.match(
+        /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/
+      );
+
+    const youtubeId = ytMatch ? ytMatch[1] : null;
+
+    const ytEmbedUrl = youtubeId
+      ? 'https://www.youtube.com/embed/' + youtubeId
+      : null;
+
+    const ytWatchUrl = youtubeId
+      ? 'https://www.youtube.com/watch?v=' + youtubeId
+      : null;
+
+    const isYoutube = Boolean(youtubeId);
+
     const mediaUrl = rawUrl || '';
   %>
-    <a
-      href="/post/<%= post.shortId %>"
-      class="card js-post-link <%= isYoutube ? 'card-youtube' : '' %>"
+
+    <article
+      class="card <%= isYoutube ? 'card-youtube' : '' %>"
       data-shortid="<%= post.shortId %>"
-      data-open-page="<%= isYoutube ? 'true' : 'false' %>"
-      aria-label="Открыть пост <%= post.title || 'Без названия' %>"
     >
+
       <div class="card-media">
+
         <% if (isYoutube) { %>
-          <iframe
-            class="yt-preview-iframe"
-            src="<%= ytEmbedUrl %>"
-            data-base-src="<%= ytEmbedUrl %>"
-            title="<%= post.title || 'YouTube видео' %>"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen
-            tabindex="-1"
-            aria-hidden="true"
-          ></iframe>
-          <span class="yt-card-hit-area" aria-hidden="true"></span>
-          <span class="yt-card-open">Открыть публикацию</span>
+
+          <div class="yt-preview-wrap">
+
+            <iframe
+              class="yt-preview-iframe"
+              src="<%= ytEmbedUrl %>"
+              data-base-src="<%= ytEmbedUrl %>"
+              title="<%= post.title || 'YouTube видео' %>"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+              tabindex="-1"
+            ></iframe>
+
+            <!--
+              Клик именно по превью открывает YouTube.
+              target="_blank" = новая вкладка.
+            -->
+            <a
+              href="<%= ytWatchUrl %>"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="yt-preview-link"
+              aria-label="Открыть видео на YouTube"
+            ></a>
+
+            <span class="yt-card-open">
+              Открыть на YouTube
+            </span>
+
+          </div>
+
         <% } else if (firstFile) { %>
+
           <% if (firstFile.resourceType === 'video') { %>
-            <video src="<%= mediaUrl %>" muted playsinline preload="metadata"></video>
+
+            <video
+              src="<%= mediaUrl %>"
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+
           <% } else if (firstFile.resourceType === 'audio') { %>
-            <div class="audio-thumb" aria-label="Аудиофайл">🎵</div>
+
+            <div
+              class="audio-thumb"
+              aria-label="Аудиофайл"
+            >
+              🎵
+            </div>
+
           <% } else { %>
-            <img src="<%= mediaUrl %>" alt="<%= post.title || 'Изображение' %>" loading="lazy">
+
+            <img
+              src="<%= mediaUrl %>"
+              alt="<%= post.title || 'Изображение' %>"
+              loading="lazy"
+            >
+
           <% } %>
+
         <% } %>
 
         <% if (post.isNsfw) { %>
           <span class="tag-nsfw">18+</span>
         <% } %>
+
       </div>
 
-      <div class="card-body">
-        <h3 class="card-title"><%= post.title || 'Без названия' %></h3>
-        <p class="card-meta">
-          <span>👁 <%= post.views || 0 %></span>
-          <span>❤ <%= post.likesCount || 0 %></span>
-          <span>💬 <%= post.commentsCount || 0 %></span>
-        </p>
-        <p class="card-author">@<%= post.author.username %></p>
-      </div>
-    </a>
+      <!--
+        Всё, что находится здесь, открывает пост.
+        Клик не переходит на отдельную страницу,
+        а обрабатывается существующим JS-механизмом popup.
+      -->
+      <button
+        type="button"
+        class="post-card-open js-post-link"
+        data-shortid="<%= post.shortId %>"
+        aria-label="Открыть публикацию <%= post.title || 'Без названия' %>"
+      >
+
+        <div class="card-body">
+
+          <h3 class="card-title">
+            <%= post.title || 'Без названия' %>
+          </h3>
+
+          <p class="card-meta">
+            <span>👁 <%= post.views || 0 %></span>
+            <span>❤ <%= post.likesCount || 0 %></span>
+            <span>💬 <%= post.commentsCount || 0 %></span>
+          </p>
+
+          <p class="card-author">
+            @<%= post.author.username %>
+          </p>
+
+        </div>
+
+      </button>
+
+    </article>
+
   <% }) %>
 </div>
 
