@@ -30,20 +30,32 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
     const cleanUrl = url.trim();
     const imageUrl = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
 
+    // Получаем настоящее название ролика с YouTube без API-ключа через oEmbed.
+    // Если YouTube временно недоступен, используем безопасный запасной заголовок.
+    let youtubeTitle = 'Предложенное видео';
+    try {
+      const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(cleanUrl)}&format=json`;
+      const response = await fetch(oembedUrl, {
+        headers: { 'User-Agent': 'twix-by-salonamasle/1.0' },
+        signal: AbortSignal.timeout(5000)
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (typeof data.title === 'string' && data.title.trim()) {
+          youtubeTitle = data.title.trim().slice(0, 200);
+        }
+      }
+    } catch (err) {
+      console.warn('Не удалось получить название YouTube-видео:', err.message);
+    }
+
     const allowedCategories = new Set(['Смешные', 'Трукрайм', 'Разоблачения', 'Трейлеры', 'Разное']);
     const selectedCategory = allowedCategories.has(category) ? category : 'Разное';
 
-    await SuggestedVideo.create({
-      url: cleanUrl,
-      youtubeId,
-      category: selectedCategory,
-      comment: (comment || '').trim().slice(0, 150),
-      submittedBy: req.user._id
-    });
-
-    await Post.create({
+    const post = await Post.create({
       author: req.user._id,
-      title: 'Предложенное видео',
+      title: youtubeTitle,
+      description: (comment || '').trim().slice(0, 150),
       category: 'video',
       files: [{
         url: cleanUrl,
@@ -54,7 +66,17 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
       isNsfw: false
     });
 
-    res.json({ ok: true });
+    await SuggestedVideo.create({
+      url: cleanUrl,
+      youtubeId,
+      category: selectedCategory,
+      comment: (comment || '').trim().slice(0, 150),
+      submittedBy: req.user._id,
+      post: post._id,
+      status: 'approved'
+    });
+
+    res.json({ ok: true, shortId: post.shortId });
   } catch (err) {
     console.error('Ошибка сохранения предложенного видео:', err);
     res.status(500).json({ ok: false, error: 'Ошибка сервера, попробуйте ещё раз' });

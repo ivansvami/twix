@@ -10,6 +10,7 @@ const suggestedVideoSchema = new mongoose.Schema({
   },
   comment: { type: String, trim: true, maxlength: 150, default: '' },
   submittedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', default: null, index: true },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   createdAt: { type: Date, default: Date.now }
 });

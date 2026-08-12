@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const IMAGEKIT_UPLOAD_URL = 'https://upload.imagekit.io/api/v1/files/upload';
 const IMAGEKIT_API_URL = 'https://api.imagekit.io/v1/files';
 
@@ -46,4 +47,19 @@ async function deleteFile(fileId) {
   }
 }
 
-module.exports = { upload, deleteFile };
+function getClientAuth() {
+  const privateKey = requireConfig();
+  const publicKey = process.env.IMAGEKIT_PUBLIC_KEY;
+  if (!publicKey) throw new Error('IMAGEKIT_PUBLIC_KEY не задан');
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const expire = Math.floor(Date.now() / 1000) + 60 * 10;
+  const signature = crypto
+    .createHmac('sha1', privateKey)
+    .update(token + expire)
+    .digest('hex');
+
+  return { token, expire, signature, publicKey };
+}
+
+module.exports = { upload, deleteFile, getClientAuth };

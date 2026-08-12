@@ -53,6 +53,7 @@
       href="/post/<%= post.shortId %>"
       class="card js-post-link <%= isYoutube ? 'card-youtube' : '' %>"
       data-shortid="<%= post.shortId %>"
+      data-open-page="<%= isYoutube ? 'true' : 'false' %>"
       aria-label="Открыть пост <%= post.title || 'Без названия' %>"
     >
       <div class="card-media">
@@ -65,8 +66,11 @@
             loading="lazy"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowfullscreen
-            style="width:100%;height:100%;border:0;pointer-events:none"
+            tabindex="-1"
+            aria-hidden="true"
           ></iframe>
+          <span class="yt-card-hit-area" aria-hidden="true"></span>
+          <span class="yt-card-open">Открыть публикацию</span>
         <% } else if (firstFile) { %>
           <% if (firstFile.resourceType === 'video') { %>
             <video src="<%= mediaUrl %>" muted playsinline preload="metadata"></video>

@@ -9,6 +9,7 @@ const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
 const PostView = require('../models/PostView');
+const SuggestedVideo = require('../models/SuggestedVideo');
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -101,42 +102,60 @@ async function renderFeed(req, res, forcedCategory) {
 router.get('/', asyncHandler((req, res) => renderFeed(req, res, null)));
 router.get('/videos', asyncHandler((req, res) => renderFeed(req, res, 'video')));
 
+router.get('/api/imagekit-auth', requireAuth, asyncHandler(async (req, res) => {
+  try {
+    res.json({ ok: true, ...imagekit.getClientAuth() });
+  } catch (err) {
+    console.error('ImageKit auth error:', err);
+    res.status(500).json({ ok: false, error: 'Не удалось подготовить загрузку' });
+  }
+}));
+
 router.get('/new', requireAuth, (req, res) => {
   res.render('upload', { error: null });
 });
 
-router.post('/new', requireAuth, upload.array('files', 10), async (req, res) => {
-  try {
-    if (!req.files || req.files.length === 0) {
-      return res.render('upload', { error: 'Выберите хотя бы один файл' });
-    }
-    const allowedCategories = new Set(['image', 'video', 'audio', 'album']);
-    const category = req.body.category || 'image';
-    if (!allowedCategories.has(category)) {
-      return res.status(400).render('upload', { error: 'Недопустимая категория' });
-    }
+router.post('/new', requireAuth, asyncHandler(async (req, res) => {
+  const allowedCategories = new Set(['image', 'video', 'audio', 'album']);
+  const category = req.body.category || 'image';
 
-    const types = req.files.map(file => resourceTypeFromMime(file.mimetype));
-    if (types.some(type => !type)) {
-      return res.status(400).render('upload', { error: 'Поддерживаются только изображения, видео и аудио' });
-    }
-
-    const isNsfw = req.body.isNsfw === 'on';
-    const files = await Promise.all(req.files.map(uploadFileToImageKit));
-    const post = await Post.create({
-      author: req.user._id,
-      title: (req.body.title || '').trim(),
-      description: (req.body.description || '').trim(),
-      category,
-      files,
-      isNsfw
-    });
-    res.redirect('/post/' + post.shortId);
-  } catch (err) {
-    console.error(err);
-    res.render('upload', { error: 'Ошибка загрузки. Проверьте формат/размер файлов.' });
+  if (!allowedCategories.has(category)) {
+    return res.status(400).render('upload', { error: 'Недопустимая категория' });
   }
-});
+
+  let uploadedFiles = [];
+  try {
+    uploadedFiles = JSON.parse(req.body.uploadedFiles || '[]');
+  } catch (_) {
+    return res.status(400).render('upload', { error: 'Некорректные данные загруженных файлов' });
+  }
+
+  if (!Array.isArray(uploadedFiles) || uploadedFiles.length === 0 || uploadedFiles.length > 10) {
+    return res.render('upload', { error: 'Выберите от 1 до 10 файлов' });
+  }
+
+  const files = uploadedFiles.map(file => ({
+    url: String(file.url || ''),
+    publicId: String(file.publicId || ''),
+    resourceType: resourceTypeFromMime(String(file.mimetype || ''))
+  }));
+
+  if (files.some(file => !file.url || !file.publicId || !file.resourceType)) {
+    return res.status(400).render('upload', { error: 'Некорректные данные файлов' });
+  }
+
+  const isNsfw = req.body.isNsfw === 'on';
+  const post = await Post.create({
+    author: req.user._id,
+    title: (req.body.title || '').trim(),
+    description: (req.body.description || '').trim(),
+    category,
+    files,
+    isNsfw
+  });
+
+  res.redirect('/post/' + post.shortId);
+}));
 
 async function loadPostData(shortId, req) {
   const post = await Post.findOne({ shortId }).populate('author').lean();
@@ -280,6 +299,20 @@ router.post('/post/:shortId/delete', requireAuth, asyncHandler(async (req, res) 
   ));
   await Comment.deleteMany({ post: post._id });
   await Notification.deleteMany({ post: post._id });
+
+  // У предложенных YouTube-видео есть отдельная запись SuggestedVideo.
+  // Удаляем её вместе с публикацией, чтобы удалённое видео не оставалось
+  // в списке предложений и не могло случайно появиться снова.
+  const youtubeUrls = post.files
+    .filter(file => file.resourceType === 'video' && /^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\//i.test(file.url || ''))
+    .map(file => file.url);
+  await SuggestedVideo.deleteMany({
+    $or: [
+      { post: post._id },
+      ...(youtubeUrls.length ? [{ url: { $in: youtubeUrls }, submittedBy: post.author }] : [])
+    ]
+  });
+
   await post.deleteOne();
 
   res.redirect('/');

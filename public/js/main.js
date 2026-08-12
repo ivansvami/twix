@@ -68,6 +68,11 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('click', function (e) {
     var link = e.target.closest('.js-post-link');
     if (link) {
+      // Для YouTube-карточки превью ведёт на полноценную страницу публикации,
+      // чтобы там были доступны название, комментарии и кнопка удаления.
+      if (link.dataset.openPage === 'true') {
+        return;
+      }
       e.preventDefault();
       openPostModal(link.dataset.shortid, true);
       return;
