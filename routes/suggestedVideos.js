@@ -33,6 +33,7 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
     await SuggestedVideo.create({
       url: cleanUrl,
       youtubeId,
+      category: 'Разное',
       comment: (comment || '').trim().slice(0, 150),
       submittedBy: req.user._id
     });
