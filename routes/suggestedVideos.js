@@ -1,42 +1,59 @@
+const express = require('express');
+const router = express.Router();
+const { requireAuth } = require('../middleware/auth');
+const SuggestedVideo = require('../models/SuggestedVideo');
+const Post = require('../models/Post');
+
+function extractYoutubeId(url) {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtube\.com\/watch\?.*&v=)([a-zA-Z0-9_-]{11})/,
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/
+  ];
+  for (const re of patterns) {
+    const match = url.match(re);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 router.post('/api/suggest-video', requireAuth, async (req, res) => {
   try {
-    const { url, category, comment } = req.body;
+    const { url, comment } = req.body;
     const youtubeId = extractYoutubeId(url);
     if (!youtubeId) {
-      return res.status(400).json({ ok: false, error: 'Не удалось распознать ссылку' });
+      return res.status(400).json({ ok: false, error: 'Не удалось распознать ссылку на YouTube-видео' });
     }
 
     const cleanUrl = url.trim();
-    // Генерируем URL превью для YouTube
     const imageUrl = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
 
-    // 1. Сохраняем в таблицу предложенных видео
     await SuggestedVideo.create({
       url: cleanUrl,
       youtubeId,
-      category: ALLOWED_CATEGORIES.includes(category) ? category : 'Разное',
       comment: (comment || '').trim().slice(0, 150),
       submittedBy: req.user._id
     });
 
-    // 2. СОЗДАЁМ ПОСТ В ОСНОВНОЙ ЛЕНТЕ
-    const newPost = await Post.create({
+    await Post.create({
       author: req.user._id,
-      title: 'YouTube Video',
+      title: 'Предложенное видео',
       category: 'video',
       files: [{
         url: cleanUrl,
         resourceType: 'video'
       }],
-      imageUrl: imageUrl, // Добавили превью, которое часто обязательно для ленты
+      imageUrl: imageUrl,
       isNsfw: false
     });
 
-    console.log('Пост успешно создан в БД, ID:', newPost._id);
     res.json({ ok: true });
   } catch (err) {
-    // ВАЖНО: Мы увидим настоящую ошибку базы данных в логах Vercel
-    console.error('ПОДРОБНАЯ ОШИБКА СОХРАНЕНИЯ:', err);
-    res.status(500).json({ ok: false, error: err.message });
+    console.error('Ошибка сохранения предложенного видео:', err);
+    res.status(500).json({ ok: false, error: 'Ошибка сервера, попробуйте ещё раз' });
   }
 });
+
+module.exports = router;
