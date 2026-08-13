@@ -45,14 +45,25 @@
   <% } %>
 
   <% posts.forEach(function(post) {
-     const firstFile = post.files && post.files[0];
-     const rawUrl = firstFile ? firstFile.url : '';
-     const ytMatch = rawUrl && rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-     const youtubeId = ytMatch ? ytMatch[1] : null;
-     const ytEmbedUrl = youtubeId ? 'https://www.youtube.com/embed/' + youtubeId : null;
-     const ytWatchUrl = youtubeId ? 'https://www.youtube.com/watch?v=' + youtubeId : null;
-     const isYoutube = Boolean(youtubeId);
-     const mediaUrl = rawUrl || '';
+      const firstFile = post.files && post.files[0];
+      const rawUrl = firstFile ? firstFile.url : '';
+      
+      // Распознавание YouTube
+      const ytMatch = rawUrl && rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+      const youtubeId = ytMatch ? ytMatch[1] : null;
+      const ytEmbedUrl = youtubeId ? 'https://www.youtube.com/embed/' + youtubeId : null;
+      const ytWatchUrl = youtubeId ? 'https://www.youtube.com/watch?v=' + youtubeId : null;
+      
+      // Распознавание TikTok
+      const tiktokMatch = rawUrl && rawUrl.match(/tiktok\.com\/.*\/video\/(\d+)/);
+      
+      // Распознавание Instagram Reels
+      const instaMatch = rawUrl && rawUrl.match(/instagram\.com\/(?:reel|reels)\/([\w-]+)/);
+      
+      const isYoutube = Boolean(youtubeId);
+      const isTiktok = Boolean(tiktokMatch);
+      const isInsta = Boolean(instaMatch);
+      const mediaUrl = rawUrl || '';
   %>
     <article class="card <%= isYoutube ? 'card-youtube' : '' %>" data-shortid="<%= post.shortId %>">
       <div class="card-media">
