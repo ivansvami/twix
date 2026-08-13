@@ -68,11 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('click', function (e) {
     var link = e.target.closest('.js-post-link');
     if (link) {
-      // Для YouTube-карточки превью ведёт на полноценную страницу публикации,
-      // чтобы там были доступны название, комментарии и кнопка удаления.
-      if (link.dataset.openPage === 'true') {
-        return;
-      }
       e.preventDefault();
       openPostModal(link.dataset.shortid, true);
       return;
@@ -184,19 +179,18 @@ document.addEventListener('DOMContentLoaded', function () {
   youtubeCards.forEach(function (card) {
     var iframe = card.querySelector('.yt-preview-iframe');
     if (!iframe) return;
-    var baseSrc = iframe.dataset.baseSrc;
-    var hoverTimer = null;
+
+    function sendCommand(func) {
+      if (!iframe.contentWindow) return;
+      iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*');
+    }
 
     card.addEventListener('mouseenter', function () {
-      hoverTimer = setTimeout(function () {
-        var sep = baseSrc.indexOf('?') > -1 ? '&' : '?';
-        iframe.src = baseSrc + sep + 'autoplay=1&mute=1&controls=0&modestbranding=1&rel=0';
-      }, 500);
+      sendCommand('playVideo');
     });
 
     card.addEventListener('mouseleave', function () {
-      clearTimeout(hoverTimer);
-      iframe.src = baseSrc;
+      sendCommand('stopVideo');
     });
   });
 });

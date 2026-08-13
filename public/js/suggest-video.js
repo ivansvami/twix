@@ -118,8 +118,10 @@ document.addEventListener('DOMContentLoaded', function () {
           submitBtn.textContent = 'Отправить';
           return;
         }
-        submitBtn.textContent = 'Отправлено ✓';
-        setTimeout(closeModal, 900);
+        submitBtn.textContent = 'Готово, открываем пост...';
+        // Сразу переходим на страницу опубликованного поста (полная страница, не попап) —
+        // так пост виден сразу, без необходимости обновлять ленту вручную.
+        window.location.href = '/post/' + data.shortId;
       })
       .catch(function () {
         errorEl.textContent = 'Ошибка сети, попробуйте ещё раз';

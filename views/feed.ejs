@@ -87,8 +87,7 @@
 
             <iframe
               class="yt-preview-iframe"
-              src="<%= ytEmbedUrl %>"
-              data-base-src="<%= ytEmbedUrl %>"
+              src="<%= ytEmbedUrl %>?enablejsapi=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0"
               title="<%= post.title || 'YouTube видео' %>"
               loading="lazy"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -116,33 +115,41 @@
 
         <% } else if (firstFile) { %>
 
-          <% if (firstFile.resourceType === 'video') { %>
+          <a
+            href="<%= mediaUrl %>"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="card-media-link"
+            aria-label="Открыть медиа"
+          >
+            <% if (firstFile.resourceType === 'video') { %>
 
-            <video
-              src="<%= mediaUrl %>"
-              muted
-              playsinline
-              preload="metadata"
-            ></video>
+              <video
+                src="<%= mediaUrl %>"
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
 
-          <% } else if (firstFile.resourceType === 'audio') { %>
+            <% } else if (firstFile.resourceType === 'audio') { %>
 
-            <div
-              class="audio-thumb"
-              aria-label="Аудиофайл"
-            >
-              🎵
-            </div>
+              <div
+                class="audio-thumb"
+                aria-label="Аудиофайл"
+              >
+                🎵
+              </div>
 
-          <% } else { %>
+            <% } else { %>
 
-            <img
-              src="<%= mediaUrl %>"
-              alt="<%= post.title || 'Изображение' %>"
-              loading="lazy"
-            >
+              <img
+                src="<%= mediaUrl %>"
+                alt="<%= post.title || 'Изображение' %>"
+                loading="lazy"
+              >
 
-          <% } %>
+            <% } %>
+          </a>
 
         <% } %>
 

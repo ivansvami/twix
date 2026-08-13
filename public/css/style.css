@@ -54,15 +54,18 @@ a { color: inherit; text-decoration: none; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
 .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: block; transition: transform .15s; }
 .card:hover { transform: translateY(-3px); }
-.card-media { position: relative; aspect-ratio: 16/9; background: #000; display: flex; align-items: center; justify-content: center; }
+.card-media { position: relative; aspect-ratio: 16/9; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .card-media img, .card-media video, .card-media .yt-preview-iframe { width: 100%; height: 100%; object-fit: cover; }
-.card-youtube .yt-preview-iframe { border: 0; pointer-events: none; }
-.yt-card-hit-area { position: absolute; inset: 0; z-index: 2; cursor: pointer; pointer-events: none; }
+.card-youtube .yt-preview-iframe { border: 0; pointer-events: none; transition: transform 0.35s ease; transform-origin: center; }
+.card-youtube:hover .yt-preview-iframe { transform: scale(1.22); }
+.yt-preview-wrap { position: relative; width: 100%; height: 100%; }
+.yt-preview-link { position: absolute; inset: 0; z-index: 2; display: block; }
+.card-media-link { position: relative; display: block; width: 100%; height: 100%; }
 .yt-card-open { position: absolute; left: 50%; bottom: 12px; z-index: 3; transform: translate(-50%, 6px); background: #000b; color: #fff; padding: 6px 10px; border-radius: 999px; font-size: 12px; opacity: 0; transition: opacity .15s ease, transform .15s ease; pointer-events: none; white-space: nowrap; }
 .card-youtube:hover .yt-card-open, .card-youtube:focus-within .yt-card-open { opacity: 1; transform: translate(-50%, 0); }
-.card-youtube .card-media::after { content: '↗'; position: absolute; top: 10px; left: 10px; z-index: 3; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #000b; color: #fff; font-size: 15px; opacity: .9; pointer-events: none; }
 .audio-thumb { font-size: 40px; }
-.tag-nsfw { position: absolute; top: 6px; right: 6px; background: #d33; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
+.tag-nsfw { position: absolute; top: 6px; right: 6px; background: #d33; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 4px; z-index: 3; }
+.post-card-open { display: block; width: 100%; background: none; border: none; padding: 0; margin: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
 .card-body { padding: 10px; }
 .card-title { margin: 0 0 6px; font-size: 16px; }
 .card-meta { display: flex; gap: 10px; font-size: 12px; color: var(--text-dim); margin: 0 0 4px; }
