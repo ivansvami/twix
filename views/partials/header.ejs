@@ -21,21 +21,19 @@
       <a href="/new">Новый пост</a>
     <% } %>
   </nav>
-  <div class="topbar-right">
-    <% if (currentUser) { %>
-      <a href="/notifications" class="notif-link" id="notif-link">Уведомления <span id="notif-count" class="badge" style="display:none">0</span></a>
-      <span class="username"><%= currentUser.username %></span>
-      <form action="/logout" method="POST" style="display:inline">
-        <button type="submit" class="btn-link">Выйти</button>
-      </form>
-    <% } else { %>
-      <a href="/login/twitch" class="btn-twitch btn-twitch-small">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 2 2 7v13h6v2h4l2-2h4l4-4V2H4zm18 13-3 3h-5l-2 2h-2v-2H6V4h16v11z"/><path d="M17 8h-2v5h2V8zm-5 0h-2v5h2V8z"/></svg>
-        Twitch
-      </a>
-      <a href="/login" class="btn-outline">Войти</a>
-      <a href="/register" class="btn-primary">Регистрация</a>
-    <% } %>
-  </div>
+<div class="topbar-right">
+  <% if (currentUser) { %>
+    <a href="/notifications" class="notif-link" id="notif-link">Уведомления <span id="notif-count" class="badge" style="display:none">0</span></a>
+    <span class="username"><%= currentUser.username %></span>
+    <form action="/logout" method="POST" style="display:inline">
+      <button type="submit" class="btn-link">Выйти</button>
+    </form>
+  <% } else { %>
+    <a href="/login/twitch" class="btn-twitch btn-twitch-small" style="display: inline-flex; align-items: center; gap: 8px;">
+      Войти через
+      <img src="/twitch-icon.svg" alt="Twitch" style="width: 14px; height: 14px; display: block;">
+    </a>
+  <% } %>
+</div>
 </header>
 <main class="container">
