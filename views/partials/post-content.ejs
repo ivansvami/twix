@@ -1,96 +1,202 @@
 <%
+
   const firstFile = post.files && post.files[0] ? post.files[0] : null;
+
   const firstUrl = firstFile ? firstFile.url : '';
+
   
+
   // Проверяем точное наличие ссылок на TikTok, Instagram Reels или YouTube Shorts
+
   const isTiktok = firstUrl && firstUrl.includes('tiktok.com');
+
   const isInsta = firstUrl && (firstUrl.includes('instagram.com/reel') || firstUrl.includes('/reels/'));
 
+  const isYtShorts = firstUrl && firstUrl.includes('shorts/');
+
+
+
   const isVerticalVideo = isTiktok || isInsta || isYtShorts;
+
 %>
 
+
+
 <div class="post-modal-inner">
+
   <a href="/" class="post-close js-close-post" aria-label="Закрыть">✕</a>
 
+
+
 <div class="post-media-area" style="position: relative; width: 100%; height: 100%; min-height: 500px; background: #000; overflow: hidden; display: block;">
+
     <% post.files.forEach(function(f) {
+
+      const ytMatch = f.url && f.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+
       const tiktokMatch = f.url && f.url.match(/tiktok\.com\/.*\/video\/(\d+)/);
+
       const instaMatch = f.url && f.url.match(/instagram\.com\/(?:reel|reels)\/([\w-]+)/);
 
+
+
+      const ytEmbedUrl = ytMatch ? 'https://www.youtube.com/embed/' + ytMatch[1] : null;
+
       const tiktokEmbedUrl = tiktokMatch ? 'https://www.tiktok.com/embed/v2/' + tiktokMatch[1] : null;
+
       const instaEmbedUrl = instaMatch ? 'https://www.instagram.com/reel/' + instaMatch[1] + '/embed/' : null;
+
     %>
+
+      <% if (ytEmbedUrl) { %>
+
+        <iframe src="<%= ytEmbedUrl %>" title="YouTube" loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"></iframe>
+
       <% } else if (tiktokEmbedUrl) { %>
+
         <!-- Абсолютное позиционирование растягивает iframe на весь блок -->
+
         <iframe src="<%= tiktokEmbedUrl %>" title="TikTok" loading="lazy" allow="autoplay; encrypted-media" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"></iframe>
+
       <% } else if (instaEmbedUrl) { %>
+
         <iframe src="<%= instaEmbedUrl %>" title="Instagram" loading="lazy" allow="autoplay; encrypted-media" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"></iframe>
+
       <% } else if (f.resourceType === 'video') { %>
+
         <video src="<%= f.url %>" controls playsinline style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;"></video>
+
       <% } else if (f.resourceType === 'audio') { %>
+
         <div class="audio-wrap" style="display:flex; align-items:center; justify-content:center; height:100%;">
+
           <div class="audio-icon">🎵</div>
+
           <audio src="<%= f.url %>" controls></audio>
+
         </div>
+
       <% } else { %>
+
         <img src="<%= f.url %>" alt="" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;">
+
       <% } %>
+
     <% }) %>
+
   </div>
+
+
 
   <div class="post-side">
+
     <div class="post-info">
+
       <h1><%= post.title || 'Без названия' %></h1>
+
       <p class="post-author">Автор: @<%= post.author.username %></p>
+
       <p class="post-meta">👁 <%= post.views %> просмотров · 💬 <%= post.commentsCount %> комментариев</p>
 
+
+
       <button id="like-btn" data-shortid="<%= post.shortId %>" class="btn-like <%= currentUser && post.likes.some(id => id.toString() === currentUser._id.toString()) ? 'liked' : '' %>">
+
         ❤ <span id="like-count"><%= post.likes.length %></span>
+
       </button>
 
+
+
       <% if (currentUser && (currentUser._id.toString() === post.author._id.toString() || currentUser.isAdmin)) { %>
+
         <div class="post-owner-actions">
+
           <a href="/post/<%= post.shortId %>/edit" class="btn-outline">Редактировать</a>
+
           <form action="/post/<%= post.shortId %>/delete" method="POST" onsubmit="return confirm('Удалить пост безвозвратно?');">
+
             <button type="submit" class="btn-danger">Удалить</button>
+
           </form>
+
         </div>
+
       <% } %>
+
     </div>
+
+
 
     <div class="comments">
+
       <h2>Комментарии</h2>
+
       <% if (currentUser) { %>
+
         <form action="/post/<%= post.shortId %>/comment" method="POST" class="comment-form">
+
           <textarea name="text" placeholder="Написать комментарий..." required></textarea>
+
           <button type="submit" class="btn-primary">Отправить</button>
+
         </form>
+
       <% } else { %>
+
         <p><a href="/login">Войдите</a>, чтобы оставить комментарий.</p>
+
       <% } %>
 
+
+
       <% comments.forEach(function(c) { %>
+
         <div class="comment">
+
           <p class="comment-author">@<%= c.author.username %></p>
+
           <p class="comment-text"><%= c.text %></p>
+
           <% c.replies.forEach(function(r) { %>
+
             <div class="comment reply">
+
               <p class="comment-author">@<%= r.author.username %></p>
+
               <p class="comment-text"><%= r.text %></p>
+
             </div>
+
           <% }) %>
+
           <% if (currentUser) { %>
+
             <details>
+
               <summary>Ответить</summary>
+
               <form action="/post/<%= post.shortId %>/comment" method="POST" class="comment-form">
+
                 <input type="hidden" name="parent" value="<%= c._id %>">
+
                 <textarea name="text" placeholder="Ответ..." required></textarea>
+
                 <button type="submit" class="btn-outline">Ответить</button>
+
               </form>
+
             </details>
+
           <% } %>
+
         </div>
+
       <% }) %>
+
     </div>
+
   </div>
-</div>
+
+</div> 
+
