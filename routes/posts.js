@@ -119,6 +119,13 @@ router.post('/new', requireAuth, asyncHandler(async (req, res) => {
   const allowedCategories = new Set(['image', 'video', 'audio', 'album']);
   const category = req.body.category || 'image';
 
+  // --- ДОБАВЬТЕ ЭТУ ПРОВЕРКУ ---
+  const title = (req.body.title || '').trim();
+  if (!title) {
+    return res.status(400).render('upload', { error: 'Заголовок обязателен для заполнения' });
+  }
+  // -----------------------------
+
   if (!allowedCategories.has(category)) {
     return res.status(400).render('upload', { error: 'Недопустимая категория' });
   }
@@ -147,7 +154,7 @@ router.post('/new', requireAuth, asyncHandler(async (req, res) => {
   const isNsfw = req.body.isNsfw === 'on';
   const post = await Post.create({
     author: req.user._id,
-    title: (req.body.title || '').trim(),
+    title, // <--- используется проверенная переменная
     description: (req.body.description || '').trim(),
     category,
     files,
