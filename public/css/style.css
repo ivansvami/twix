@@ -734,9 +734,14 @@ a { color: inherit; text-decoration: none; }
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 10px 36px 10px 16px; /* Отступ справа (36px), чтобы текст не наезжал на стрелку */
+  padding: 10px 36px 10px 16px;
   cursor: pointer;
-  appearance: none; /* Полностью скрывает стандартную стрелку браузера */
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  /* Вставляем SVG-треугольник как фоновую картинку */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239a9aa8'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center; /* Точное положение от правого края */
+  background-size: 16px;
 }
