@@ -1,6 +1,6 @@
 <%- include('partials/header', { pageTitle: 'Лента - twix by salonamasle', activeNav }) %>
 
-<form class="filters" method="GET" action="<%= activeNav === 'videos' ? '/videos' : '/' %>">
+<form class="filters" method="GET" action="<%= activeNav === 'videos' ? '/videos' : '/' %>" style="display: flex; align-items: flex-end; gap: 20px;">
   <label>
     Категория
     <select name="category" onchange="this.form.submit()">
@@ -32,17 +32,17 @@
       <option value="all" <%= period === 'all' ? 'selected' : '' %>>Всё время</option>
     </select>
   </label>
-</form>
 
-<div class="suggest-video-row">
+  <!-- Кнопка теперь внутри формы, выровнена по низу с остальными -->
   <button
     type="button"
     id="open-suggest-video"
     class="btn-suggest-video"
+    style="margin-left: auto;" 
   >
     Предложить видео
   </button>
-</div>
+</form>
 
 <div class="grid" id="posts-grid">
   <% if (posts.length === 0) { %>
