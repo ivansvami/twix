@@ -508,3 +508,15 @@ a { color: inherit; text-decoration: none; }
     text-align: center;
   }
 }
+@media (max-width: 760px) {
+  .mobile-suggest-container {
+    position: fixed;
+    bottom: 65px; /* Высота над нижним баром меню */
+    left: 0;
+    right: 0;
+    z-index: 80;
+    background: linear-gradient(to top, var(--bg) 70%, transparent); /* Плавный фон, чтобы контент не резко обрезался под кнопкой */
+    padding: 10px 16px;
+    margin: 0;
+  }
+}
