@@ -292,13 +292,35 @@ router.post('/new', requireAuth, asyncHandler(async (req, res) => {
 
 
 
+  let title = (req.body.title || '').trim();
+
+  
+
+  // Если заголовок не введен пользователем, пытаемся достать его по ссылке видео
+
+  const firstUrl = files && files[0] ? files[0].url : '';
+
+  if (!title && firstUrl) {
+
+    const autoTitle = await fetchVideoTitle(firstUrl);
+
+    if (autoTitle) {
+
+      title = autoTitle;
+
+    }
+
+  }
+
+
+
   const isNsfw = req.body.isNsfw === 'on';
 
   const post = await Post.create({
 
     author: req.user._id,
 
-    title: (req.body.title || '').trim(),
+    title: title || 'Без названия',
 
     description: (req.body.description || '').trim(),
 
@@ -356,8 +378,6 @@ async function loadPostData(shortId, req) {
 
     }
 
-    // код 11000 = дубликат (этот IP уже засчитан для этого поста) — просмотр не увеличиваем
-
   }
 
 
@@ -378,8 +398,6 @@ async function loadPostData(shortId, req) {
 
 
 
-// Полная страница поста (для прямых ссылок / шаринга)
-
 router.get('/post/:shortId', asyncHandler(async (req, res) => {
 
   const data = await loadPostData(req.params.shortId, req);
@@ -391,8 +409,6 @@ router.get('/post/:shortId', asyncHandler(async (req, res) => {
 }));
 
 
-
-// Данные поста для попапа (AJAX)
 
 router.get('/api/post/:shortId', asyncHandler(async (req, res) => {
 
@@ -522,8 +538,6 @@ router.post('/post/:shortId/edit', requireAuth, upload.array('newFiles', 10), as
 
 
 
-    // Удаляем отмеченные файлы (и в ImageKit, и из поста)
-
     const removeIds = [].concat(req.body.removeFiles || []);
 
     if (removeIds.length) {
@@ -541,8 +555,6 @@ router.post('/post/:shortId/edit', requireAuth, upload.array('newFiles', 10), as
     }
 
 
-
-    // Добавляем новые файлы, если загружены
 
     if (req.files && req.files.length) {
 
@@ -604,12 +616,6 @@ router.post('/post/:shortId/delete', requireAuth, asyncHandler(async (req, res) 
 
 
 
-  // У предложенных YouTube-видео есть отдельная запись SuggestedVideo.
-
-  // Удаляем её вместе с публикацией, чтобы удалённое видео не оставалось
-
-  // в списке предложений и не могло случайно появиться снова.
-
   const youtubeUrls = post.files
 
     .filter(file => file.resourceType === 'video' && /^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\//i.test(file.url || ''))
@@ -640,5 +646,4 @@ router.post('/post/:shortId/delete', requireAuth, asyncHandler(async (req, res) 
 
 
 
-module.exports = router; 
-
+module.exports = router;
