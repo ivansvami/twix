@@ -729,3 +729,8 @@ a { color: inherit; text-decoration: none; }
     border-radius: 0 !important;
   }
 }
+.filters select {
+  padding: 10px 15px;
+  width: 150px;
+  cursor: pointer;
+}
