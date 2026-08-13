@@ -113,43 +113,35 @@
 
           </div>
 
-        <% } else if (firstFile) { %>
+<% } else if (firstFile) { %>
 
-          <a
-            href="<%= mediaUrl %>"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="card-media-link"
-            aria-label="Открыть медиа"
-          >
-            <% if (firstFile.resourceType === 'video') { %>
+          <% if (firstFile.resourceType === 'video') { %>
 
-              <video
-                src="<%= mediaUrl %>"
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+            <video
+              src="<%= mediaUrl %>"
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
 
-            <% } else if (firstFile.resourceType === 'audio') { %>
+          <% } else if (firstFile.resourceType === 'audio') { %>
 
-              <div
-                class="audio-thumb"
-                aria-label="Аудиофайл"
-              >
-                🎵
-              </div>
+            <div
+              class="audio-thumb"
+              aria-label="Аудиофайл"
+            >
+              🎵
+            </div>
 
-            <% } else { %>
+          <% } else { %>
 
-              <img
-                src="<%= mediaUrl %>"
-                alt="<%= post.title || 'Изображение' %>"
-                loading="lazy"
-              >
+            <img
+              src="<%= mediaUrl %>"
+              alt="<%= post.title || 'Изображение' %>"
+              loading="lazy"
+            >
 
-            <% } %>
-          </a>
+          <% } %>
 
         <% } %>
 
