@@ -120,4 +120,44 @@
     </form>
   </div>
 </div>
+
+<!-- Скрипт управления поп-апом -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Открытие поп-апа по клику на кнопку в шапке
+    const openBtn = document.getElementById('open-tiktok-modal');
+    const modal = document.getElementById('tiktok-modal');
+    const closeBtn = document.getElementById('close-tiktok-modal');
+    const commentInput = document.getElementById('tiktok-comment-input');
+    const charCount = document.getElementById('tiktok-char-count');
+
+    if (openBtn && modal) {
+      openBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.hidden = false;
+      });
+    }
+
+    // Закрытие по крестику
+    if (closeBtn && modal) {
+      closeBtn.addEventListener('click', () => {
+        modal.hidden = true;
+      });
+    }
+
+    // Закрытие при клике вне окна (на темный фон)
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.hidden = true;
+      });
+    }
+
+    // Счетчик символов
+    if (commentInput && charCount) {
+      commentInput.addEventListener('input', () => {
+        charCount.textContent = commentInput.value.length + '/150';
+      });
+    }
+  });
+</script>
 <%- include('partials/footer') %>
