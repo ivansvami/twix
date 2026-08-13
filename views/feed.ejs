@@ -74,12 +74,16 @@
             <span class="yt-card-open">Открыть на YouTube</span>
           </div>
         <% } else if (isTiktok) { %>
-          <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000;">
-            <iframe src="https://www.tiktok.com/embed/v2/<%= tiktokMatch[1] %>" style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
+          <!-- Обертка для TikTok с защитным слоем, чтобы клик открывал модальное окно сайта -->
+          <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;">
+            <iframe src="https://www.tiktok.com/embed/v2/<%= tiktokMatch[1] %>" style="width: 100%; height: 100%; border: none; pointer-events: none;" allowfullscreen></iframe>
+            <a href="/post/<%= post.shortId %>" class="post-card-open js-post-link" data-shortid="<%= post.shortId %>" style="position: absolute; inset: 0; z-index: 3;" aria-label="Открыть публикацию"></a>
           </div>
         <% } else if (isInsta) { %>
-          <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000;">
-            <iframe src="https://www.instagram.com/reel/<%= instaMatch[1] %>/embed/" style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
+          <!-- Обертка для Instagram Reels с защитным слоем -->
+          <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;">
+            <iframe src="https://www.instagram.com/reel/<%= instaMatch[1] %>/embed/" style="width: 100%; height: 100%; border: none; pointer-events: none;" allowfullscreen></iframe>
+            <a href="/post/<%= post.shortId %>" class="post-card-open js-post-link" data-shortid="<%= post.shortId %>" style="position: absolute; inset: 0; z-index: 3;" aria-label="Открыть публикацию"></a>
           </div>
         <% } else if (firstFile) { %>
           <% if (firstFile.resourceType === 'video') { %>
