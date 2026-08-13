@@ -86,8 +86,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var closeBtn = e.target.closest('.js-close-post');
     if (closeBtn) {
-      e.preventDefault();
-      closePostModal(true);
+      if (isModalOpen) {
+        e.preventDefault();
+        closePostModal(true);
+      }
+      // Если попап не открыт (это отдельная полная страница поста) —
+      // ничего не перехватываем, крестик просто работает как обычная ссылка href="/"
       return;
     }
 
