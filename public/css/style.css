@@ -38,6 +38,7 @@ a { color: inherit; text-decoration: none; }
   border-radius: 0; 
   position: relative; 
   text-decoration: none;
+  font-size: 18px;
 }
 
 .mainnav a:hover { 
