@@ -734,7 +734,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 10px 16px 10px 16px;
+  padding: 10px 32px 10px 16px;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
