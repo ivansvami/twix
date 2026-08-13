@@ -2,7 +2,6 @@
 
 <form class="filters" method="GET" action="<%= activeNav === 'videos' ? '/videos' : '/' %>" style="display: flex; align-items: flex-end; gap: 20px;">
   <label>
-    Категория
     <select name="category" onchange="this.form.submit()">
       <option value="all" <%= category === 'all' ? 'selected' : '' %>>Всё</option>
       <option value="image" <%= category === 'image' ? 'selected' : '' %>>Изображения</option>
@@ -13,7 +12,6 @@
   </label>
 
   <label>
-    Сортировка
     <select name="sort" onchange="this.form.submit()">
       <option value="new" <%= sort === 'new' ? 'selected' : '' %>>Новые</option>
       <option value="views" <%= sort === 'views' ? 'selected' : '' %>>По просмотрам</option>
@@ -23,7 +21,6 @@
   </label>
 
   <label>
-    Период
     <select name="period" onchange="this.form.submit()">
       <option value="today" <%= period === 'today' ? 'selected' : '' %>>Сегодня</option>
       <option value="week" <%= period === 'week' ? 'selected' : '' %>>Неделя</option>
