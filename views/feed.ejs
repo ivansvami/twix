@@ -1,92 +1,36 @@
 <%- include('partials/header', { pageTitle: 'Лента - twix by salonamasle', activeNav }) %>
-
-
-
+<!-- 1. Идет форма фильтров (теперь заканчивается здесь и внутри нет кнопки) -->
 <form class="filters" method="GET" action="<%= activeNav === 'videos' ? '/videos' : '/' %>" style="display: flex; align-items: flex-end; gap: 20px;">
-
   <label>
-
     Категория
-
     <select name="category" onchange="this.form.submit()">
-
       <option value="all" <%= category === 'all' ? 'selected' : '' %>>Всё</option>
-
       <option value="image" <%= category === 'image' ? 'selected' : '' %>>Изображения</option>
-
       <option value="video" <%= category === 'video' ? 'selected' : '' %>>Видео</option>
-
       <option value="audio" <%= category === 'audio' ? 'selected' : '' %>>Аудио</option>
-
       <option value="album" <%= category === 'album' ? 'selected' : '' %>>Альбомы</option>
-
     </select>
-
   </label>
-
-
-
-  <label>
-
-    Сортировка
-
-    <select name="sort" onchange="this.form.submit()">
-
-      <option value="new" <%= sort === 'new' ? 'selected' : '' %>>Новые</option>
-
-      <option value="views" <%= sort === 'views' ? 'selected' : '' %>>По просмотрам</option>
-
-      <option value="likes" <%= sort === 'likes' ? 'selected' : '' %>>По лайкам</option>
-
-      <option value="comments" <%= sort === 'comments' ? 'selected' : '' %>>По комментариям</option>
-
-    </select>
-
-  </label>
-
-
-
-  <label>
-
-    Период
-
-    <select name="period" onchange="this.form.submit()">
-
-      <option value="today" <%= period === 'today' ? 'selected' : '' %>>Сегодня</option>
-
-      <option value="week" <%= period === 'week' ? 'selected' : '' %>>Неделя</option>
-
-      <option value="month" <%= period === 'month' ? 'selected' : '' %>>Месяц</option>
-
-      <option value="year" <%= period === 'year' ? 'selected' : '' %>>Год</option>
-
-      <option value="all" <%= period === 'all' ? 'selected' : '' %>>Всё время</option>
-
-    </select>
-
-  </label>
-
-
-
-  <!-- Кнопка теперь внутри формы, выровнена по низу с остальными -->
-
-  <button
-
-    type="button"
-
-    id="open-suggest-video"
-
-    class="btn-suggest-video"
-
-    style="margin-left: auto;" 
-
-  >
-
-    Предложить видео
-
-  </button>
-
+  <!-- (тут также ваши селекты сортировки и периода) -->
 </form>
+
+<!-- 2. Сетка с постами -->
+<div class="grid" id="posts-grid">
+  <% if (posts.length === 0) { %>
+    <p class="empty" id="empty-feed">Нет файлов для отображения</p>
+  <% } %>
+
+  <% posts.forEach(function(post) { %>
+    <!-- карточки постов -->
+  <% }) %>
+</div>
+
+<!-- 3. ВСТАВЬТЕ ЭТОТ БОК С КНОПКОЙ СРАЗУ ПОСЛЕ СЕТКИ ПОСТОВ -->
+<div class="mobile-suggest-container">
+  <button type="button" id="open-suggest-video" class="btn-suggest-video">
+    Предложить видео
+  </button>
+</div>
 
 
 
