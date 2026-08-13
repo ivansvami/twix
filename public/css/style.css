@@ -32,7 +32,7 @@ a { color: inherit; text-decoration: none; }
 
 .logo { font-weight: 700; font-size: 20px; color: var(--accent); }
 .mainnav { display: flex; gap: 16px; flex: 1; }
-.mainnav a { color: var(--text-dim); padding: 6px 10px; border-radius: 6px; }
+.mainnav a { color: var(--text-dim); padding: 6px 10px; border-radius: 6px; font-size: 18px; }
 .mainnav a.active, .mainnav a:hover { color: var(--text); background: #26283155; }
 .topbar-right { display: flex; align-items: center; gap: 14px; }
 .badge { background: var(--accent); border-radius: 10px; padding: 1px 7px; font-size: 12px; margin-left: 4px; }
