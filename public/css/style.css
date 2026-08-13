@@ -487,17 +487,32 @@ a { color: inherit; text-decoration: none; }
   .mobile-bottom-nav { display: flex; }
   body { padding-bottom: 70px; }
 }
-/* По умолчанию на ПК контейнер скрыт */
+
+/* ===== Управление отображением кнопки «Предложить видео» (ПК / Мобильные) ===== */
+
+/* На ПК мобильный контейнер скрыт */
 .mobile-suggest-container {
   display: none;
 }
 
-/* На мобильных устройствах показываем кнопку внизу */
+/* На мобильных устройствах */
 @media (max-width: 760px) {
+  /* Скрываем кнопку в фильтрах сверху */
+  .desktop-suggest-btn {
+    display: none !important;
+  }
+
+  /* Фиксируем мобильную кнопку над нижним баром */
   .mobile-suggest-container {
     display: block;
-    margin: 30px 0 10px 0;
-    padding: 0 16px;
+    position: fixed;
+    bottom: 65px;
+    left: 0;
+    right: 0;
+    z-index: 80;
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+    padding: 10px 16px;
+    margin: 0;
   }
 
   .mobile-suggest-container .btn-suggest-video {
@@ -506,17 +521,5 @@ a { color: inherit; text-decoration: none; }
     align-items: center;
     justify-content: center;
     text-align: center;
-  }
-}
-@media (max-width: 760px) {
-  .mobile-suggest-container {
-    position: fixed;
-    bottom: 65px; /* Высота над нижним баром меню */
-    left: 0;
-    right: 0;
-    z-index: 80;
-    background: linear-gradient(to top, var(--bg) 70%, transparent); /* Плавный фон, чтобы контент не резко обрезался под кнопкой */
-    padding: 10px 16px;
-    margin: 0;
   }
 }
