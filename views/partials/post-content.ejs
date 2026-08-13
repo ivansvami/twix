@@ -1,3 +1,13 @@
+<%
+  const firstUrl = post.files && post.files[0] ? post.files[0].url : '';
+  const isVerticalVideo = firstUrl.match(/tiktok\.com|instagram\.com\/reel|shorts\//);
+%>
+
+<!-- Добавляем класс vertical-mode, если это видео из соцсетей -->
+<div class="post-modal-inner <%= isVerticalVideo ? 'vertical-mode' : '' %>">
+  <a href="/" class="post-close js-close-post" aria-label="Закрыть">✕</a>
+  
+  <!-- Остальной код -->
 <div class="post-modal-inner">
   <a href="/" class="post-close js-close-post" aria-label="Закрыть">✕</a>
 
