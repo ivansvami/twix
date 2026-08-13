@@ -66,6 +66,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   document.addEventListener('click', function (e) {
+    var mediaClick = e.target.closest('.card:not(.card-youtube) .card-media');
+    if (mediaClick) {
+      var btn = mediaClick.closest('.card').querySelector('.js-post-link');
+      if (btn) {
+        e.preventDefault();
+        openPostModal(btn.dataset.shortid, true);
+        return;
+      }
+    }
     var link = e.target.closest('.js-post-link');
     if (link) {
       e.preventDefault();
