@@ -94,5 +94,30 @@
     Предложить видео
   </button>
 </div>
-
+<!-- Новый поп-ап для TikTok/Shorts/Reels -->
+<div class="post-overlay" id="tiktok-modal" hidden>
+  <div class="tiktok-popup-card">
+    <button type="button" class="tiktok-close" id="close-tiktok-modal">&times;</button>
+    <h2 class="tiktok-popup-title">Tiktok, shorts, reels</h2>
+    <form action="/api/posts/suggest" method="POST" class="tiktok-popup-body">
+      <div class="tiktok-preview-box">
+        <div class="tiktok-preview-placeholder"><span>▶</span><span>Превью видео</span></div>
+      </div>
+      <div class="tiktok-fields-box">
+        <label class="tiktok-field-group">
+          <span class="tiktok-label-text">Ссылка на: тикток, шортс, рилс</span>
+          <input type="url" name="url" id="tiktok-url-input" class="tiktok-input" required>
+        </label>
+        <div class="tiktok-field-group">
+          <div class="tiktok-label-row">
+            <span class="tiktok-label-text">Комментарий</span>
+            <span class="tiktok-counter" id="tiktok-char-count">0/150</span>
+          </div>
+          <textarea name="title" maxlength="150" placeholder="Добавить комментарий" id="tiktok-comment-input" class="tiktok-textarea"></textarea>
+        </div>
+        <button type="submit" class="tiktok-submit-btn">Отправить</button>
+      </div>
+    </form>
+  </div>
+</div>
 <%- include('partials/footer') %>
