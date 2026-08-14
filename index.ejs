@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>twix by salonamasle</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/modal-styles.css">
+</head>
+<body>
+
+  <!-- Шапка сайта -->
+  <header class="main-header">
+    <div class="container">
+      <a href="/" class="logo">twix by salonamasle</a>
+      <nav class="nav-links">
+        <a href="/">Лента</a>
+        <a href="/video">Видео</a>
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/posts/new">Новый пост</a>
+          <a href="/notifications">Уведомления</a>
+          <span class="user-name"><%= user.username %></span>
+          <form action="/logout" method="POST" style="display:inline;">
+            <button type="submit" class="btn-logout">Выйти</button>
+          </form>
+        <% } else { %>
+          <a href="/login">Войти</a>
+          <a href="/register">Регистрация</a>
+        <% } %>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Основное содержимое -->
+  <main class="container content">
+
+    <!-- Форма создания нового поста -->
+    <% if (typeof user !== 'undefined' && user) { %>
+      <section class="create-post-section">
+        <h2>Создать новый пост</h2>
+        <form action="/posts" method="POST" class="post-form">
+          <input type="text" name="title" placeholder="Заголовок поста" required>
+          <textarea name="description" placeholder="Описание..." rows="3"></textarea>
+          <input type="url" name="imageUrl" placeholder="Ссылка на изображение (http://...)">
+          <button type="submit" class="btn btn-primary">Опубликовать</button>
+        </form>
+      </section>
+    <% } %>
+
+    <!-- Лента постов -->
+    <section class="posts-feed">
+      <h2>Лента постов</h2>
+
+      <% if (typeof posts !== 'undefined' && posts && posts.length > 0) { %>
+        <div class="posts-grid">
+          <% posts.forEach(post => { %>
+            <% 
+              const postId = post.shortId || post._id || ''; 
+              // 1. Извлекаем исходную ссылку
+              const rawUrl = (post.files && post.files[0]) ? post.files[0].url : (post.imageUrl || post.videoUrl || post.url || '');
+
+              // 2. Проверяем YouTube
+              function getYouTubeWatchUrl(url) {
+                if (!url) return null;
+                const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+                return match ? 'https://www.youtube.com/watch?v=' + match[1] : null;
+              }
+
+              function getYouTubeEmbedUrl(url) {
+                if (!url) return null;
+                const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+                return match ? 'https://www.youtube.com/embed/' + match[1] : null;
+              }
+
+              const ytWatchUrl = getYouTubeWatchUrl(rawUrl);
+              const ytEmbedUrl = getYouTubeEmbedUrl(rawUrl);
+            %>
+
+            <article 
+              class="post-card" 
+              <% if (ytWatchUrl) { %>
+                onclick="window.open('<%= ytWatchUrl %>', '_blank')"
+              <% } else { %>
+                onclick="openPostModal(event, '<%= postId %>', '<%= postId %>', '<%= rawUrl %>')"
+              <% } %>
+              data-id="<%= postId %>"
+              style="cursor: pointer;"
+            >
+              <div class="post-card-media">
+                <% if (ytEmbedUrl) { %>
+                  <!-- Видео YouTube -->
+                  <iframe 
+                    src="<%= ytEmbedUrl %>" 
+                    frameborder="0" 
+                    allowfullscreen
+                    style="width: 100%; height: 100%; aspect-ratio: 16/9; border: none; pointer-events: none;"
+                  ></iframe>
+                <% } else if (post.files && post.files.length > 0) {
+                     const f = post.files[0]; %>
+                  <% if (f.resourceType === 'video') { %>
+                    <video src="<%= f.url %>" muted autoplay loop playsinline preload="metadata"></video>
+                  <% } else if (f.resourceType === 'audio') { %>
+                    <div class="audio-thumb">🎵</div>
+                  <% } else { %>
+                    <img src="<%= f.url %>" alt="<%= post.title || '' %>" loading="lazy">
+                  <% } %>
+                <% } else if (post.imageUrl) { %>
+                  <img src="<%= post.imageUrl %>" alt="<%= post.title || '' %>" loading="lazy">
+                <% } %>
+              </div>
+
+              <div class="post-card-body">
+                <h3 class="post-card-title"><%= post.title || 'Без названия' %></h3>
+                <p class="post-card-desc"><%= post.description || '' %></p>
+                <div class="post-card-footer">
+                  <span class="views-count">👁 <%= post.views || 0 %></span>
+                  <span class="post-date">
+                    <%= post.createdAt ? new Date(post.createdAt).toLocaleDateString('ru-RU') : '' %>
+                  </span>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="no-posts">Постов пока нет. Будьте первым, кто опубликует!</p>
+      <% } %>
+    </section>
+
+  </main>
+
+  <!-- Подвал сайта -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>twix by salonamasle — учебный проект. Все файлы загружаются пользователями.</p>
+      <a href="https://t.me/salonamasle" target="_blank" rel="noopener noreferrer">сделано by salonamasle</a>
+    </div>
+  </footer>
+
+  <!-- Модальное окно просмотра/редактирования поста -->
+  <div id="postModal" class="post-modal-overlay" onclick="closePostModal(event)">
+    <div class="post-modal-container" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closePostModal(event, true)">&times;</button>
+      <div id="modalContent" class="modal-body">
+        <div class="modal-spinner">Загрузка...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/post-modal.js"></script>
+</body>
+</html>
