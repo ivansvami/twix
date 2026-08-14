@@ -137,48 +137,34 @@ function buildSort(sort) {
 // Общая лента / фильтр по категории
 
 async function renderFeed(req, res, forcedCategory) {
-
   const category = forcedCategory || req.query.category || 'all';
-
   const sort = req.query.sort || 'new';
-
   const period = req.query.period || 'all';
-
   const page = Math.max(parseInt(req.query.page) || 1, 1);
-
   const perPage = 24;
 
-
-
   const filter = { ...buildDateFilter(period) };
-
   if (category && category !== 'all') filter.category = category;
 
-
-
   const showNsfw = req.user ? !!req.user.showNsfw : false;
-
   if (!showNsfw) filter.isNsfw = false;
 
+  const posts = await Post.find(filter)
+    .sort(buildSort(sort))
+    .skip((page - 1) * perPage)
+    .limit(perPage)
+    .populate('author')
+    .lean();
 
-
-  const posts = await Post.aggregate([
-
-    { $match: filter },
-
-    { $addFields: { likesCount: { $size: '$likes' } } },
-
-    { $sort: buildSort(sort) },
-
-    { $skip: (page - 1) * perPage },
-
-    { $limit: perPage },
-
-    { $lookup: { from: 'users', localField: 'author', foreignField: '_id', as: 'author' } },
-
-    { $unwind: '$author' }
-
-  ]);
+  res.render('feed', {
+    posts,
+    category,
+    sort,
+    period,
+    page,
+    activeNav: forcedCategory === 'video' ? 'videos' : 'feed'
+  });
+}
 
 
 
