@@ -136,6 +136,7 @@ function buildSort(sort) {
 
 // Общая лента / фильтр по категории
 
+// Общая лента / фильтр по категории
 async function renderFeed(req, res, forcedCategory) {
   const category = forcedCategory || req.query.category || 'all';
   const sort = req.query.sort || 'new';
