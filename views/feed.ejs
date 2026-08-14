@@ -30,10 +30,10 @@
     </select>
   </label>
 
-  <!-- Кнопка только для ПК (добавлен id open-tiktok-modal для связи со скриптом) -->
-<button type="button" id="open-suggest-btn" class="btn-suggest-video desktop-suggest-btn" style="margin-left: auto;">
-  Предложить видео
-</button>
+  <!-- Кнопка для ПК -->
+  <button type="button" id="open-suggest-btn" class="btn-suggest-video desktop-suggest-btn" style="margin-left: auto;">
+    Предложить видео
+  </button>
 </form>
 
 <div class="grid" id="posts-grid">
@@ -45,16 +45,12 @@
       const firstFile = post.files && post.files[0];
       const rawUrl = firstFile ? firstFile.url : '';
       
-      // Распознавание YouTube
       const ytMatch = rawUrl && rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
       const youtubeId = ytMatch ? ytMatch[1] : null;
       const ytEmbedUrl = youtubeId ? 'https://www.youtube.com/embed/' + youtubeId : null;
       const ytWatchUrl = youtubeId ? 'https://www.youtube.com/watch?v=' + youtubeId : null;
       
-      // Распознавание TikTok
       const tiktokMatch = rawUrl && rawUrl.match(/tiktok\.com\/.*\/video\/(\d+)/);
-      
-      // Распознавание Instagram Reels
       const instaMatch = rawUrl && rawUrl.match(/instagram\.com\/(?:reel|reels)\/([\w-]+)/);
       
       const isYoutube = Boolean(youtubeId);
@@ -108,34 +104,31 @@
 
 <!-- Мобильная кнопка -->
 <div class="mobile-suggest-container">
-  <button type="button" class="btn-suggest-video" onclick="document.getElementById('open-tiktok-modal').click()">
+  <button type="button" class="btn-suggest-video" onclick="document.getElementById('open-suggest-btn').click()">
     Предложить видео
   </button>
 </div>
 
-<!-- Поп-ап для TikTok/Reels -->
-<div class="post-overlay" id="tiktok-modal" hidden>
+<!-- Поп-ап для предложений -->
+<div class="post-overlay" id="suggest-modal" hidden>
   <div class="tiktok-popup-card">
-    <button type="button" class="tiktok-close" id="close-tiktok-modal">&times;</button>
-    <h2 class="tiktok-popup-title">TikTok и Reels</h2>
+    <button type="button" class="tiktok-close" id="close-suggest-modal">&times;</button>
+    <h2 class="tiktok-popup-title">Предложить видео</h2>
     <form action="/new" method="POST" class="tiktok-popup-body">
       <input type="hidden" name="category" value="video">
-      <input type="hidden" name="uploadedFiles" id="tiktok-uploaded-files-json">
+      <input type="hidden" name="uploadedFiles" id="suggest-uploaded-files-json">
 
-      <div class="tiktok-preview-box">
-        <div class="tiktok-preview-placeholder"><span>▶</span><span>Превью видео</span></div>
-      </div>
       <div class="tiktok-fields-box">
         <label class="tiktok-field-group">
-          <span class="tiktok-label-text">Ссылка на TikTok или Reels</span>
-          <input type="url" id="tiktok-url-field" class="tiktok-input" placeholder="https://..." required>
+          <span class="tiktok-label-text">Ссылка на видео (YouTube, TikTok, Reels)</span>
+          <input type="url" id="suggest-url-field" class="tiktok-input" placeholder="https://..." required>
         </label>
         <div class="tiktok-field-group">
           <div class="tiktok-label-row">
             <span class="tiktok-label-text">Комментарий</span>
-            <span class="tiktok-counter" id="tiktok-char-count">0/150</span>
+            <span class="tiktok-counter" id="suggest-char-count">0/150</span>
           </div>
-          <textarea name="title" maxlength="150" placeholder="Добавить комментарий" id="tiktok-comment-input" class="tiktok-textarea"></textarea>
+          <textarea name="title" maxlength="150" placeholder="Добавить комментарий" id="suggest-comment-input" class="tiktok-textarea"></textarea>
         </div>
         <button type="submit" class="tiktok-submit-btn">Отправить</button>
       </div>
@@ -143,18 +136,17 @@
   </div>
 </div>
 
-<!-- Скрипт управления поп-апом и защитой от YouTube -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const openBtn = document.getElementById('open-tiktok-modal');
-    const modal = document.getElementById('tiktok-modal');
-    const closeBtn = document.getElementById('close-tiktok-modal');
-    const commentInput = document.getElementById('tiktok-comment-input');
-    const charCount = document.getElementById('tiktok-char-count');
+    const openBtn = document.getElementById('open-suggest-btn');
+    const modal = document.getElementById('suggest-modal');
+    const closeBtn = document.getElementById('close-suggest-modal');
+    const commentInput = document.getElementById('suggest-comment-input');
+    const charCount = document.getElementById('suggest-char-count');
     
     const form = modal.querySelector('form');
-    const urlInput = document.getElementById('tiktok-url-field');
-    const filesJsonInput = document.getElementById('tiktok-uploaded-files-json');
+    const urlInput = document.getElementById('suggest-url-field');
+    const filesJsonInput = document.getElementById('suggest-uploaded-files-json');
 
     if (openBtn && modal) {
       openBtn.addEventListener('click', (e) => {
@@ -164,15 +156,11 @@
     }
 
     if (closeBtn && modal) {
-      closeBtn.addEventListener('click', () => {
-        modal.hidden = true;
-      });
+      closeBtn.addEventListener('click', () => modal.hidden = true);
     }
 
     if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.hidden = true;
-      });
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
     }
 
     if (commentInput && charCount) {
@@ -183,18 +171,10 @@
 
     if (form && urlInput && filesJsonInput) {
       form.addEventListener('submit', (e) => {
-        const urlValue = urlInput.value.trim().toLowerCase();
-
-        // Жесткий запрет YouTube ссылок
-        if (urlValue.includes('youtube.com') || urlValue.includes('youtu.be')) {
-          e.preventDefault();
-          alert('Ссылки на YouTube в этом окне запрещены. Используйте только TikTok или Instagram Reels.');
-          return false;
-        }
-
+        const urlValue = urlInput.value.trim();
         if (urlValue) {
           const fileData = [{
-            url: urlInput.value.trim(),
+            url: urlValue,
             publicId: 'social_' + Date.now(),
             mimetype: 'video/mp4'
           }];
