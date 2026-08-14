@@ -46,5 +46,9 @@ postSchema.pre('save', async function (next) {
   this.shortId = candidate;
   next();
 });
-
+postSchema.index({ createdAt: -1 });
+postSchema.index({ category: 1, createdAt: -1 });
+postSchema.index({ views: -1 });
+postSchema.index({ likesCount: -1 });
+postSchema.index({ commentsCount: -1 });
 module.exports = mongoose.model('Post', postSchema);
