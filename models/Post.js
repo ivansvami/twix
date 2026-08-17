@@ -16,6 +16,7 @@ const postSchema = new mongoose.Schema({
   shortId: { type: String, unique: true, index: true },
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   title: { type: String, trim: true, maxlength: 200, default: '' },
+  description: { type: String, trim: true, maxlength: 2000, default: '' },
   category: { type: String, enum: ['image', 'video', 'audio', 'album'], required: true },
   files: [{ url: String, publicId: String, resourceType: String }],
   isNsfw: { type: Boolean, default: false },
