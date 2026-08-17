@@ -6,19 +6,14 @@
   
   <form action="/new" method="POST">
     
-    <label>
+<label>
       Заголовок
-      <input type="text" name="title" maxlength="200" placeholder="Необязательно">
+      <input type="text" name="title" maxlength="200" placeholder="Введите заголовок" required>
     </label>
 
     <label>
-      Категория
-      <select name="category" required>
-        <option value="image">Изображение</option>
-        <option value="video">Видео</option>
-        <option value="audio">Аудио</option>
-        <option value="album">Альбом (несколько файлов)</option>
-      </select>
+      Описание
+      <textarea name="description" maxlength="2000" placeholder="Необязательно" rows="5"></textarea>
     </label>
 
     <div class="form-group">
@@ -40,6 +35,20 @@
     <label class="checkbox">
       <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
     </label>
+
+    <div class="form-group">
+      <span class="field-label">Доступ</span>
+      <div class="visibility-toggle">
+        <button type="button" class="visibility-btn is-active" data-visibility="public">
+          👁 Лента
+        </button>
+        <button type="button" class="visibility-btn" data-visibility="unlisted">
+          🔒 По ссылке
+        </button>
+      </div>
+      <input type="hidden" name="visibility" id="visibility-input" value="public">
+      <p class="visibility-hint" id="visibility-hint">Пост появится в общей ленте у всех пользователей.</p>
+    </div>
 
     <button type="submit" class="btn-primary">Опубликовать</button>
   </form>
