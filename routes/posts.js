@@ -114,16 +114,10 @@ router.get('/new', requireAuth, (req, res) => {
 });
 
 router.post('/new', requireAuth, asyncHandler(async (req, res) => {
-  const allowedCategories = new Set(['image', 'video', 'audio', 'album']);
-  const category = req.body.category || 'image';
   const title = (req.body.title || '').trim();
 
   if (!title) {
     return res.status(400).render('upload', { error: 'Заголовок обязателен' });
-  }
-
-  if (!allowedCategories.has(category)) {
-    return res.status(400).render('upload', { error: 'Недопустимая категория' });
   }
 
   let uploadedFiles = [];
@@ -146,6 +140,10 @@ router.post('/new', requireAuth, asyncHandler(async (req, res) => {
   if (files.some(file => !file.url || !file.publicId || !file.resourceType)) {
     return res.status(400).render('upload', { error: 'Некорректные данные файлов' });
   }
+
+  // Категория определяется автоматически: несколько файлов — альбом,
+  // один файл — по его типу (совпадает с resourceType: image/video/audio)
+  const category = files.length > 1 ? 'album' : files[0].resourceType;
 
   const isNsfw = req.body.isNsfw === 'on';
   const visibility = req.body.visibility === 'unlisted' ? 'unlisted' : 'public';
