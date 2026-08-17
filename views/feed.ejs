@@ -60,12 +60,13 @@
   %>
     <article class="card <%= isYoutube ? 'card-youtube' : '' %>" data-shortid="<%= post.shortId %>">
       <div class="card-media">
-       <% if (isYoutube) { %>
-          <div class="yt-preview-wrap">
-            <iframe class="yt-preview-iframe" src="<%= ytEmbedUrl %>?enablejsapi=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0" title="<%= post.title || 'YouTube видео' %>" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen tabindex="-1"></iframe>
-            <a href="<%= ytWatchUrl %>" target="_blank" rel="noopener noreferrer" class="yt-preview-link" aria-label="Открыть видео на YouTube"></a>
-            <span class="yt-card-open">Открыть на YouTube</span>
+<% if (isYoutube) { %>
+          <% const ytThumbUrl = 'https://img.youtube.com/vi/' + youtubeId + '/hqdefault.jpg'; %>
+          <img src="<%= ytThumbUrl %>" alt="<%= post.title || 'YouTube видео' %>" loading="lazy" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+          <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); opacity: 0.8;"><path d="M8 5v14l11-7z"/></svg>
           </div>
+          <a href="/post/<%= post.shortId %>" class="js-post-link" data-shortid="<%= post.shortId %>" style="position: absolute; inset: 0; z-index: 3;" aria-label="Открыть публикацию"></a>
         <% } else if (isTiktok) { %>
           <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;">
             <iframe src="https://www.tiktok.com/embed/v2/<%= tiktokMatch[1] %>" style="width: 100%; height: 100%; border: none; pointer-events: none;" allowfullscreen></iframe>
