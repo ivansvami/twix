@@ -116,6 +116,11 @@ router.get('/new', requireAuth, (req, res) => {
 router.post('/new', requireAuth, asyncHandler(async (req, res) => {
   const allowedCategories = new Set(['image', 'video', 'audio', 'album']);
   const category = req.body.category || 'image';
+  const title = (req.body.title || '').trim();
+
+  if (!title) {
+    return res.status(400).render('upload', { error: 'Заголовок обязателен' });
+  }
 
   if (!allowedCategories.has(category)) {
     return res.status(400).render('upload', { error: 'Недопустимая категория' });
@@ -142,21 +147,14 @@ router.post('/new', requireAuth, asyncHandler(async (req, res) => {
     return res.status(400).render('upload', { error: 'Некорректные данные файлов' });
   }
 
-  let title = (req.body.title || '').trim();
-  const firstUrl = files && files[0] ? files[0].url : '';
-  if (!title && firstUrl) {
-    const autoTitle = await fetchVideoTitle(firstUrl);
-    if (autoTitle) {
-      title = autoTitle;
-    }
-  }
-
   const isNsfw = req.body.isNsfw === 'on';
+  const visibility = req.body.visibility === 'unlisted' ? 'unlisted' : 'public';
   const post = await Post.create({
     author: req.user._id,
-    title: title || 'Без названия',
+    title: title,
     description: (req.body.description || '').trim(),
     category,
+    visibility,
     files,
     isNsfw
   });
