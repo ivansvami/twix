@@ -77,6 +77,11 @@ async function renderFeed(req, res, forcedCategory) {
   const filter = { ...buildDateFilter(period) };
   if (category && category !== 'all') filter.category = category;
 
+  // Посты с типом доступа "только по ссылке" не показываются в общей ленте.
+  // Используем "не равно unlisted", а не "равно public" — так старые посты,
+  // у которых поля visibility ещё нет в базе, не пропадают из ленты.
+  filter.visibility = { $ne: 'unlisted' };
+
   const showNsfw = req.user ? !!req.user.showNsfw : false;
   if (!showNsfw) filter.isNsfw = false;
 
