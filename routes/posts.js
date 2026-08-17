@@ -150,7 +150,7 @@ router.post('/new', requireAuth, asyncHandler(async (req, res) => {
   // один файл — по его типу (совпадает с resourceType: image/video/audio)
   const category = files.length > 1 ? 'album' : files[0].resourceType;
 
-  const isNsfw = req.body.isNsfw === 'on';
+const isNsfw = req.body.isNsfw === 'on';
   const visibility = req.body.visibility === 'unlisted' ? 'unlisted' : 'public';
   const post = await Post.create({
     author: req.user._id,
