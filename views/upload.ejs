@@ -77,7 +77,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewContainer = document.getElementById('file-preview-container');
   const submitButton = form?.querySelector('button[type="submit"]');
 
-  if (!form || !fileInput || !dropZone || !previewContainer) return;
+if (!form || !fileInput || !dropZone || !previewContainer) return;
+
+  const visibilityButtons = document.querySelectorAll('.visibility-btn');
+  const visibilityInput = document.getElementById('visibility-input');
+  const visibilityHint = document.getElementById('visibility-hint');
+  const visibilityHints = {
+    public: 'Пост появится в общей ленте у всех пользователей.',
+    unlisted: 'Пост не появится в ленте — открыть его можно только по прямой ссылке.'
+  };
+
+  visibilityButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      visibilityButtons.forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      visibilityInput.value = btn.dataset.visibility;
+      visibilityHint.textContent = visibilityHints[btn.dataset.visibility] || '';
+    });
+  });
 
   let selectedFiles = [];
   let uploadedFiles = [];
