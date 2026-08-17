@@ -149,62 +149,7 @@
 </div>
 
 <script>
-<script src="https://www.youtube.com/iframe_api"></script>
-<script>
-  // Эта функция автоматически вызывается самим ютубом, когда его API загрузилось
-  function onYouTubeIframeAPIReady() {
-    const ytCards = document.querySelectorAll('.yt-hover-card');
 
-    ytCards.forEach(card => {
-      const targetDiv = card.querySelector('.yt-player-target');
-      const coverImg = card.querySelector('.yt-cover-img');
-      const videoId = card.dataset.ytid;
-      
-      let isPlaying = false;
-
-      // Создаем плеер
-      const player = new YT.Player(targetDiv, {
-        videoId: videoId,
-        playerVars: {
-          autoplay: 0,
-          controls: 0,          // Без кнопок
-          mute: 1,              // Без звука (обязательно для автоплея)
-          modestbranding: 1,    // Без логотипа
-          rel: 0,               // Без похожих видео
-          disablekb: 1,         // Без клавиатуры
-          fs: 0,
-          playsinline: 1,
-          iv_load_policy: 3
-        },
-        events: {
-          onStateChange: (event) => {
-            // Если видео начало играть (состояние 1)
-            if (event.data === YT.PlayerState.PLAYING) {
-              coverImg.style.opacity = '0'; // Прячем картинку
-            }
-          }
-        }
-      });
-
-      // При наведении мыши — запускаем видео
-      card.addEventListener('mouseenter', () => {
-        if (player && typeof player.playVideo === 'function') {
-          isPlaying = true;
-          player.playVideo();
-        }
-      });
-
-      // При уводе мыши — ставим на паузу и возвращаем картинку
-      card.addEventListener('mouseleave', () => {
-        if (player && typeof player.pauseVideo === 'function') {
-          isPlaying = false;
-          player.pauseVideo();
-          coverImg.style.opacity = '1'; // Мгновенно скрываем ютуб
-        }
-      });
-    });
-  }
-</script>
   document.addEventListener('DOMContentLoaded', () => {
     const openBtn = document.getElementById('open-suggest-btn');
     const modal = document.getElementById('suggest-modal');
