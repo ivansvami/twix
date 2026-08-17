@@ -16,6 +16,20 @@
       <textarea name="description" maxlength="2000" placeholder="Необязательно" rows="5"></textarea>
     </label>
 
+<div class="form-group">
+      <span class="field-label">Тип доступа</span>
+      <div class="visibility-toggle">
+        <button type="button" class="visibility-btn is-active" data-visibility="public">
+          👁 Опубликовать в ленту
+        </button>
+        <button type="button" class="visibility-btn" data-visibility="unlisted">
+          🔒 Доступ по ссылке
+        </button>
+      </div>
+      <input type="hidden" name="visibility" id="visibility-input" value="public">
+      <p class="visibility-hint" id="visibility-hint">Пост появится в общей ленте у всех пользователей.</p>
+    </div>
+
     <div class="form-group">
       <span class="field-label">Файлы</span>
       <div class="file-input-box" id="drop-zone" onclick="document.getElementById('files-input').click()">
