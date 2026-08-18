@@ -133,10 +133,7 @@
   <div class="tiktok-popup-card">
     <button type="button" class="tiktok-close" id="close-suggest-modal">&times;</button>
     <h2 class="tiktok-popup-title">Предложить видео</h2>
-    <form action="/new" method="POST" class="tiktok-popup-body">
-      <input type="hidden" name="category" value="video">
-      <input type="hidden" name="uploadedFiles" id="suggest-uploaded-files-json">
-
+<form id="suggest-form" class="tiktok-popup-body">
       <div class="tiktok-fields-box">
         <label class="tiktok-field-group">
           <span class="tiktok-label-text">Ссылка на YouTube</span>
@@ -147,7 +144,7 @@
             <span class="tiktok-label-text">Комментарий</span>
             <span class="tiktok-counter" id="suggest-char-count">0/150</span>
           </div>
-          <textarea name="title" maxlength="150" placeholder="Добавить комментарий" id="suggest-comment-input" class="tiktok-textarea"></textarea>
+          <textarea id="suggest-comment-input" maxlength="150" placeholder="Добавить комментарий" class="tiktok-textarea"></textarea>
         </div>
         <button type="submit" class="tiktok-submit-btn">Отправить</button>
       </div>
