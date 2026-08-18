@@ -129,50 +129,21 @@
 </div>
 
 <script>
-
   document.addEventListener('DOMContentLoaded', () => {
-    const openBtn = document.getElementById('open-suggest-btn');
-    const modal = document.getElementById('suggest-modal');
-    const closeBtn = document.getElementById('close-suggest-modal');
-    const commentInput = document.getElementById('suggest-comment-input');
-    const charCount = document.getElementById('suggest-char-count');
-    
-    const form = modal.querySelector('form');
-    const urlInput = document.getElementById('suggest-url-field');
-    const filesJsonInput = document.getElementById('suggest-uploaded-files-json');
+    const openBtn = document.getElementById('open-suggest-video');
 
-    if (openBtn && modal) {
-      openBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        modal.hidden = false;
-      });
-    }
+    if (openBtn) {
+      openBtn.addEventListener('click', () => {
+        // Открываем popup, который подключается через footer.ejs
+        const modal = document.getElementById('suggest-video-modal');
 
-    if (closeBtn && modal) {
-      closeBtn.addEventListener('click', () => modal.hidden = true);
-    }
-
-    if (modal) {
-      modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
-    }
-
-    if (commentInput && charCount) {
-      commentInput.addEventListener('input', () => {
-        charCount.textContent = commentInput.value.length + '/150';
-      });
-    }
-
-    if (form && urlInput && filesJsonInput) {
-      form.addEventListener('submit', (e) => {
-        const urlValue = urlInput.value.trim();
-        if (urlValue) {
-          const fileData = [{
-            url: urlValue,
-            publicId: 'social_' + Date.now(),
-            mimetype: 'video/mp4'
-          }];
-          filesJsonInput.value = JSON.stringify(fileData);
+        if (modal) {
+          modal.hidden = false;
+          modal.style.display = 'flex';
         }
       });
     }
+  });
+</script>
+
 <%- include('partials/footer') %>
