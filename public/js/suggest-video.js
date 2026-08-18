@@ -121,7 +121,6 @@ document.addEventListener('DOMContentLoaded', function () {
         submitBtn.textContent = 'Готово!';
         window.location.reload();
       })
-      })
       .catch(function () {
         errorEl.textContent = 'Ошибка сети, попробуйте ещё раз';
         errorEl.hidden = false;
