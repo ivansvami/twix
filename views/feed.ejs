@@ -128,30 +128,6 @@
   </button>
 </div>
 
-<!-- Поп-ап для предложений -->
-<div class="post-overlay" id="suggest-modal" hidden>
-  <div class="tiktok-popup-card">
-    <button type="button" class="tiktok-close" id="close-suggest-modal">&times;</button>
-    <h2 class="tiktok-popup-title">Предложить видео</h2>
-<form id="suggest-form" class="tiktok-popup-body">
-      <div class="tiktok-fields-box">
-        <label class="tiktok-field-group">
-          <span class="tiktok-label-text">Ссылка на YouTube</span>
-          <input type="url" id="suggest-url-field" class="tiktok-input" placeholder="https://youtube.com/..." required>
-        </label>
-        <div class="tiktok-field-group">
-          <div class="tiktok-label-row">
-            <span class="tiktok-label-text">Комментарий</span>
-            <span class="tiktok-counter" id="suggest-char-count">0/150</span>
-          </div>
-          <textarea id="suggest-comment-input" maxlength="150" placeholder="Добавить комментарий" class="tiktok-textarea"></textarea>
-        </div>
-        <button type="submit" class="tiktok-submit-btn">Отправить</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script>
 
   document.addEventListener('DOMContentLoaded', () => {
