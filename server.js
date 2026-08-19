@@ -71,6 +71,10 @@ app.use((err, req, res, next) => {
   res.status(500).send('Внутренняя ошибка сервера');
 });
 
-app.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Сервер запущен на порту ${PORT}`);
+  });
+}
+
+module.exports = app;
