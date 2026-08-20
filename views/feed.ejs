@@ -308,4 +308,71 @@
   });
 </script>
 
+<!-- Мобильная кнопка -->
+<div class="mobile-suggest-container">
+  <button type="button" class="btn-suggest-video" onclick="document.getElementById('open-suggest-video').click()">
+    Предложить видео
+  </button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var dropdowns = document.querySelectorAll('.filter-dropdown');
+
+    dropdowns.forEach(function (dropdown) {
+      var toggle = dropdown.querySelector('.filter-dropdown-toggle');
+      var options = dropdown.querySelectorAll('.filter-dropdown-option');
+      var input = dropdown.querySelector('input[type="hidden"]');
+      var valueEl = dropdown.querySelector('.filter-dropdown-value');
+
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+
+        dropdowns.forEach(function (other) {
+          if (other !== dropdown) {
+            other.classList.remove('open');
+          }
+        });
+
+        dropdown.classList.toggle('open');
+      });
+
+      options.forEach(function (option) {
+        option.addEventListener('click', function (e) {
+          e.stopPropagation();
+
+          var value = option.dataset.value;
+          var text = option.textContent.trim();
+
+          input.value = value;
+          valueEl.textContent = text;
+
+          options.forEach(function (item) {
+            item.classList.remove('selected');
+          });
+
+          option.classList.add('selected');
+          dropdown.classList.remove('open');
+
+          dropdown.closest('form').submit();
+        });
+      });
+    });
+
+    document.addEventListener('click', function () {
+      dropdowns.forEach(function (dropdown) {
+        dropdown.classList.remove('open');
+      });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        dropdowns.forEach(function (dropdown) {
+          dropdown.classList.remove('open');
+        });
+      }
+    });
+  });
+</script>
+
 <%- include('partials/footer') %>
