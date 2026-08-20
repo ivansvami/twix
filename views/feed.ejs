@@ -1,37 +1,199 @@
 <%- include('partials/header', { pageTitle: 'Лента - twix by salonamasle', activeNav }) %>
 
-<form class="filters" method="GET" action="<%= activeNav === 'videos' ? '/videos' : '/' %>" style="display: flex; align-items: flex-end; gap: 20px;">
-  <label>
-    <select name="category" onchange="this.form.submit()">
-      <option value="all" <%= category === 'all' ? 'selected' : '' %>>Всё</option>
-      <option value="image" <%= category === 'image' ? 'selected' : '' %>>Изображения</option>
-      <option value="video" <%= category === 'video' ? 'selected' : '' %>>Видео</option>
-      <option value="audio" <%= category === 'audio' ? 'selected' : '' %>>Аудио</option>
-      <option value="album" <%= category === 'album' ? 'selected' : '' %>>Альбомы</option>
-    </select>
-  </label>
+<form
+  class="filters"
+  method="GET"
+  action="<%= activeNav === 'videos' ? '/videos' : '/' %>"
+>
+  <!-- Категория -->
+  <div class="filter-dropdown" data-filter="category">
+    <button type="button" class="filter-dropdown-toggle">
+      <span class="filter-dropdown-value">
+        <%= category === 'image' ? 'Изображения' :
+            category === 'video' ? 'Видео' :
+            category === 'audio' ? 'Аудио' :
+            category === 'album' ? 'Альбомы' :
+            'Всё' %>
+      </span>
 
-  <label>
-    <select name="sort" onchange="this.form.submit()">
-      <option value="new" <%= sort === 'new' ? 'selected' : '' %>>Новые</option>
-      <option value="views" <%= sort === 'views' ? 'selected' : '' %>>По просмотрам</option>
-      <option value="likes" <%= sort === 'likes' ? 'selected' : '' %>>По лайкам</option>
-      <option value="comments" <%= sort === 'comments' ? 'selected' : '' %>>По комментариям</option>
-    </select>
-  </label>
+      <span class="filter-dropdown-arrow"></span>
+    </button>
 
-  <label>
-    <select name="period" onchange="this.form.submit()">
-      <option value="today" <%= period === 'today' ? 'selected' : '' %>>Сегодня</option>
-      <option value="week" <%= period === 'week' ? 'selected' : '' %>>Неделя</option>
-      <option value="month" <%= period === 'month' ? 'selected' : '' %>>Месяц</option>
-      <option value="year" <%= period === 'year' ? 'selected' : '' %>>Год</option>
-      <option value="all" <%= period === 'all' ? 'selected' : '' %>>Всё время</option>
-    </select>
-  </label>
+    <div class="filter-dropdown-menu">
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'all' ? 'selected' : '' %>"
+        data-value="all"
+      >
+        Всё
+      </button>
 
-  <!-- Кнопка для ПК -->
-<button type="button" id="open-suggest-video" class="btn-suggest-video desktop-suggest-btn" style="margin-left: auto;">
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'image' ? 'selected' : '' %>"
+        data-value="image"
+      >
+        Изображения
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'video' ? 'selected' : '' %>"
+        data-value="video"
+      >
+        Видео
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'audio' ? 'selected' : '' %>"
+        data-value="audio"
+      >
+        Аудио
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'album' ? 'selected' : '' %>"
+        data-value="album"
+      >
+        Альбомы
+      </button>
+    </div>
+
+    <input
+      type="hidden"
+      name="category"
+      value="<%= category || 'all' %>"
+    >
+  </div>
+
+
+  <!-- Сортировка -->
+  <div class="filter-dropdown" data-filter="sort">
+    <button type="button" class="filter-dropdown-toggle">
+      <span class="filter-dropdown-value">
+        <%= sort === 'views' ? 'По просмотрам' :
+            sort === 'likes' ? 'По лайкам' :
+            sort === 'comments' ? 'По комментариям' :
+            'Новое' %>
+      </span>
+
+      <span class="filter-dropdown-arrow"></span>
+    </button>
+
+    <div class="filter-dropdown-menu">
+      <button
+        type="button"
+        class="filter-dropdown-option <%= sort === 'new' ? 'selected' : '' %>"
+        data-value="new"
+      >
+        Новое
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= sort === 'views' ? 'selected' : '' %>"
+        data-value="views"
+      >
+        По просмотрам
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= sort === 'likes' ? 'selected' : '' %>"
+        data-value="likes"
+      >
+        По лайкам
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= sort === 'comments' ? 'selected' : '' %>"
+        data-value="comments"
+      >
+        По комментариям
+      </button>
+    </div>
+
+    <input
+      type="hidden"
+      name="sort"
+      value="<%= sort || 'new' %>"
+    >
+  </div>
+
+
+  <!-- Период -->
+  <div class="filter-dropdown" data-filter="period">
+    <button type="button" class="filter-dropdown-toggle">
+      <span class="filter-dropdown-value">
+        <%= period === 'today' ? 'Сегодня' :
+            period === 'week' ? 'Неделя' :
+            period === 'month' ? 'Месяц' :
+            period === 'year' ? 'Год' :
+            'Всё время' %>
+      </span>
+
+      <span class="filter-dropdown-arrow"></span>
+    </button>
+
+    <div class="filter-dropdown-menu">
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'today' ? 'selected' : '' %>"
+        data-value="today"
+      >
+        Сегодня
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'week' ? 'selected' : '' %>"
+        data-value="week"
+      >
+        Неделя
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'month' ? 'selected' : '' %>"
+        data-value="month"
+      >
+        Месяц
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'year' ? 'selected' : '' %>"
+        data-value="year"
+      >
+        Год
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'all' ? 'selected' : '' %>"
+        data-value="all"
+      >
+        Всё время
+      </button>
+    </div>
+
+    <input
+      type="hidden"
+      name="period"
+      value="<%= period || 'all' %>"
+    >
+  </div>
+
+
+  <!-- Кнопка предложения видео -->
+  <button
+    type="button"
+    id="open-suggest-video"
+    class="btn-suggest-video desktop-suggest-btn"
+  >
     Предложить видео
   </button>
 </form>
