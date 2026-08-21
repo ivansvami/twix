@@ -23,7 +23,38 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  function attachCopyLinkHandler(root) {
+    var scope = root || document;
+    var copyButton = scope.querySelector('#copy-post-link');
+    if (!copyButton || copyButton.dataset.bound) return;
+    copyButton.dataset.bound = '1';
+
+    copyButton.addEventListener('click', function () {
+      var relativeUrl = copyButton.dataset.url;
+      var url = new URL(relativeUrl, window.location.origin).href;
+
+      navigator.clipboard.writeText(url).then(function () {
+        var oldHtml = copyButton.innerHTML;
+
+        copyButton.innerHTML =
+          '<svg width="19" height="19" viewBox="0 0 24 24" fill="none">' +
+          '<path d="M5 12.5l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '</svg>';
+
+        copyButton.classList.add('copied');
+
+        setTimeout(function () {
+          copyButton.innerHTML = oldHtml;
+          copyButton.classList.remove('copied');
+        }, 1200);
+      }).catch(function (error) {
+        console.error('Не удалось скопировать ссылку:', error);
+      });
+    });
+  }
+
   attachLikeHandler();
+  attachCopyLinkHandler(document);
 
   function openPostModal(shortId, pushState) {
     if (!overlay) return;
@@ -44,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 overlayContent.innerHTML = data.html;
         attachLikeHandler();
+        attachCopyLinkHandler(overlayContent);
         if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
       })
       .catch(function () {
