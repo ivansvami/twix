@@ -1070,3 +1070,7 @@ a { color: inherit; text-decoration: none; }
     border-radius: 0 !important;
   }
 }
+.post-copy-link-new.copied {
+  background: #172b20;
+  color: #32d583;
+}
