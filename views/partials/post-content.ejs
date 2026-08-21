@@ -352,49 +352,5 @@
 
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-  const copyButton = document.getElementById('copy-post-link');
-
-  if (copyButton) {
-    copyButton.addEventListener('click', async function () {
-
-      const relativeUrl = copyButton.dataset.url;
-      const url = new URL(relativeUrl, window.location.origin).href;
-
-      try {
-        await navigator.clipboard.writeText(url);
-
-        const oldHtml = copyButton.innerHTML;
-
-        copyButton.innerHTML = `
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M5 12.5l4 4L19 7"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        `;
-
-        copyButton.classList.add('copied');
-
-        setTimeout(function () {
-          copyButton.innerHTML = oldHtml;
-          copyButton.classList.remove('copied');
-        }, 1200);
-
-      } catch (error) {
-        console.error('Не удалось скопировать ссылку:', error);
-      }
-    });
-  }
-
-});
-</script>
-
 </div> 
 
