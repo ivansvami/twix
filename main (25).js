@@ -42,9 +42,8 @@ document.addEventListener('DOMContentLoaded', function () {
           overlayContent.innerHTML = '<div class="post-loading">Пост не найден</div>';
           return;
         }
-overlayContent.innerHTML = data.html;
+        overlayContent.innerHTML = data.html;
         attachLikeHandler();
-        if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
       })
       .catch(function () {
         overlayContent.innerHTML = '<div class="post-loading">Ошибка загрузки</div>';
