@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-
 const SHORT_ID_CHARS = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-
 function generateShortId(length = 7) {
   let id = '';
   const bytes = crypto.randomBytes(length);
@@ -11,7 +9,6 @@ function generateShortId(length = 7) {
   }
   return id;
 }
-
 const postSchema = new mongoose.Schema({
   shortId: { type: String, unique: true, index: true },
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -24,10 +21,10 @@ const postSchema = new mongoose.Schema({
   isNsfw: { type: Boolean, default: false },
   views: { type: Number, default: 0 },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  likesCount: { type: Number, default: 0 },
   commentsCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });
-
 // Генерируем уникальную короткую ссылку (7 символов) перед сохранением нового поста
 postSchema.pre('save', async function (next) {
   if (this.shortId) return next();
@@ -50,8 +47,5 @@ postSchema.index({ createdAt: -1 });
 postSchema.index({ category: 1, createdAt: -1 });
 postSchema.index({ views: -1 });
 postSchema.index({ likesCount: -1 });
-likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-likesCount: { type: Number, default: 0 },
-commentsCount: { type: Number, default: 0 },
 postSchema.index({ commentsCount: -1 });
 module.exports = mongoose.model('Post', postSchema);
