@@ -24,10 +24,25 @@
 <div class="topbar-right">
   <% if (currentUser) { %>
     <a href="/notifications" class="notif-link" id="notif-link">Уведомления <span id="notif-count" class="badge" style="display:none">0</span></a>
-    <span class="username"><%= currentUser.username %></span>
-    <form action="/logout" method="POST" style="display:inline">
-      <button type="submit" class="btn-link">Выйти</button>
-    </form>
+
+    <div class="user-menu" id="user-menu">
+      <button type="button" class="user-avatar-btn" id="user-avatar-btn" aria-label="Меню профиля">
+        <% if (currentUser.avatarUrl) { %>
+          <img src="<%= currentUser.avatarUrl %>" alt="" class="avatar-img">
+        <% } else { %>
+          <span class="avatar-fallback" style="background: <%= avatarColor(currentUser.username) %>">
+            <%= currentUser.username.charAt(0).toUpperCase() %>
+          </span>
+        <% } %>
+      </button>
+
+      <div class="user-dropdown" id="user-dropdown" hidden>
+        <span class="user-dropdown-name">@<%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn-link">Выйти</button>
+        </form>
+      </div>
+    </div>
   <% } else { %>
     <a href="/login/twitch" class="btn-twitch btn-twitch-small" style="display: inline-flex; align-items: center; gap: 8px;">
       Войти через
