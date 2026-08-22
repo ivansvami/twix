@@ -57,7 +57,6 @@ router.post('/api/suggest-video', requireAuth, async (req, res) => {
       title: youtubeTitle,
       description: (comment || '').trim().slice(0, 150),
       category: 'video',
-      source: 'youtube',
       files: [{
         url: cleanUrl,
         publicId: youtubeId,

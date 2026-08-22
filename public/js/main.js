@@ -1,12 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-  function setHeaderHeightVar() {
-  var header = document.querySelector('.topbar');
-  if (header) {
-    document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
-  }
-}
-setHeaderHeightVar();
-window.addEventListener('resize', setHeaderHeightVar);
   var overlay = document.getElementById('post-overlay');
   var overlayContent = document.getElementById('post-overlay-content');
   var savedFeedUrl = window.location.pathname + window.location.search;
@@ -107,31 +99,6 @@ overlayContent.innerHTML = data.html;
   }
 
   document.addEventListener('click', function (e) {
-    var userMenu = document.getElementById('user-menu');
-var userDropdown = document.getElementById('user-dropdown');
-
-    var commentLikeBtn = e.target.closest('.comment-like-btn');
-if (commentLikeBtn) {
-  fetch('/comment/' + commentLikeBtn.dataset.commentId + '/like', { method: 'POST' })
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (!data.ok) return;
-      commentLikeBtn.querySelector('.comment-like-count').textContent = data.count;
-      commentLikeBtn.classList.toggle('liked', data.liked);
-    });
-  return;
-}
-    
-document.addEventListener('click', function (e) {
-  var avatarBtn = e.target.closest('#user-avatar-btn');
-  if (avatarBtn) {
-    userDropdown.hidden = !userDropdown.hidden;
-    return;
-  }
-  if (userMenu && !userMenu.contains(e.target) && userDropdown && !userDropdown.hidden) {
-    userDropdown.hidden = true;
-  }
-});
     var mediaClick = e.target.closest('.card:not(.card-youtube) .card-media');
     if (mediaClick) {
       var cardEl = mediaClick.closest('.card');
@@ -251,7 +218,8 @@ document.addEventListener('click', function (e) {
       renderPastePreview(input, previewEl);
     });
   }
-  
+
+  setupPasteUpload('files-input', 'paste-preview');
   setupPasteUpload('newfiles-input', 'edit-paste-preview');
 
   // ===== Проигрывание YouTube-превью при наведении курсора =====

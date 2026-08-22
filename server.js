@@ -15,7 +15,15 @@ const PORT = process.env.PORT || 3000;
 // без этого req.ip будет показывать внутренний IP прокси, а не реальный IP посетителя
 app.set('trust proxy', 1);
 
-connectDB();
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('Не удалось подключиться к MongoDB перед запросом:', err.message);
+    res.status(503).send('Сервис временно недоступен, попробуйте обновить страницу через несколько секунд.');
+  }
+});
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -63,6 +71,10 @@ app.use((err, req, res, next) => {
   res.status(500).send('Внутренняя ошибка сервера');
 });
 
-app.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Сервер запущен на порту ${PORT}`);
+  });
+}
+
+module.exports = app;
