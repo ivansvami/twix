@@ -107,6 +107,19 @@ overlayContent.innerHTML = data.html;
   }
 
   document.addEventListener('click', function (e) {
+    var userMenu = document.getElementById('user-menu');
+var userDropdown = document.getElementById('user-dropdown');
+
+document.addEventListener('click', function (e) {
+  var avatarBtn = e.target.closest('#user-avatar-btn');
+  if (avatarBtn) {
+    userDropdown.hidden = !userDropdown.hidden;
+    return;
+  }
+  if (userMenu && !userMenu.contains(e.target) && userDropdown && !userDropdown.hidden) {
+    userDropdown.hidden = true;
+  }
+});
     var mediaClick = e.target.closest('.card:not(.card-youtube) .card-media');
     if (mediaClick) {
       var cardEl = mediaClick.closest('.card');
