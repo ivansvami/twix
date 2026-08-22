@@ -6,10 +6,9 @@
   
   <form action="/new" method="POST">
     
-<label>
-<label>
+    <label>
       Заголовок
-      <input type="text" name="title" maxlength="200" placeholder="Введите заголовок" required>
+      <input type="text" name="title" maxlength="200" placeholder="Необязательно">
     </label>
 
     <label>
@@ -21,20 +20,6 @@
         <option value="album">Альбом (несколько файлов)</option>
       </select>
     </label>
-
-    <div class="form-group">
-      <span class="field-label">Тип доступа</span>
-      <div class="visibility-toggle">
-        <button type="button" class="visibility-btn is-active" data-visibility="public">
-          👁 Опубликовать в ленту
-        </button>
-        <button type="button" class="visibility-btn" data-visibility="unlisted">
-          🔒 Доступ по ссылке
-        </button>
-      </div>
-      <input type="hidden" name="visibility" id="visibility-input" value="public">
-      <p class="visibility-hint" id="visibility-hint">Пост появится в общей ленте у всех пользователей.</p>
-    </div>
 
     <div class="form-group">
       <span class="field-label">Файлы</span>
@@ -69,24 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewContainer = document.getElementById('file-preview-container');
   const submitButton = form?.querySelector('button[type="submit"]');
 
-if (!form || !fileInput || !dropZone || !previewContainer) return;
-
-  const visibilityButtons = document.querySelectorAll('.visibility-btn');
-  const visibilityInput = document.getElementById('visibility-input');
-  const visibilityHint = document.getElementById('visibility-hint');
-  const visibilityHints = {
-    public: 'Пост появится в общей ленте у всех пользователей.',
-    unlisted: 'Пост не появится в ленте — открыть его можно только по прямой ссылке.'
-  };
-
-  visibilityButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      visibilityButtons.forEach(b => b.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      visibilityInput.value = btn.dataset.visibility;
-      visibilityHint.textContent = visibilityHints[btn.dataset.visibility] || '';
-    });
-  });
+  if (!form || !fileInput || !dropZone || !previewContainer) return;
 
   let selectedFiles = [];
   let uploadedFiles = [];

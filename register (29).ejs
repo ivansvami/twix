@@ -1,0 +1,28 @@
+<%- include('partials/header', { pageTitle: 'Регистрация - twix by salonamasle' }) %>
+
+<div class="form-page narrow">
+  <h1>Регистрация</h1>
+  <% if (error) { %><p class="error"><%= error %></p><% } %>
+  <form action="/register" method="POST">
+    <label>
+      Имя пользователя
+      <input type="text" name="username" minlength="3" maxlength="24" required>
+    </label>
+    <label>
+      Email
+      <input type="email" name="email" required>
+    </label>
+    <label>
+      Пароль
+      <input type="password" name="password" minlength="6" required>
+    </label>
+    <label>
+      Повторите пароль
+      <input type="password" name="password2" minlength="6" required>
+    </label>
+    <button type="submit" class="btn-primary">Создать аккаунт</button>
+  </form>
+  <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
+</div>
+
+<%- include('partials/footer') %>

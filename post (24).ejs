@@ -1,0 +1,7 @@
+<%- include('partials/header', { pageTitle: (post.title || 'Пост') + ' - twix by salonamasle' }) %>
+
+<div class="post-standalone">
+  <%- include('partials/post-content', { post, comments, currentUser }) %>
+</div>
+
+<%- include('partials/footer') %>
