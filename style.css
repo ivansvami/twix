@@ -72,7 +72,7 @@ a { color: inherit; text-decoration: none; }
 .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
 .btn-link { background: none; color: var(--text-dim); padding: 0; }
 
-.container { max-width: 1600px; margin: 40px auto 0 auto; padding: 24px; }
+.container { max-width: 1600px; margin: 10px auto 0 auto; padding: 24px; }
 
 /* ===== Фильтры ленты ===== */
 
@@ -281,65 +281,189 @@ a { color: inherit; text-decoration: none; }
 /* ===== Просмотр поста: попап и отдельная страница ===== */
 
 .post-overlay {
-  position: fixed; inset: 0; z-index: 100;
+  position: fixed;
+  top: var(--header-h, 88px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+
   background: rgba(10, 10, 14, 0.72);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  display: flex; align-items: center; justify-content: center;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   padding: 24px;
 }
-.post-overlay[hidden] { display: none; }
-.post-overlay-content {
-  width: 100%; max-width: 1600px; height: 100%; max-height: 100%;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
-  overflow: hidden;
+
+.post-overlay[hidden] {
+  display: none;
 }
 
-.post-standalone {
-  height: calc(100vh - 140px);
-  max-width: 1600px; margin: 0 auto;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+/* ===== Основное окно поста ===== */
+
+.post-overlay-content {
+  width: min(1600px, calc(100vw - 48px));
+
+  /*
+   * Высота окна = высота экрана минус отступы.
+   * На экране 870px получится примерно 790px.
+   */
+  height: min(790px, calc(100vh - 48px));
+
+  max-width: 1600px;
+  max-height: calc(100vh - 48px);
+
+  min-height: 0;
+
+  background: #0f1012;
+  border: 1px solid #202126;
+  border-radius: 20px;
+
   overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .post-modal-inner {
   position: relative;
-  display: flex; flex-direction: row;
-  height: 100%; width: 100%;
-}
 
-.post-close {
-  position: absolute; top: 10px; right: 10px; z-index: 5;
-  width: 34px; height: 34px; border-radius: 50%;
-  background: #00000080; color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; line-height: 1;
-}
-.post-close:hover { background: var(--accent); }
+  display: flex;
+  flex-direction: row;
 
-.post-loading {
-  height: 100%; display: flex; align-items: center; justify-content: center;
-  color: var(--text-dim); font-size: 15px;
-}
+  width: 100%;
+  height: 100%;
+  min-height: 0;
 
-.post-media-area {
-  flex: 1 1 60%;
-  min-width: 0;
-  background: #000;
-  display: flex; align-items: center; justify-content: center;
   overflow: hidden;
 }
+
+/* ===== Внутренний контейнер ===== */
+
+.post-modal-inner {
+  position: relative;
+
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== Крестик ===== */
+
+.post-close {
+  position: absolute;
+
+  top: 18px;
+  right: 18px;
+
+  z-index: 20;
+
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+  color: #777980;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 0;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    color .15s ease,
+    background .15s ease;
+}
+
+.post-close::before,
+.post-close::after {
+  content: '';
+
+  position: absolute;
+
+  width: 30px;
+  height: 2px;
+
+  background: currentColor;
+  border-radius: 2px;
+}
+
+.post-close::before {
+  transform: rotate(45deg);
+}
+
+.post-close::after {
+  transform: rotate(-45deg);
+}
+
+.post-close:hover {
+  background: transparent;
+  color: #b7b7bd;
+}
+
+/* ===== Левая часть ===== */
+/* НЕ МЕНЯЕМ САМ ПЛЕЕР */
+
+.post-media-area {
+  position: relative;
+  
+  flex: 1 1 auto;
+
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  background: #000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
 .post-media-area img,
 .post-media-area video {
-  max-width: 100%; max-height: 100%;
-  width: auto; height: auto;
+  max-width: 100%;
+  max-height: 100%;
+
+  width: auto;
+  height: auto;
+
   object-fit: contain;
 }
+
 .post-media-area .audio-wrap {
-  display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
 }
-.post-media-area .audio-icon { font-size: 60px; }
-.post-media-area audio { width: 280px; max-width: 100%; }
+
+.post-media-area .audio-icon {
+  font-size: 60px;
+}
+
+.post-media-area audio {
+  width: 280px;
+  max-width: 100%;
+}
 
 /* ===== Кастомный видеоплеер ===== */
 
@@ -352,6 +476,7 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
   user-select: none;
 }
+
 .post-media-area .cp-video {
   width: 100%;
   height: 100%;
@@ -362,25 +487,46 @@ a { color: inherit; text-decoration: none; }
 
 .cp-bigplay {
   position: absolute;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  width: 64px; height: 64px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.35);
   border: none;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: opacity .15s ease, transform .15s ease;
   z-index: 2;
 }
-.cp-bigplay:hover { background: rgba(0, 0, 0, 0.55); transform: translate(-50%, -50%) scale(1.05); }
-.custom-player.is-playing .cp-bigplay { opacity: 0; pointer-events: none; }
+
+.cp-bigplay:hover {
+  background: rgba(0, 0, 0, 0.55);
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.custom-player.is-playing .cp-bigplay {
+  opacity: 0;
+  pointer-events: none;
+}
 
 .cp-controls {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85),
+    rgba(0, 0, 0, 0)
+  );
+
   padding: 18px 12px 8px;
+
   z-index: 3;
 }
 
@@ -390,28 +536,52 @@ a { color: inherit; text-decoration: none; }
   margin: 0 4px 10px;
   cursor: pointer;
 }
+
 .cp-progress-track {
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   background: rgba(255, 255, 255, 0.25);
   border-radius: 2px;
 }
+
 .cp-progress-buffered {
-  position: absolute; top: 0; left: 0; bottom: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
   width: 0%;
+
   background: rgba(255, 255, 255, 0.45);
+
   border-radius: 2px;
 }
+
 .cp-progress-fill {
-  position: absolute; top: 0; left: 0; bottom: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
   width: 0%;
+
   background: var(--cp-accent);
+
   border-radius: 2px;
 }
+
 .cp-progress-handle {
-  position: absolute; top: 50%; left: 0%;
-  width: 12px; height: 12px;
+  position: absolute;
+  top: 50%;
+  left: 0%;
+
+  width: 12px;
+  height: 12px;
+
   background: var(--cp-accent);
+
   border-radius: 50%;
+
   transform: translate(-50%, -50%);
 }
 
@@ -420,15 +590,28 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 10px;
 }
+
 .cp-btn {
-  background: none; border: none; padding: 4px;
-  display: flex; align-items: center; justify-content: center;
+  background: none;
+  border: none;
+  padding: 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   cursor: pointer;
+
   opacity: 0.9;
+
   color: #fff;
   text-decoration: none;
 }
-.cp-btn:hover { opacity: 1; }
+
+.cp-btn:hover {
+  opacity: 1;
+}
+
 .cp-time {
   color: #fff;
   font-size: 12px;
@@ -436,47 +619,90 @@ a { color: inherit; text-decoration: none; }
   white-space: nowrap;
 }
 
-.cp-volume-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.cp-volume-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-left: auto;
+}
+
 .cp-volume {
   width: 70px;
+
   accent-color: var(--cp-accent);
+
   cursor: pointer;
 }
 
-.cp-speed-wrap { position: relative; }
+.cp-speed-wrap {
+  position: relative;
+}
+
 .cp-speed-menu {
   position: absolute;
+
   bottom: calc(100% + 10px);
   right: -6px;
+
   background: rgba(20, 20, 20, 0.95);
+
   border-radius: 6px;
+
   padding: 6px 0;
+
   min-width: 130px;
+
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
+
 .cp-speed-title {
   margin: 0;
+
   padding: 6px 14px 8px;
+
   font-size: 13px;
+
   color: #fff;
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+
   margin-bottom: 4px;
 }
+
 .cp-speed-option {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   width: 100%;
-  background: none; border: none;
+
+  background: none;
+  border: none;
+
   padding: 8px 14px;
+
   color: #eee;
+
   font-size: 13px;
+
   text-align: left;
+
   cursor: pointer;
 }
-.cp-speed-option:hover { background: rgba(255, 255, 255, 0.08); }
+
+.cp-speed-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .cp-speed-option.is-active::after {
   content: '';
-  width: 6px; height: 6px;
+
+  width: 6px;
+  height: 6px;
+
   border-radius: 50%;
+
   background: #fff;
 }
 
@@ -485,57 +711,343 @@ a { color: inherit; text-decoration: none; }
   object-fit: contain;
 }
 
+/* ===== Правая часть ===== */
+
 .post-side {
-  flex: 0 0 360px;
-  max-width: 360px;
-  display: flex; flex-direction: column;
-  border-left: 1px solid var(--border);
-  overflow-y: auto;
-  padding: 20px;
+  flex: 0 0 470px;
+
+  width: 470px;
+  max-width: 470px;
+
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #101113;
+
+  border-left: 1px solid #202126;
+
+  overflow: hidden;
+
+  padding: 32px;
 }
-.post-info h1 { margin: 0 0 4px; font-size: 18px; }
-.post-author, .post-meta { color: var(--text-dim); font-size: 13px; margin: 2px 0; }
-.btn-like { margin-top: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 20px; padding: 8px 18px; cursor: pointer; align-self: flex-start; }
-.btn-like.liked { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-.post-owner-actions { display: flex; gap: 10px; margin-top: 12px; }
-.btn-danger { background: transparent; border: 1px solid #d33; color: #ff6b6b; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-size: 14px; }
-.btn-danger:hover { background: #d3333322; }
+/* ===== Информация о посте ===== */
 
-.delete-form { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.post-info {
+  flex-shrink: 0;
+}
 
-.existing-files { display: flex; flex-direction: column; gap: 10px; }
-.field-label { font-size: 14px; color: var(--text-dim); margin-bottom: 4px; }
+.post-info h1 {
+  margin: 10px 0 8px;
 
-.visibility-toggle { display: flex; gap: 10px; margin-top: 6px; }
-.visibility-btn {
-  flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 12px 14px;
-  border-radius: 8px;
+  color: #e8e8ee;
+
+  font-size: 27px;
+  line-height: 1.15;
+  font-weight: 700;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  max-width: calc(100% - 35px);
+}
+
+.post-author {
+  color: #777980;
+
   font-size: 14px;
-  cursor: pointer;
-  transition: border-color .15s ease, background .15s ease;
-}
-.visibility-btn:hover { border-color: var(--accent); }
-.visibility-btn.is-active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  font-weight: 600;
-}
-.visibility-hint { font-size: 12px; color: var(--text-dim); margin: 8px 0 0; }
-.file-row { flex-direction: row !important; align-items: center; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
-.file-row img, .file-row video { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
-.audio-thumb-small { font-size: 24px; width: 50px; text-align: center; }
-.paste-hint { font-size: 13px; color: var(--text-dim); margin: 6px 0 0; }
-.paste-preview { display: flex; flex-wrap: wrap; gap: 8px; }
-.paste-preview:empty { display: none; }
-.paste-thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
 
-.comments { margin-top: 20px; }
+  margin: 0 0 10px;
+}
+
+.post-meta {
+  color: #777980;
+
+  font-size: 13px;
+
+  margin: 0;
+}
+
+/* ===== Лайк ===== */
+
+.btn-like {
+  margin-top: 18px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  min-width: 42px;
+  height: 32px;
+
+  padding: 0 10px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #17191d;
+
+  color: #777980;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    color .15s ease;
+}
+
+.btn-like:hover {
+  background: #23181c;
+  color: #ff304f;
+}
+
+/* После нажатия */
+
+.btn-like.liked {
+  background: #29181d;
+  color: #ff304f;
+
+  border: none;
+}
+
+.btn-like.liked:hover {
+  background: #321b21;
+  color: #ff304f;
+}
+
+/* ===== Кнопка копирования ссылки ===== */
+
+.post-copy-link-new {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 32px;
+
+  margin-left: 8px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #151b20;
+
+  color: #009cff;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    color .15s ease;
+}
+
+.post-copy-link-new:hover {
+  background: #18242b;
+  color: #00aaff;
+}
+
+.post-copy-link-new.copied {
+  background: #172b20;
+  color: #32d583;
+}
+
+/* ===== Действия владельца ===== */
+
+.post-owner-actions {
+  display: flex;
+  gap: 10px;
+
+  margin-top: 14px;
+}
+
+.btn-danger {
+  background: transparent;
+
+  border: 1px solid #d33;
+
+  color: #ff6b6b;
+
+  border-radius: 8px;
+
+  padding: 8px 16px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.btn-danger:hover {
+  background: #d3333322;
+}
+
+/* ===== Комментарии ===== */
+
+.comments {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+
+  min-height: 0;
+
+  margin-top: 22px;
+
+  overflow: hidden;
+}
+
+.comments h2 {
+  margin: 0 0 14px;
+
+  color: #e8e8ee;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  flex-shrink: 0;
+}
+
+/* Список комментариев */
+
+.comments-list {
+  flex: 1;
+
+  min-height: 0;
+
+  overflow-y: auto;
+
+  padding-right: 4px;
+}
+
+/* Скролл */
+
+.comments-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+  background: #34353b;
+  border-radius: 10px;
+}
+
+/* ===== Отдельный комментарий ===== */
+
+.comment {
+  border: none;
+
+  padding: 10px 0;
+
+  margin: 0;
+}
+
+.comment.reply {
+  margin-left: 24px;
+
+  border: none;
+
+  padding: 6px 0;
+}
+
+.comment-author {
+  color: #e8e8ee;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  margin: 0 0 4px;
+}
+
+.comment-text {
+  color: #9a9aa8;
+
+  font-size: 13px;
+  line-height: 1.45;
+
+  margin: 0;
+}
+
+/* ===== Поле комментария ===== */
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  margin-top: auto;
+  margin-bottom: 0;
+
+  padding-top: 16px;
+
+  flex-shrink: 0;
+}
+
+.comment-form textarea {
+  width: 100%;
+
+  min-height: 56px;
+  max-height: 120px;
+
+  resize: none;
+
+  background: #0d0e10;
+
+  border: 1px solid #292c34;
+
+  color: var(--text);
+
+  border-radius: 9px;
+
+  padding: 12px;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+}
+
+.comment-form textarea::placeholder {
+  color: #666870;
+}
+
+.comment-form textarea:focus {
+  border-color: #3b3d46;
+}
+
+.comment-form .btn-primary {
+  width: 100%;
+
+  height: 44px;
+
+  border-radius: 9px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  background: #7c5cff;
+  color: #fff;
+
+  border: none;
+
+  cursor: pointer;
+}
+
+.comment-form .btn-primary:hover {
+  background: #6f50ed;
+}
+
 .comment-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .comment-form textarea { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px; min-height: 60px; }
 .comment { border-top: 1px solid var(--border); padding: 12px 0; }
@@ -615,13 +1127,6 @@ a { color: inherit; text-decoration: none; }
 
 .drop-text {
   font-size: 14px;
-}
-
-.file-preview-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
 }
 
 .file-preview-card {
@@ -1021,56 +1526,734 @@ a { color: inherit; text-decoration: none; }
     margin: 16px;
   }
 }
-/* ===== Коррекция размеров модального окна для обычных и вертикальных постов ===== */
 
-/* Базовый широкий контейнер для обычных постов */
-.post-overlay-content {
-  width: 100% !important;
-  max-width: 1600px !important;
-  height: 85vh !important;
-  max-height: 900px !important;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
+.post-copy-link-new.copied {
+  background: #172b20;
+  color: #32d583;
+}
+
+/* ===== Страница поста ===== */
+
+.post-standalone {
+  width: min(1600px, calc(100vw - 48px));
+  height: min(790px, calc(100vh - 48px));
+
+  max-width: 1600px;
+  max-height: calc(100vh - 48px);
+
+  margin: 15px auto 0;
+
+  background: #0f1012;
+  border: 1px solid #202126;
+  border-radius: 20px;
+
   overflow: hidden;
+
   display: flex;
   flex-direction: column;
 }
 
-/* Специальный узкий режим для вертикальных видео */
-.post-overlay-content:has(.vertical-mode) {
-  width: auto !important;
-  max-width: fit-content !important;
+.post-standalone .post-modal-inner {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: row;
+
+  overflow: hidden;
 }
 
-.post-modal-inner.vertical-mode {
-  width: 450px !important;
-  transition: width 0.3s ease;
+.post-standalone .post-media-area {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+
+  overflow: hidden;
 }
 
-.post-modal-inner.vertical-mode .post-media-area iframe {
-  width: 100% !important;
-  height: 100% !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
+.post-standalone .post-side {
+  flex: 0 0 470px;
+
+  width: 470px;
+  max-width: 470px;
+
+  min-height: 0;
+  height: 100%;
+
+  overflow: hidden;
 }
 
-.post-modal-inner.vertical-mode .post-media-area {
-  min-height: 700px !important;
+/* =========================================================
+   НОВЫЙ ДИЗАЙН СТРАНИЦЫ ПОСТА
+   ВАЖНО: кастомный плеер не трогаем
+   ========================================================= */
+
+
+/* ===== Правая колонка ===== */
+
+.post-side-new {
+  flex: 0 0 470px;
+  width: 470px;
+  max-width: 470px;
+
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #101113;
+  border-left: 1px solid #202126;
+
+  overflow: hidden;
+
+  padding: 32px;
 }
 
-/* Мобильная адаптация */
-@media (max-width: 760px) {
-  .post-overlay-content {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    border-radius: 0 !important;
-  }
+
+/* ===== Информация о посте ===== */
+
+.post-info-new {
+  flex-shrink: 0;
 }
+
+
+/* ===== Автор ===== */
+
+.post-user-new {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #e8e8ee;
+  font-size: 14px;
+  font-weight: 500;
+
+  margin-bottom: 14px;
+}
+
+.post-user-avatar-new {
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #1c1e23;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* ===== Заголовок ===== */
+
+.post-title-new {
+  margin: 0 0 10px;
+
+  color: #e8e8ee;
+
+  font-size: 27px;
+  line-height: 1.15;
+  font-weight: 700;
+
+  word-break: break-word;
+}
+
+
+/* ===== Описание ===== */
+
+.post-description-new {
+  margin: 0 0 18px;
+
+  color: #9a9aa8;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+
+/* ===== Блок действий ===== */
+
+.post-actions-new {
+  display: flex;
+  align-items: center;
+
+  min-height: 34px;
+
+  margin-top: 4px;
+}
+
+
+/* ===== Статистика ===== */
+
+.post-stats-new {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.post-stat-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  color: #777980;
+
+  font-size: 13px;
+  line-height: 1;
+}
+
+.post-stat-new svg {
+  flex-shrink: 0;
+}
+
+
+/* ===== Лайк ===== */
+
+.post-like-new {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  height: 32px;
+
+  margin-left: auto;
+
+  padding: 0 9px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #17191d;
+
+  color: #777980;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    color .15s ease;
+}
+
+.post-like-new:hover {
+  background: #23181c;
+  color: #ff304f;
+}
+
+.post-like-new.liked {
+  background: #29181d;
+  color: #ff304f;
+}
+
+.post-like-new.liked:hover {
+  background: #321b21;
+}
+
+
+/* ===== Иконка лайка ===== */
+
+.post-like-icon {
+  display: block;
+}
+
+
+/* ===== Копирование ссылки ===== */
+
+.post-copy-link-new {
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 32px;
+
+  margin-left: 8px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #151b20;
+
+  color: #009cff;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    color .15s ease;
+}
+
+.post-copy-link-new:hover {
+  background: #18242b;
+  color: #00aaff;
+}
+
 .post-copy-link-new.copied {
   background: #172b20;
   color: #32d583;
+}
+
+
+/* =========================================================
+   КОММЕНТАРИИ
+   ========================================================= */
+
+.comments-new {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1 1 auto;
+
+  min-height: 0;
+
+  margin-top: 24px;
+
+  overflow: hidden;
+}
+
+
+/* ===== Заголовок комментариев ===== */
+
+.comments-new h2 {
+  flex-shrink: 0;
+
+  margin: 0 0 14px;
+
+  color: #e8e8ee;
+
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+
+/* ===== Список комментариев ===== */
+
+.comments-list-new {
+  flex: 1 1 auto;
+
+  min-height: 0;
+
+  overflow-y: auto;
+
+  padding-right: 5px;
+}
+
+
+/* ===== Скролл комментариев ===== */
+
+.comments-list-new::-webkit-scrollbar {
+  width: 5px;
+}
+
+.comments-list-new::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.comments-list-new::-webkit-scrollbar-thumb {
+  background: #34353b;
+  border-radius: 10px;
+}
+
+.comments-list-new {
+  scrollbar-width: thin;
+  scrollbar-color: #34353b transparent;
+}
+
+
+/* ===== Отдельный комментарий ===== */
+
+.comment-new {
+  padding: 10px 0;
+
+  margin: 0;
+
+  border: none;
+}
+
+.comment-new + .comment-new {
+  border-top: 1px solid rgba(255, 255, 255, 0.045);
+}
+
+
+/* ===== Автор комментария ===== */
+
+.comment-author-new {
+  margin: 0 0 4px;
+
+  color: #e8e8ee;
+
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+
+/* ===== Текст комментария ===== */
+
+.comment-text-new {
+  margin: 0;
+
+  color: #9a9aa8;
+
+  font-size: 13px;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ===== Ответ на комментарий ===== */
+
+.comment-reply-new {
+  margin-top: 8px;
+  margin-left: 24px;
+
+  padding: 7px 0 2px;
+
+  border-top: none !important;
+}
+
+
+/* ===== Нет комментариев ===== */
+
+.comments-empty-new {
+  padding: 30px 10px;
+
+  color: #777980;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   ФОРМА КОММЕНТАРИЯ
+   ========================================================= */
+
+.comment-form-new {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.comment-form-new textarea {
+  width: 100%;
+
+  min-height: 56px;
+  max-height: 120px;
+
+  resize: none;
+
+  padding: 11px 12px;
+
+  background: #0d0e10;
+
+  border: 1px solid #292c34;
+  border-radius: 9px;
+
+  color: #e8e8ee;
+
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+
+  outline: none;
+
+  transition: border-color .15s ease;
+}
+
+.comment-form-new textarea::placeholder {
+  color: #666870;
+}
+
+.comment-form-new textarea:focus {
+  border-color: #3b3d46;
+}
+
+
+/* ===== Кнопка отправки ===== */
+
+.comment-form-new button {
+  width: 100%;
+  height: 42px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #7c5cff;
+
+  color: #fff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    transform .1s ease;
+}
+
+.comment-form-new button:hover {
+  background: #6f50ed;
+}
+
+.comment-form-new button:active {
+  transform: translateY(1px);
+}
+
+
+/* ===== Неавторизованный пользователь ===== */
+
+.comment-login-new {
+  flex-shrink: 0;
+
+  margin-top: 12px;
+  padding-top: 14px;
+
+  color: #777980;
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.comment-login-new a {
+  color: #7c5cff;
+}
+
+.comment-login-new a:hover {
+  color: #8d72ff;
+}
+
+
+/* =========================================================
+   СТРАНИЦА ПОСТА — ФИНАЛЬНЫЕ ПРАВИЛА
+   ========================================================= */
+
+.post-standalone {
+  position: relative;
+
+  width: min(1600px, calc(100vw - 48px));
+  height: min(790px, calc(100vh - 48px));
+
+  max-width: 1600px;
+  max-height: calc(100vh - 48px);
+
+  margin: 10px auto 0;
+
+  background: #0f1012;
+
+  border: 1px solid #202126;
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.post-standalone .post-modal-inner {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  min-height: 0;
+
+  display: flex;
+  flex-direction: row;
+
+  overflow: hidden;
+}
+
+
+/* ===== Медиа на странице поста ===== */
+
+.post-standalone .post-media-area {
+  flex: 1 1 auto;
+
+  width: auto;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  background: #000;
+
+  overflow: hidden;
+}
+
+
+/* ===== Правая колонка страницы ===== */
+
+.post-standalone .post-side-new {
+  flex: 0 0 470px;
+
+  width: 470px;
+  max-width: 470px;
+
+  height: 100%;
+
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   МОБИЛЬНАЯ ВЕРСИЯ
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .post-standalone {
+    width: 100%;
+    max-width: 100%;
+
+    height: 100vh;
+    max-height: none;
+
+    margin: 0;
+
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .post-standalone .post-modal-inner {
+    flex-direction: column;
+
+    height: 100%;
+  }
+
+  .post-standalone .post-media-area {
+    flex: 0 0 55vh;
+
+    width: 100%;
+    height: 55vh;
+
+    max-height: 55vh;
+  }
+
+  .post-standalone .post-side-new {
+    flex: 1 1 auto;
+
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+
+    border-left: none;
+    border-top: 1px solid #202126;
+
+    padding: 22px 18px;
+
+    overflow: hidden;
+  }
+
+  .post-title-new {
+    font-size: 22px;
+  }
+
+  .post-user-new {
+    margin-bottom: 12px;
+  }
+
+  .comments-new {
+    margin-top: 20px;
+  }
+}
+
+/* ===== Страница создания поста (двухколоночный макет) ===== */
+
+.upload-page { max-width: 1200px; margin: 0 auto; }
+
+.upload-form {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+.upload-left { display: flex; flex-direction: column; gap: 12px; }
+.upload-right { display: flex; flex-direction: column; gap: 16px; }
+
+.uploaded-files-title { font-size: 14px; color: var(--text-dim); margin: 0; }
+
+/* было flex-direction: column — меняем на сетку в 2 колонки, как в макете */
+.file-preview-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.drop-or { font-size: 12px; color: var(--text-dim); }
+
+.access-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.switch input { display: none; }
+.switch-track {
+  width: 36px;
+  height: 20px;
+  background: var(--border);
+  border-radius: 999px;
+  position: relative;
+  transition: background 0.2s;
+}
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.switch input:checked + .switch-track { background: var(--accent); }
+.switch input:checked + .switch-track::after { transform: translateX(16px); }
+
+.btn-publish { align-self: flex-start; width: 100%; }
+
+@media (max-width: 900px) {
+  .upload-form { grid-template-columns: 1fr; }
 }

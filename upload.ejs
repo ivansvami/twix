@@ -1,75 +1,73 @@
 <%- include('partials/header', { pageTitle: 'Новый пост - twix by salonamasle' }) %>
 
-<div class="form-page">
+<div class="upload-page">
   <h1>Новый пост</h1>
   <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
-  
-  <form action="/new" method="POST">
-    
-<label>
-<label>
-      Заголовок
-      <input type="text" name="title" maxlength="200" placeholder="Введите заголовок" required>
-    </label>
 
-    <label>
-      Категория
-      <select name="category" required>
-        <option value="image">Изображение</option>
-        <option value="video">Видео</option>
-        <option value="audio">Аудио</option>
-        <option value="album">Альбом (несколько файлов)</option>
-      </select>
-    </label>
+  <form action="/new" method="POST" class="upload-form">
+    <div class="upload-left">
+      <div class="file-input-box" id="drop-zone">
+        <input type="file" id="files-input" multiple hidden>
 
-    <div class="form-group">
-      <span class="field-label">Тип доступа</span>
-      <div class="visibility-toggle">
-        <button type="button" class="visibility-btn is-active" data-visibility="public">
-          👁 Опубликовать в ленту
-        </button>
-        <button type="button" class="visibility-btn" data-visibility="unlisted">
-          🔒 Доступ по ссылке
-        </button>
-      </div>
-      <input type="hidden" name="visibility" id="visibility-input" value="public">
-      <p class="visibility-hint" id="visibility-hint">Пост появится в общей ленте у всех пользователей.</p>
-    </div>
-
-    <div class="form-group">
-      <span class="field-label">Файлы</span>
-      <div class="file-input-box" id="drop-zone" onclick="document.getElementById('files-input').click()">
-        <input type="file" name="files" id="files-input" multiple required hidden>
-        
         <div id="drop-prompt" class="drop-prompt">
-          <span class="drop-icon">📁</span>
-          <span class="drop-text">Выберите или перенесите сюда файлы</span>
+          <span class="drop-icon">☁️</span>
+          <span class="drop-text">Перетащи файл сюда, вставь Ctrl + V</span>
+          <span class="drop-or">или</span>
+          <button type="button" id="choose-files-btn" class="btn-primary">Выберите файлы</button>
         </div>
 
         <div id="file-preview-container" class="file-preview-container" style="display: none;"></div>
       </div>
+
+      <p class="uploaded-files-title">Загруженные файлы (<span id="files-count">0</span>/10)</p>
     </div>
 
-    <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
+    <div class="upload-right">
+      <label>
+        Название (не обязательно)
+        <input type="text" name="title" maxlength="200" placeholder="Введите заголовок">
+      </label>
 
-    <label class="checkbox">
-      <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
-    </label>
+      <label>
+        Описание
+        <textarea name="description" maxlength="2000" placeholder="Опционально"></textarea>
+      </label>
 
-    <button type="submit" class="btn-primary">Опубликовать</button>
+      <div class="form-group">
+        <span class="field-label">Тип доступа</span>
+        <div class="access-row">
+          <div class="visibility-toggle">
+            <button type="button" class="visibility-btn is-active" data-visibility="public">👁 В ленту</button>
+            <button type="button" class="visibility-btn" data-visibility="unlisted">🔒 Доступ по ссылке</button>
+          </div>
+          <input type="hidden" name="visibility" id="visibility-input" value="public">
+
+          <label class="switch">
+            <input type="checkbox" name="isNsfw" id="nsfw-switch">
+            <span class="switch-track"></span>
+            <span class="switch-label">Не для стрима</span>
+          </label>
+        </div>
+        <p class="visibility-hint" id="visibility-hint">Пост появится в общей ленте у всех пользователей.</p>
+      </div>
+
+      <button type="submit" class="btn-primary btn-publish">Опубликовать</button>
+    </div>
   </form>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.querySelector('form[action="/new"]');
+  const form = document.querySelector('form.upload-form');
   const fileInput = document.getElementById('files-input');
   const dropZone = document.getElementById('drop-zone');
   const dropPrompt = document.getElementById('drop-prompt');
   const previewContainer = document.getElementById('file-preview-container');
+  const chooseBtn = document.getElementById('choose-files-btn');
+  const filesCount = document.getElementById('files-count');
   const submitButton = form?.querySelector('button[type="submit"]');
 
-if (!form || !fileInput || !dropZone || !previewContainer) return;
+  if (!form || !fileInput || !dropZone || !previewContainer) return;
 
   const visibilityButtons = document.querySelectorAll('.visibility-btn');
   const visibilityInput = document.getElementById('visibility-input');
@@ -87,6 +85,8 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
       visibilityHint.textContent = visibilityHints[btn.dataset.visibility] || '';
     });
   });
+
+  chooseBtn.addEventListener('click', () => fileInput.click());
 
   let selectedFiles = [];
   let uploadedFiles = [];
@@ -108,6 +108,7 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
 
   function renderFiles() {
     previewContainer.innerHTML = '';
+    filesCount.textContent = selectedFiles.length;
 
     if (!selectedFiles.length) {
       dropPrompt.style.display = 'flex';
@@ -115,8 +116,7 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
       return;
     }
 
-    dropPrompt.style.display = 'none';
-    previewContainer.style.display = 'flex';
+    previewContainer.style.display = 'grid';
 
     selectedFiles.forEach((file, index) => {
       const card = document.createElement('div');
@@ -221,9 +221,7 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
   });
 
   async function getImageKitAuth() {
-    const response = await fetch('/api/imagekit-auth', {
-      credentials: 'same-origin'
-    });
+    const response = await fetch('/api/imagekit-auth', { credentials: 'same-origin' });
     const data = await response.json();
     if (!response.ok || !data.ok) {
       throw new Error(data.error || 'Не удалось получить данные загрузки');
@@ -252,12 +250,7 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
       throw new Error(data.message || data.help || `ImageKit: HTTP ${response.status}`);
     }
 
-    return {
-      url: data.url,
-      publicId: data.fileId,
-      mimetype: file.type,
-      name: file.name
-    };
+    return { url: data.url, publicId: data.fileId, mimetype: file.type, name: file.name };
   }
 
   form.addEventListener('submit', async e => {
@@ -291,7 +284,6 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
       }
       hidden.value = JSON.stringify(uploadedFiles);
 
-      // Файлы уже ушли напрямую в ImageKit, поэтому multipart здесь больше не нужен.
       fileInput.disabled = true;
       form.submit();
     } catch (err) {
