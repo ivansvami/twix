@@ -2286,3 +2286,61 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 900px) {
   .upload-form { grid-template-columns: 1fr; }
 }
+
+.comment-meta-new {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.comment-badge-author {
+  margin-left: 6px;
+  padding: 1px 7px;
+  background: rgba(124, 92, 255, 0.15);
+  color: #7c5cff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 5px;
+  vertical-align: middle;
+}
+
+.comment-time-new {
+  flex-shrink: 0;
+  color: #666870;
+  font-size: 12px;
+}
+
+.comment-actions-new {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.comment-like-btn,
+.comment-reply-btn,
+.comment-edit-btn,
+.comment-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #777980;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color .15s ease;
+}
+
+.comment-like-btn:hover,
+.comment-reply-btn:hover,
+.comment-edit-btn:hover,
+.comment-delete-btn:hover {
+  color: #b7b7bd;
+}
+
+.comment-like-btn.liked { color: #7c5cff; }
+.comment-like-btn.liked svg { fill: #7c5cff; }
