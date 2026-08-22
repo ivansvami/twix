@@ -28,9 +28,6 @@ const postSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-postSchema.index({ createdAt: -1 });
-postSchema.index({ category: 1 });
-
 // Генерируем уникальную короткую ссылку (7 символов) перед сохранением нового поста
 postSchema.pre('save', async function (next) {
   if (this.shortId) return next();
