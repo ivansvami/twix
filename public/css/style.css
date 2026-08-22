@@ -900,16 +900,18 @@ a { color: inherit; text-decoration: none; }
 }
 .comment-form-new textarea:focus { outline: none; border-color: var(--accent); }
 .comment-form-new button {
-  align-self: flex-end;
+  width: 100%;
+  align-self: stretch;
   background: var(--accent);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px 22px;
+  padding: 12px 22px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
+  box-sizing: border-box;
 }
 .comment-form-new button:hover { background: #6b4ce8; }
 
