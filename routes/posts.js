@@ -126,12 +126,8 @@ router.get('/new', requireAuth, (req, res) => {
   res.render('upload', { error: null });
 });
 
-router.post('/new', requireAuth, asyncHandler(async (req, res) => {
+  router.post('/new', requireAuth, asyncHandler(async (req, res) => {
   const title = (req.body.title || '').trim();
-
-  if (!title) {
-    return res.status(400).render('upload', { error: 'Заголовок обязателен' });
-  }
 
   let uploadedFiles = [];
   try {
