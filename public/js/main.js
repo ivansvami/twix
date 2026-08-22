@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
+  function setHeaderHeightVar() {
+  var header = document.querySelector('.topbar');
+  if (header) {
+    document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+  }
+}
+setHeaderHeightVar();
+window.addEventListener('resize', setHeaderHeightVar);
   var overlay = document.getElementById('post-overlay');
   var overlayContent = document.getElementById('post-overlay-content');
   var savedFeedUrl = window.location.pathname + window.location.search;
