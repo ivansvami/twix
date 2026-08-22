@@ -77,6 +77,14 @@ async function renderFeed(req, res, forcedCategory) {
   const filter = { ...buildDateFilter(period) };
   if (category && category !== 'all') filter.category = category;
 
+  // Лента: никогда не показываем предложенные ютуб-видео
+  // Раздел "Видео": показываем ТОЛЬКО предложенные ютуб-видео
+  if (forcedCategory === 'video') {
+    filter.source = 'youtube';
+  } else {
+    filter.source = { $ne: 'youtube' };
+  }
+
   // Посты с типом доступа "только по ссылке" не показываются в общей ленте.
   // Используем "не равно unlisted", а не "равно public" — так старые посты,
   // у которых поля visibility ещё нет в базе, не пропадают из ленты.
