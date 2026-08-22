@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'twix by salonamasle' %></title>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a href="/" class="logo">
+  <img src="/logo.svg" alt="twix logo" style="height: 44px; width: auto;">
+</a>
+  <nav class="mainnav">
+    <a href="/" class="<%= typeof activeNav !== 'undefined' && activeNav === 'feed' ? 'active' : '' %>">Лента</a>
+    <a href="/videos" class="<%= typeof activeNav !== 'undefined' && activeNav === 'videos' ? 'active' : '' %>">Видео</a>
+    <% if (currentUser) { %>
+      <a href="/new">Новый пост</a>
+    <% } %>
+  </nav>
+<div class="topbar-right">
+  <% if (currentUser) { %>
+    <a href="/notifications" class="notif-link" id="notif-link">Уведомления <span id="notif-count" class="badge" style="display:none">0</span></a>
+    <span class="username"><%= currentUser.username %></span>
+    <form action="/logout" method="POST" style="display:inline">
+      <button type="submit" class="btn-link">Выйти</button>
+    </form>
+  <% } else { %>
+    <a href="/login/twitch" class="btn-twitch btn-twitch-small" style="display: inline-flex; align-items: center; gap: 8px;">
+      Войти через
+      <img src="/twitch-icon.svg" alt="Twitch" style="width: 14px; height: 14px; display: block;">
+    </a>
+  <% } %>
+</div>
+</header>
+<main class="container">

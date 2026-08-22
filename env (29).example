@@ -1,0 +1,11 @@
+PORT=3000
+MONGODB_URI=mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/myfeed
+SESSION_SECRET=придумайте_длинную_случайную_строку
+IMAGEKIT_PUBLIC_KEY=ваш_public_key
+IMAGEKIT_PRIVATE_KEY=ваш_private_key
+IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/ваш_id
+
+TWITCH_CLIENT_ID=ваш_twitch_client_id
+TWITCH_CLIENT_SECRET=ваш_twitch_client_secret
+# Необязательно: если не задать, определится автоматически из адреса запроса
+TWITCH_REDIRECT_URI=https://ваш-домен.ru/login/twitch/callback

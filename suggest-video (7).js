@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
       })
     })
       .then(function (r) { return r.json(); })
-      .then(function (data) {
+.then(function (data) {
         if (!data.ok) {
           errorEl.textContent = data.error || 'Не удалось отправить, попробуйте ещё раз';
           errorEl.hidden = false;
@@ -118,10 +118,8 @@ document.addEventListener('DOMContentLoaded', function () {
           submitBtn.textContent = 'Отправить';
           return;
         }
-        submitBtn.textContent = 'Готово, открываем пост...';
-        // Сразу переходим на страницу опубликованного поста (полная страница, не попап) —
-        // так пост виден сразу, без необходимости обновлять ленту вручную.
-        window.location.href = '/post/' + data.shortId;
+        submitBtn.textContent = 'Готово!';
+        window.location.reload();
       })
       .catch(function () {
         errorEl.textContent = 'Ошибка сети, попробуйте ещё раз';
