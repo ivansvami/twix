@@ -1127,13 +1127,6 @@ a { color: inherit; text-decoration: none; }
   font-size: 14px;
 }
 
-.file-preview-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-}
-
 .file-preview-card {
   display: flex;
   align-items: center;
