@@ -1,37 +1,199 @@
 <%- include('partials/header', { pageTitle: 'Лента - twix by salonamasle', activeNav }) %>
 
-<form class="filters" method="GET" action="<%= activeNav === 'videos' ? '/videos' : '/' %>" style="display: flex; align-items: flex-end; gap: 20px;">
-  <label>
-    <select name="category" onchange="this.form.submit()">
-      <option value="all" <%= category === 'all' ? 'selected' : '' %>>Всё</option>
-      <option value="image" <%= category === 'image' ? 'selected' : '' %>>Изображения</option>
-      <option value="video" <%= category === 'video' ? 'selected' : '' %>>Видео</option>
-      <option value="audio" <%= category === 'audio' ? 'selected' : '' %>>Аудио</option>
-      <option value="album" <%= category === 'album' ? 'selected' : '' %>>Альбомы</option>
-    </select>
-  </label>
+<form
+  class="filters"
+  method="GET"
+  action="<%= activeNav === 'videos' ? '/videos' : '/' %>"
+>
+  <!-- Категория -->
+  <div class="filter-dropdown" data-filter="category">
+    <button type="button" class="filter-dropdown-toggle">
+      <span class="filter-dropdown-value">
+        <%= category === 'image' ? 'Изображения' :
+            category === 'video' ? 'Видео' :
+            category === 'audio' ? 'Аудио' :
+            category === 'album' ? 'Альбомы' :
+            'Всё' %>
+      </span>
 
-  <label>
-    <select name="sort" onchange="this.form.submit()">
-      <option value="new" <%= sort === 'new' ? 'selected' : '' %>>Новые</option>
-      <option value="views" <%= sort === 'views' ? 'selected' : '' %>>По просмотрам</option>
-      <option value="likes" <%= sort === 'likes' ? 'selected' : '' %>>По лайкам</option>
-      <option value="comments" <%= sort === 'comments' ? 'selected' : '' %>>По комментариям</option>
-    </select>
-  </label>
+      <span class="filter-dropdown-arrow"></span>
+    </button>
 
-  <label>
-    <select name="period" onchange="this.form.submit()">
-      <option value="today" <%= period === 'today' ? 'selected' : '' %>>Сегодня</option>
-      <option value="week" <%= period === 'week' ? 'selected' : '' %>>Неделя</option>
-      <option value="month" <%= period === 'month' ? 'selected' : '' %>>Месяц</option>
-      <option value="year" <%= period === 'year' ? 'selected' : '' %>>Год</option>
-      <option value="all" <%= period === 'all' ? 'selected' : '' %>>Всё время</option>
-    </select>
-  </label>
+    <div class="filter-dropdown-menu">
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'all' ? 'selected' : '' %>"
+        data-value="all"
+      >
+        Всё
+      </button>
 
-  <!-- Кнопка для ПК -->
-  <button type="button" id="open-suggest-btn" class="btn-suggest-video desktop-suggest-btn" style="margin-left: auto;">
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'image' ? 'selected' : '' %>"
+        data-value="image"
+      >
+        Изображения
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'video' ? 'selected' : '' %>"
+        data-value="video"
+      >
+        Видео
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'audio' ? 'selected' : '' %>"
+        data-value="audio"
+      >
+        Аудио
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= category === 'album' ? 'selected' : '' %>"
+        data-value="album"
+      >
+        Альбомы
+      </button>
+    </div>
+
+    <input
+      type="hidden"
+      name="category"
+      value="<%= category || 'all' %>"
+    >
+  </div>
+
+
+  <!-- Сортировка -->
+  <div class="filter-dropdown" data-filter="sort">
+    <button type="button" class="filter-dropdown-toggle">
+      <span class="filter-dropdown-value">
+        <%= sort === 'views' ? 'По просмотрам' :
+            sort === 'likes' ? 'По лайкам' :
+            sort === 'comments' ? 'По комментариям' :
+            'Новое' %>
+      </span>
+
+      <span class="filter-dropdown-arrow"></span>
+    </button>
+
+    <div class="filter-dropdown-menu">
+      <button
+        type="button"
+        class="filter-dropdown-option <%= sort === 'new' ? 'selected' : '' %>"
+        data-value="new"
+      >
+        Новое
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= sort === 'views' ? 'selected' : '' %>"
+        data-value="views"
+      >
+        По просмотрам
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= sort === 'likes' ? 'selected' : '' %>"
+        data-value="likes"
+      >
+        По лайкам
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= sort === 'comments' ? 'selected' : '' %>"
+        data-value="comments"
+      >
+        По комментариям
+      </button>
+    </div>
+
+    <input
+      type="hidden"
+      name="sort"
+      value="<%= sort || 'new' %>"
+    >
+  </div>
+
+
+  <!-- Период -->
+  <div class="filter-dropdown" data-filter="period">
+    <button type="button" class="filter-dropdown-toggle">
+      <span class="filter-dropdown-value">
+        <%= period === 'today' ? 'Сегодня' :
+            period === 'week' ? 'Неделя' :
+            period === 'month' ? 'Месяц' :
+            period === 'year' ? 'Год' :
+            'Всё время' %>
+      </span>
+
+      <span class="filter-dropdown-arrow"></span>
+    </button>
+
+    <div class="filter-dropdown-menu">
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'today' ? 'selected' : '' %>"
+        data-value="today"
+      >
+        Сегодня
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'week' ? 'selected' : '' %>"
+        data-value="week"
+      >
+        Неделя
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'month' ? 'selected' : '' %>"
+        data-value="month"
+      >
+        Месяц
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'year' ? 'selected' : '' %>"
+        data-value="year"
+      >
+        Год
+      </button>
+
+      <button
+        type="button"
+        class="filter-dropdown-option <%= period === 'all' ? 'selected' : '' %>"
+        data-value="all"
+      >
+        Всё время
+      </button>
+    </div>
+
+    <input
+      type="hidden"
+      name="period"
+      value="<%= period || 'all' %>"
+    >
+  </div>
+
+
+  <!-- Кнопка предложения видео -->
+  <button
+    type="button"
+    id="open-suggest-video"
+    class="btn-suggest-video desktop-suggest-btn"
+  >
     Предложить видео
   </button>
 </form>
@@ -60,12 +222,31 @@
   %>
     <article class="card <%= isYoutube ? 'card-youtube' : '' %>" data-shortid="<%= post.shortId %>">
       <div class="card-media">
-        <% if (isYoutube) { %>
-          <div class="yt-preview-wrap">
-            <iframe class="yt-preview-iframe" src="<%= ytEmbedUrl %>?enablejsapi=1&mute=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0" title="<%= post.title || 'YouTube видео' %>" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen tabindex="-1"></iframe>
-            <a href="<%= ytWatchUrl %>" target="_blank" rel="noopener noreferrer" class="yt-preview-link" aria-label="Открыть видео на YouTube"></a>
-            <span class="yt-card-open">Открыть на YouTube</span>
+       <% if (isYoutube) { %>
+          <% 
+            const ytThumbUrl = 'https://img.youtube.com/vi/' + youtubeId + '/hqdefault.jpg';
+            const ytWatchUrl = 'https://www.youtube.com/watch?v=' + youtubeId;
+          %>
+          
+          <div class="yt-hover-card" data-ytid="<%= youtubeId %>" style="position: relative; width: 100%; padding-top: 56.25%; background: #000; overflow: hidden;">
+            
+            <!-- 1. Сам плеер (спрятан сзади, воспроизводится при наведении) -->
+            <div class="yt-player-container" style="position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; pointer-events: none;">
+              <div class="yt-player-target"></div>
+            </div>
+
+            <!-- 2. Кликабельная обложка-заглушка, ведущая на YouTube в новой вкладке -->
+            <a href="<%= ytWatchUrl %>" target="_blank" rel="noopener noreferrer" class="yt-cover-link" aria-label="Открыть видео на YouTube" style="position: absolute; inset: 0; z-index: 3; display: block;">
+              <img class="yt-cover-img" src="<%= ytThumbUrl %>" alt="<%= post.title || 'YouTube видео' %>" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s ease;">
+              
+              <!-- Небольшая иконка Play по центру для красоты -->
+              <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); opacity: 0.8;"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </a>
+
           </div>
+
         <% } else if (isTiktok) { %>
           <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;">
             <iframe src="https://www.tiktok.com/embed/v2/<%= tiktokMatch[1] %>" style="width: 100%; height: 100%; border: none; pointer-events: none;" allowfullscreen></iframe>
@@ -104,84 +285,94 @@
 
 <!-- Мобильная кнопка -->
 <div class="mobile-suggest-container">
-  <button type="button" class="btn-suggest-video" onclick="document.getElementById('open-suggest-btn').click()">
+<button type="button" class="btn-suggest-video" onclick="document.getElementById('open-suggest-video').click()">
     Предложить видео
   </button>
 </div>
 
-<!-- Поп-ап для предложений -->
-<div class="post-overlay" id="suggest-modal" hidden>
-  <div class="tiktok-popup-card">
-    <button type="button" class="tiktok-close" id="close-suggest-modal">&times;</button>
-    <h2 class="tiktok-popup-title">Предложить видео</h2>
-    <form action="/new" method="POST" class="tiktok-popup-body">
-      <input type="hidden" name="category" value="video">
-      <input type="hidden" name="uploadedFiles" id="suggest-uploaded-files-json">
-
-      <div class="tiktok-fields-box">
-        <label class="tiktok-field-group">
-          <span class="tiktok-label-text">Ссылка на YouTube</span>
-          <input type="url" id="suggest-url-field" class="tiktok-input" placeholder="https://youtube.com/..." required>
-        </label>
-        <div class="tiktok-field-group">
-          <div class="tiktok-label-row">
-            <span class="tiktok-label-text">Комментарий</span>
-            <span class="tiktok-counter" id="suggest-char-count">0/150</span>
-          </div>
-          <textarea name="title" maxlength="150" placeholder="Добавить комментарий" id="suggest-comment-input" class="tiktok-textarea"></textarea>
-        </div>
-        <button type="submit" class="tiktok-submit-btn">Отправить</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const openBtn = document.getElementById('open-suggest-btn');
-    const modal = document.getElementById('suggest-modal');
-    const closeBtn = document.getElementById('close-suggest-modal');
-    const commentInput = document.getElementById('suggest-comment-input');
-    const charCount = document.getElementById('suggest-char-count');
-    
-    const form = modal.querySelector('form');
-    const urlInput = document.getElementById('suggest-url-field');
-    const filesJsonInput = document.getElementById('suggest-uploaded-files-json');
+    const openBtn = document.getElementById('open-suggest-video');
 
-    if (openBtn && modal) {
-      openBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        modal.hidden = false;
-      });
-    }
+    if (openBtn) {
+      openBtn.addEventListener('click', () => {
+        // Открываем popup, который подключается через footer.ejs
+        const modal = document.getElementById('suggest-video-modal');
 
-    if (closeBtn && modal) {
-      closeBtn.addEventListener('click', () => modal.hidden = true);
-    }
-
-    if (modal) {
-      modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
-    }
-
-    if (commentInput && charCount) {
-      commentInput.addEventListener('input', () => {
-        charCount.textContent = commentInput.value.length + '/150';
-      });
-    }
-
-    if (form && urlInput && filesJsonInput) {
-      form.addEventListener('submit', (e) => {
-        const urlValue = urlInput.value.trim();
-        if (urlValue) {
-          const fileData = [{
-            url: urlValue,
-            publicId: 'social_' + Date.now(),
-            mimetype: 'video/mp4'
-          }];
-          filesJsonInput.value = JSON.stringify(fileData);
+        if (modal) {
+          modal.hidden = false;
+          modal.style.display = 'flex';
         }
       });
     }
   });
 </script>
+
+<!-- Мобильная кнопка -->
+<div class="mobile-suggest-container">
+  <button type="button" class="btn-suggest-video" onclick="document.getElementById('open-suggest-video').click()">
+    Предложить видео
+  </button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var dropdowns = document.querySelectorAll('.filter-dropdown');
+
+    dropdowns.forEach(function (dropdown) {
+      var toggle = dropdown.querySelector('.filter-dropdown-toggle');
+      var options = dropdown.querySelectorAll('.filter-dropdown-option');
+      var input = dropdown.querySelector('input[type="hidden"]');
+      var valueEl = dropdown.querySelector('.filter-dropdown-value');
+
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+
+        dropdowns.forEach(function (other) {
+          if (other !== dropdown) {
+            other.classList.remove('open');
+          }
+        });
+
+        dropdown.classList.toggle('open');
+      });
+
+      options.forEach(function (option) {
+        option.addEventListener('click', function (e) {
+          e.stopPropagation();
+
+          var value = option.dataset.value;
+          var text = option.textContent.trim();
+
+          input.value = value;
+          valueEl.textContent = text;
+
+          options.forEach(function (item) {
+            item.classList.remove('selected');
+          });
+
+          option.classList.add('selected');
+          dropdown.classList.remove('open');
+
+          dropdown.closest('form').submit();
+        });
+      });
+    });
+
+    document.addEventListener('click', function () {
+      dropdowns.forEach(function (dropdown) {
+        dropdown.classList.remove('open');
+      });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        dropdowns.forEach(function (dropdown) {
+          dropdown.classList.remove('open');
+        });
+      }
+    });
+  });
+</script>
+
 <%- include('partials/footer') %>

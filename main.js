@@ -23,7 +23,161 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  function attachCopyLinkHandler(root) {
+    var scope = root || document;
+    var copyButton = scope.querySelector('#copy-post-link');
+    if (!copyButton || copyButton.dataset.bound) return;
+    copyButton.dataset.bound = '1';
+
+    copyButton.addEventListener('click', function () {
+      var relativeUrl = copyButton.dataset.url;
+      var url = new URL(relativeUrl, window.location.origin).href;
+
+      navigator.clipboard.writeText(url).then(function () {
+        var oldHtml = copyButton.innerHTML;
+
+        copyButton.innerHTML =
+          '<svg width="19" height="19" viewBox="0 0 24 24" fill="none">' +
+          '<path d="M5 12.5l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '</svg>';
+
+        copyButton.classList.add('copied');
+
+        setTimeout(function () {
+          copyButton.innerHTML = oldHtml;
+          copyButton.classList.remove('copied');
+        }, 1200);
+      }).catch(function (error) {
+        console.error('Не удалось скопировать ссылку:', error);
+      });
+    });
+  }
+
   attachLikeHandler();
+  attachCopyLinkHandler(document);
+  attachCommentHandlers(document);
+
+  // ===== Выпадающее меню профиля (аватарка в шапке) =====
+  var profileWrap = document.getElementById('profile-menu-wrap');
+  var profileToggle = document.getElementById('profile-toggle');
+  if (profileWrap && profileToggle) {
+    profileToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isOpen = profileWrap.classList.toggle('open');
+      profileToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!profileWrap.contains(e.target)) {
+        profileWrap.classList.remove('open');
+        profileToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        profileWrap.classList.remove('open');
+        profileToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  // ===== Комментарии: лайк, ответ, редактирование, удаление =====
+  function attachCommentHandlers(root) {
+    var scope = root || document;
+
+    // Лайк комментария
+    scope.querySelectorAll('[data-comment-like]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        fetch('/comment/' + btn.dataset.id + '/like', { method: 'POST' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data.ok) return;
+            var countEl = btn.querySelector('[data-like-count]');
+            if (countEl) countEl.textContent = data.count;
+            btn.classList.toggle('liked', data.liked);
+          });
+      });
+    });
+
+    // Показать/скрыть форму ответа
+    scope.querySelectorAll('[data-reply-toggle]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        var form = scope.querySelector('[data-reply-form][data-id="' + btn.dataset.id + '"]');
+        if (!form) return;
+        form.hidden = !form.hidden;
+        if (!form.hidden) form.querySelector('textarea').focus();
+      });
+    });
+
+    // Редактирование комментария
+    scope.querySelectorAll('[data-edit-toggle]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        var wrap = btn.closest('.comment-new');
+        var textEl = wrap ? wrap.querySelector('[data-comment-text]') : null;
+        if (!textEl || wrap.querySelector('.comment-edit-form-new')) return;
+
+        var form = document.createElement('form');
+        form.className = 'comment-edit-form-new';
+        var textarea = document.createElement('textarea');
+        textarea.value = textEl.textContent.trim();
+        var actions = document.createElement('div');
+        actions.className = 'comment-edit-actions-new';
+        actions.innerHTML =
+          '<button type="button" class="comment-edit-cancel-new">Отмена</button>' +
+          '<button type="submit">Сохранить</button>';
+        form.appendChild(textarea);
+        form.appendChild(actions);
+
+        textEl.hidden = true;
+        textEl.insertAdjacentElement('afterend', form);
+        textarea.focus();
+
+        actions.querySelector('.comment-edit-cancel-new').addEventListener('click', function () {
+          form.remove();
+          textEl.hidden = false;
+        });
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var newText = textarea.value.trim();
+          if (!newText) return;
+          fetch('/comment/' + btn.dataset.id + '/edit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'text=' + encodeURIComponent(newText)
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              if (!data.ok) { alert(data.error || 'Не удалось сохранить'); return; }
+              textEl.textContent = data.text;
+              form.remove();
+              textEl.hidden = false;
+            });
+        });
+      });
+    });
+
+    // Удаление комментария
+    scope.querySelectorAll('[data-delete]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        if (!confirm('Удалить комментарий?')) return;
+        fetch('/comment/' + btn.dataset.id + '/delete', { method: 'POST' })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data.ok) { alert(data.error || 'Не удалось удалить'); return; }
+            var wrap = btn.closest('.comment-new');
+            if (wrap) wrap.remove();
+          });
+      });
+    });
+  }
 
   function openPostModal(shortId, pushState) {
     if (!overlay) return;
@@ -42,8 +196,11 @@ document.addEventListener('DOMContentLoaded', function () {
           overlayContent.innerHTML = '<div class="post-loading">Пост не найден</div>';
           return;
         }
-        overlayContent.innerHTML = data.html;
+overlayContent.innerHTML = data.html;
         attachLikeHandler();
+        attachCopyLinkHandler(overlayContent);
+        attachCommentHandlers(overlayContent);
+        if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
       })
       .catch(function () {
         overlayContent.innerHTML = '<div class="post-loading">Ошибка загрузки</div>';

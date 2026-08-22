@@ -43,6 +43,40 @@ router.post('/post/:shortId/comment', requireAuth, asyncHandler(async (req, res)
   res.redirect('/post/' + post.shortId);
 }));
 
+router.post('/comment/:id/edit', requireAuth, asyncHandler(async (req, res) => {
+  const comment = await Comment.findById(req.params.id);
+  if (!comment) return res.status(404).json({ ok: false, error: 'Комментарий не найден' });
+  if (comment.author.toString() !== req.user._id.toString()) {
+    return res.status(403).json({ ok: false, error: 'Нет доступа' });
+  }
+  const text = (req.body.text || '').trim();
+  if (!text) return res.status(400).json({ ok: false, error: 'Комментарий не может быть пустым' });
+
+  comment.text = text.slice(0, 1000);
+  comment.editedAt = new Date();
+  await comment.save();
+
+  res.json({ ok: true, text: comment.text });
+}));
+
+router.post('/comment/:id/delete', requireAuth, asyncHandler(async (req, res) => {
+  const comment = await Comment.findById(req.params.id);
+  if (!comment) return res.status(404).json({ ok: false, error: 'Комментарий не найден' });
+
+  const isOwner = comment.author.toString() === req.user._id.toString();
+  if (!isOwner && !req.user.isAdmin) {
+    return res.status(403).json({ ok: false, error: 'Нет доступа' });
+  }
+
+  const replies = await Comment.find({ parent: comment._id });
+  const removedIds = [comment._id, ...replies.map(r => r._id)];
+
+  await Comment.deleteMany({ _id: { $in: removedIds } });
+  await Post.findByIdAndUpdate(comment.post, { $inc: { commentsCount: -removedIds.length } });
+
+  res.json({ ok: true, removedCount: removedIds.length });
+}));
+
 router.post('/comment/:id/like', requireAuth, asyncHandler(async (req, res) => {
   const comment = await Comment.findById(req.params.id);
   if (!comment) return res.status(404).json({ ok: false });
