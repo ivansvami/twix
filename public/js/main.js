@@ -226,8 +226,7 @@ overlayContent.innerHTML = data.html;
       renderPastePreview(input, previewEl);
     });
   }
-
-  setupPasteUpload('files-input', 'paste-preview');
+  
   setupPasteUpload('newfiles-input', 'edit-paste-preview');
 
   // ===== Проигрывание YouTube-превью при наведении курсора =====
