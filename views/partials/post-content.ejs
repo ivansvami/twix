@@ -18,13 +18,17 @@
 
   const isVerticalVideo = isTiktok || isInsta || isYtShorts;
 
-  function pluralizeComments(n) {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return 'комментарий';
-  if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return 'комментария';
-  return 'комментариев';
-} 
+function timeAgo(date) {
+  const diffMs = Date.now() - new Date(date).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return 'только что';
+  if (min < 60) return min + ' мин назад';
+  const hrs = Math.floor(min / 60);
+  if (hrs < 24) return hrs + ' ч назад';
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return days + ' дн назад';
+  return new Date(date).toLocaleDateString('ru-RU');
+}
 %>
 
 
