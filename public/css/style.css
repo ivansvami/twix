@@ -419,6 +419,8 @@ a { color: inherit; text-decoration: none; }
 /* НЕ МЕНЯЕМ САМ ПЛЕЕР */
 
 .post-media-area {
+  position: relative;
+  
   flex: 1 1 auto;
 
   width: 100%;
