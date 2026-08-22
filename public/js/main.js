@@ -110,6 +110,18 @@ overlayContent.innerHTML = data.html;
     var userMenu = document.getElementById('user-menu');
 var userDropdown = document.getElementById('user-dropdown');
 
+    var commentLikeBtn = e.target.closest('.comment-like-btn');
+if (commentLikeBtn) {
+  fetch('/comment/' + commentLikeBtn.dataset.commentId + '/like', { method: 'POST' })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data.ok) return;
+      commentLikeBtn.querySelector('.comment-like-count').textContent = data.count;
+      commentLikeBtn.classList.toggle('liked', data.liked);
+    });
+  return;
+}
+    
 document.addEventListener('click', function (e) {
   var avatarBtn = e.target.closest('#user-avatar-btn');
   if (avatarBtn) {
