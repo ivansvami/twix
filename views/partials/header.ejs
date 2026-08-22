@@ -24,8 +24,17 @@
 <div class="topbar-right">
   <% if (currentUser) { %>
     <a href="/notifications" class="notif-link" id="notif-link">Уведомления <span id="notif-count" class="badge" style="display:none">0</span></a>
-    <span class="username"><%= currentUser.username %></span>
-    <form action="/logout" method="POST" style="display:inline">
+    <div class="profile-menu-wrap" id="profile-menu-wrap">
+  <button class="profile-avatar-btn" id="profile-toggle">
+    <% if (currentUser.avatarUrl) { %>
+      <img src="<%= currentUser.avatarUrl %>" alt="<%= currentUser.username %>">
+    <% } else { %> ...иконка-заглушка... <% } %>
+  </button>
+  <div class="profile-dropdown" id="profile-menu">
+    <a href="/">Профиль</a>
+    <form action="/logout" method="POST"><button type="submit">Выйти</button></form>
+  </div>
+</div>
       <button type="submit" class="btn-link">Выйти</button>
     </form>
   <% } else { %>
