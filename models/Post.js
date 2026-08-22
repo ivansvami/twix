@@ -53,5 +53,8 @@ postSchema.index({ createdAt: -1 });
 postSchema.index({ category: 1, createdAt: -1 });
 postSchema.index({ views: -1 });
 postSchema.index({ likesCount: -1 });
+likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+likesCount: { type: Number, default: 0 },
+commentsCount: { type: Number, default: 0 },
 postSchema.index({ commentsCount: -1 });
 module.exports = mongoose.model('Post', postSchema);
