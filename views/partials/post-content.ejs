@@ -28,7 +28,7 @@
 
 
 
-<div class="post-media-area" style="position: relative; width: 100%; height: 100%; min-height: 500px; background: #000; overflow: hidden; display: block;">
+<div class="post-media-area">
 
     <% post.files.forEach(function(f) {
 
@@ -134,7 +134,7 @@
 
       <% } else { %>
 
-        <img src="<%= f.url %>" alt="" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;">
+<img src="<%= f.url %>" alt="">
 
       <% } %>
 
