@@ -282,10 +282,7 @@ a { color: inherit; text-decoration: none; }
 
 .post-overlay {
   position: fixed;
-  top: var(--header-h, 88px);
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 100;
 
   background: rgba(10, 10, 14, 0.72);
@@ -419,8 +416,6 @@ a { color: inherit; text-decoration: none; }
 /* НЕ МЕНЯЕМ САМ ПЛЕЕР */
 
 .post-media-area {
-  position: relative;
-  
   flex: 1 1 auto;
 
   width: 100%;
@@ -1127,6 +1122,13 @@ a { color: inherit; text-decoration: none; }
 
 .drop-text {
   font-size: 14px;
+}
+
+.file-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
 }
 
 .file-preview-card {
@@ -2188,72 +2190,4 @@ a { color: inherit; text-decoration: none; }
   .comments-new {
     margin-top: 20px;
   }
-}
-
-/* ===== Страница создания поста (двухколоночный макет) ===== */
-
-.upload-page { max-width: 1200px; margin: 0 auto; }
-
-.upload-form {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 24px;
-  align-items: start;
-}
-
-.upload-left { display: flex; flex-direction: column; gap: 12px; }
-.upload-right { display: flex; flex-direction: column; gap: 16px; }
-
-.uploaded-files-title { font-size: 14px; color: var(--text-dim); margin: 0; }
-
-/* было flex-direction: column — меняем на сетку в 2 колонки, как в макете */
-.file-preview-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  width: 100%;
-}
-
-.drop-or { font-size: 12px; color: var(--text-dim); }
-
-.access-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-dim);
-}
-.switch input { display: none; }
-.switch-track {
-  width: 36px;
-  height: 20px;
-  background: var(--border);
-  border-radius: 999px;
-  position: relative;
-  transition: background 0.2s;
-}
-.switch-track::after {
-  content: '';
-  position: absolute;
-  top: 2px; left: 2px;
-  width: 16px; height: 16px;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform 0.2s;
-}
-.switch input:checked + .switch-track { background: var(--accent); }
-.switch input:checked + .switch-track::after { transform: translateX(16px); }
-
-.btn-publish { align-self: flex-start; width: 100%; }
-
-@media (max-width: 900px) {
-  .upload-form { grid-template-columns: 1fr; }
 }
