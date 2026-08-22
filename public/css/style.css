@@ -303,10 +303,18 @@ a { color: inherit; text-decoration: none; }
 /* ===== Основное окно поста ===== */
 
 .post-overlay-content {
-  width: 100%;
-  max-width: 1430px;
-  height: 720px;
-  max-height: calc(100vh - 80px);
+  width: min(1600px, calc(100vw - 48px));
+
+  /*
+   * Высота окна = высота экрана минус отступы.
+   * На экране 870px получится примерно 790px.
+   */
+  height: min(790px, calc(100vh - 48px));
+
+  max-width: 1600px;
+  max-height: calc(100vh - 48px);
+
+  min-height: 0;
 
   background: #0f1012;
   border: 1px solid #202126;
