@@ -1533,3 +1533,56 @@ a { color: inherit; text-decoration: none; }
   background: #172b20;
   color: #32d583;
 }
+
+/* ===== Страница поста ===== */
+
+.post-standalone {
+  width: min(1600px, calc(100vw - 48px));
+  height: min(790px, calc(100vh - 48px));
+
+  max-width: 1600px;
+  max-height: calc(100vh - 48px);
+
+  margin: 40px auto 0;
+
+  background: #0f1012;
+  border: 1px solid #202126;
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.post-standalone .post-modal-inner {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: row;
+
+  overflow: hidden;
+}
+
+.post-standalone .post-media-area {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+
+  overflow: hidden;
+}
+
+.post-standalone .post-side {
+  flex: 0 0 470px;
+
+  width: 470px;
+  max-width: 470px;
+
+  min-height: 0;
+  height: 100%;
+
+  overflow: hidden;
+}
