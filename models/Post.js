@@ -18,6 +18,7 @@ const postSchema = new mongoose.Schema({
   title: { type: String, trim: true, maxlength: 200, default: '' },
   description: { type: String, trim: true, maxlength: 2000, default: '' },
   category: { type: String, enum: ['image', 'video', 'audio', 'album'], required: true },
+  source: { type: String, enum: ['upload', 'youtube'], default: 'upload' },
   visibility: { type: String, enum: ['public', 'unlisted'], default: 'public' },
   files: [{ url: String, publicId: String, resourceType: String }],
   isNsfw: { type: Boolean, default: false },
