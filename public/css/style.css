@@ -1586,3 +1586,608 @@ a { color: inherit; text-decoration: none; }
 
   overflow: hidden;
 }
+
+/* =========================================================
+   НОВЫЙ ДИЗАЙН СТРАНИЦЫ ПОСТА
+   ВАЖНО: кастомный плеер не трогаем
+   ========================================================= */
+
+
+/* ===== Правая колонка ===== */
+
+.post-side-new {
+  flex: 0 0 470px;
+  width: 470px;
+  max-width: 470px;
+
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #101113;
+  border-left: 1px solid #202126;
+
+  overflow: hidden;
+
+  padding: 32px;
+}
+
+
+/* ===== Информация о посте ===== */
+
+.post-info-new {
+  flex-shrink: 0;
+}
+
+
+/* ===== Автор ===== */
+
+.post-user-new {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #e8e8ee;
+  font-size: 14px;
+  font-weight: 500;
+
+  margin-bottom: 14px;
+}
+
+.post-user-avatar-new {
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #1c1e23;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* ===== Заголовок ===== */
+
+.post-title-new {
+  margin: 0 0 10px;
+
+  color: #e8e8ee;
+
+  font-size: 27px;
+  line-height: 1.15;
+  font-weight: 700;
+
+  word-break: break-word;
+}
+
+
+/* ===== Описание ===== */
+
+.post-description-new {
+  margin: 0 0 18px;
+
+  color: #9a9aa8;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+
+/* ===== Блок действий ===== */
+
+.post-actions-new {
+  display: flex;
+  align-items: center;
+
+  min-height: 34px;
+
+  margin-top: 4px;
+}
+
+
+/* ===== Статистика ===== */
+
+.post-stats-new {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.post-stat-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  color: #777980;
+
+  font-size: 13px;
+  line-height: 1;
+}
+
+.post-stat-new svg {
+  flex-shrink: 0;
+}
+
+
+/* ===== Лайк ===== */
+
+.post-like-new {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  height: 32px;
+
+  margin-left: auto;
+
+  padding: 0 9px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #17191d;
+
+  color: #777980;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    color .15s ease;
+}
+
+.post-like-new:hover {
+  background: #23181c;
+  color: #ff304f;
+}
+
+.post-like-new.liked {
+  background: #29181d;
+  color: #ff304f;
+}
+
+.post-like-new.liked:hover {
+  background: #321b21;
+}
+
+
+/* ===== Иконка лайка ===== */
+
+.post-like-icon {
+  display: block;
+}
+
+
+/* ===== Копирование ссылки ===== */
+
+.post-copy-link-new {
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 32px;
+
+  margin-left: 8px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #151b20;
+
+  color: #009cff;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    color .15s ease;
+}
+
+.post-copy-link-new:hover {
+  background: #18242b;
+  color: #00aaff;
+}
+
+.post-copy-link-new.copied {
+  background: #172b20;
+  color: #32d583;
+}
+
+
+/* =========================================================
+   КОММЕНТАРИИ
+   ========================================================= */
+
+.comments-new {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1 1 auto;
+
+  min-height: 0;
+
+  margin-top: 24px;
+
+  overflow: hidden;
+}
+
+
+/* ===== Заголовок комментариев ===== */
+
+.comments-new h2 {
+  flex-shrink: 0;
+
+  margin: 0 0 14px;
+
+  color: #e8e8ee;
+
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+
+/* ===== Список комментариев ===== */
+
+.comments-list-new {
+  flex: 1 1 auto;
+
+  min-height: 0;
+
+  overflow-y: auto;
+
+  padding-right: 5px;
+}
+
+
+/* ===== Скролл комментариев ===== */
+
+.comments-list-new::-webkit-scrollbar {
+  width: 5px;
+}
+
+.comments-list-new::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.comments-list-new::-webkit-scrollbar-thumb {
+  background: #34353b;
+  border-radius: 10px;
+}
+
+.comments-list-new {
+  scrollbar-width: thin;
+  scrollbar-color: #34353b transparent;
+}
+
+
+/* ===== Отдельный комментарий ===== */
+
+.comment-new {
+  padding: 10px 0;
+
+  margin: 0;
+
+  border: none;
+}
+
+.comment-new + .comment-new {
+  border-top: 1px solid rgba(255, 255, 255, 0.045);
+}
+
+
+/* ===== Автор комментария ===== */
+
+.comment-author-new {
+  margin: 0 0 4px;
+
+  color: #e8e8ee;
+
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+
+/* ===== Текст комментария ===== */
+
+.comment-text-new {
+  margin: 0;
+
+  color: #9a9aa8;
+
+  font-size: 13px;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ===== Ответ на комментарий ===== */
+
+.comment-reply-new {
+  margin-top: 8px;
+  margin-left: 24px;
+
+  padding: 7px 0 2px;
+
+  border-top: none !important;
+}
+
+
+/* ===== Нет комментариев ===== */
+
+.comments-empty-new {
+  padding: 30px 10px;
+
+  color: #777980;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   ФОРМА КОММЕНТАРИЯ
+   ========================================================= */
+
+.comment-form-new {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.comment-form-new textarea {
+  width: 100%;
+
+  min-height: 56px;
+  max-height: 120px;
+
+  resize: none;
+
+  padding: 11px 12px;
+
+  background: #0d0e10;
+
+  border: 1px solid #292c34;
+  border-radius: 9px;
+
+  color: #e8e8ee;
+
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+
+  outline: none;
+
+  transition: border-color .15s ease;
+}
+
+.comment-form-new textarea::placeholder {
+  color: #666870;
+}
+
+.comment-form-new textarea:focus {
+  border-color: #3b3d46;
+}
+
+
+/* ===== Кнопка отправки ===== */
+
+.comment-form-new button {
+  width: 100%;
+  height: 42px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #7c5cff;
+
+  color: #fff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    transform .1s ease;
+}
+
+.comment-form-new button:hover {
+  background: #6f50ed;
+}
+
+.comment-form-new button:active {
+  transform: translateY(1px);
+}
+
+
+/* ===== Неавторизованный пользователь ===== */
+
+.comment-login-new {
+  flex-shrink: 0;
+
+  margin-top: 12px;
+  padding-top: 14px;
+
+  color: #777980;
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.comment-login-new a {
+  color: #7c5cff;
+}
+
+.comment-login-new a:hover {
+  color: #8d72ff;
+}
+
+
+/* =========================================================
+   СТРАНИЦА ПОСТА — ФИНАЛЬНЫЕ ПРАВИЛА
+   ========================================================= */
+
+.post-standalone {
+  position: relative;
+
+  width: min(1600px, calc(100vw - 48px));
+  height: min(790px, calc(100vh - 48px));
+
+  max-width: 1600px;
+  max-height: calc(100vh - 48px);
+
+  margin: 40px auto 0;
+
+  background: #0f1012;
+
+  border: 1px solid #202126;
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.post-standalone .post-modal-inner {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  min-height: 0;
+
+  display: flex;
+  flex-direction: row;
+
+  overflow: hidden;
+}
+
+
+/* ===== Медиа на странице поста ===== */
+
+.post-standalone .post-media-area {
+  flex: 1 1 auto;
+
+  width: auto;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  background: #000;
+
+  overflow: hidden;
+}
+
+
+/* ===== Правая колонка страницы ===== */
+
+.post-standalone .post-side-new {
+  flex: 0 0 470px;
+
+  width: 470px;
+  max-width: 470px;
+
+  height: 100%;
+
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   МОБИЛЬНАЯ ВЕРСИЯ
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .post-standalone {
+    width: 100%;
+    max-width: 100%;
+
+    height: 100vh;
+    max-height: none;
+
+    margin: 0;
+
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .post-standalone .post-modal-inner {
+    flex-direction: column;
+
+    height: 100%;
+  }
+
+  .post-standalone .post-media-area {
+    flex: 0 0 55vh;
+
+    width: 100%;
+    height: 55vh;
+
+    max-height: 55vh;
+  }
+
+  .post-standalone .post-side-new {
+    flex: 1 1 auto;
+
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+
+    border-left: none;
+    border-top: 1px solid #202126;
+
+    padding: 22px 18px;
+
+    overflow: hidden;
+  }
+
+  .post-title-new {
+    font-size: 22px;
+  }
+
+  .post-user-new {
+    margin-bottom: 12px;
+  }
+
+  .comments-new {
+    margin-top: 20px;
+  }
+}
