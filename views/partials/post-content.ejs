@@ -172,9 +172,9 @@
 
 
     <!-- Описание -->
-    <div class="post-description-new">
-      <%= post.description || '' %>
-    </div>
+    <% if (post.description) { %>
+      <div class="post-description-new"><%= post.description %></div>
+    <% } %>
 
 
     <!-- Статистика -->
