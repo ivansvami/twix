@@ -297,31 +297,67 @@ function timeAgo(date) {
 
         <% comments.forEach(function(c) { %>
 
-          <div class="comment-new">
+<div class="comment-new" data-comment-id="<%= c._id %>">
 
-            <p class="comment-author-new">
-              @<%= c.author.username %>
-            </p>
+  <div class="comment-meta-new">
+    <p class="comment-author-new">
+      @<%= c.author.username %>
+      <% if (String(c.author._id) === String(post.author._id)) { %>
+        <span class="comment-badge-author">Автор</span>
+      <% } %>
+    </p>
+    <span class="comment-time-new"><%= timeAgo(c.createdAt) %></span>
+  </div>
 
-            <p class="comment-text-new">
-              <%= c.text %>
-            </p>
+  <p class="comment-text-new" data-comment-text><%= c.text %></p>
 
-            <% c.replies.forEach(function(r) { %>
+  <div class="comment-actions-new">
+    <button type="button" class="comment-like-btn <%= currentUser && c.likes.some(id => String(id) === String(currentUser._id)) ? 'liked' : '' %>" data-comment-id="<%= c._id %>">
+      <svg width="14" height="14" viewBox="0 0 24 24"><path d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8C3.2 6 5.2 4 7.7 4c1.6 0 3.2.8 4.3 2.1C13.1 4.8 14.7 4 16.3 4c2.5 0 4.5 2 4.5 4.8Z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+      <span class="comment-like-count"><%= c.likes.length %></span>
+    </button>
 
-              <div class="comment-new comment-reply-new">
-                <p class="comment-author-new">
-                  @<%= r.author.username %>
-                </p>
+    <% if (currentUser) { %>
+      <button type="button" class="comment-reply-btn" data-comment-id="<%= c._id %>" data-username="<%= c.author.username %>">Ответить</button>
 
-                <p class="comment-text-new">
-                  <%= r.text %>
-                </p>
-              </div>
+      <% if (String(c.author._id) === String(currentUser._id)) { %>
+        <button type="button" class="comment-edit-btn" data-comment-id="<%= c._id %>">Редактировать</button>
+        <button type="button" class="comment-delete-btn" data-comment-id="<%= c._id %>">Удалить</button>
+      <% } %>
+    <% } %>
+  </div>
 
-            <% }) %>
+  <% c.replies.forEach(function(r) { %>
+    <div class="comment-new comment-reply-new" data-comment-id="<%= r._id %>">
+      <div class="comment-meta-new">
+        <p class="comment-author-new">
+          @<%= r.author.username %>
+          <% if (String(r.author._id) === String(post.author._id)) { %>
+            <span class="comment-badge-author">Автор</span>
+          <% } %>
+        </p>
+        <span class="comment-time-new"><%= timeAgo(r.createdAt) %></span>
+      </div>
+      <p class="comment-text-new" data-comment-text><%= r.text %></p>
+      <div class="comment-actions-new">
+        <button type="button" class="comment-like-btn <%= currentUser && r.likes.some(id => String(id) === String(currentUser._id)) ? 'liked' : '' %>" data-comment-id="<%= r._id %>">
+          <svg width="14" height="14" viewBox="0 0 24 24"><path d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8C3.2 6 5.2 4 7.7 4c1.6 0 3.2.8 4.3 2.1C13.1 4.8 14.7 4 16.3 4c2.5 0 4.5 2 4.5 4.8Z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          <span class="comment-like-count"><%= r.likes.length %></span>
+        </button>
+        <% if (currentUser) { %>
+          <!-- ответ на ответ технически прикрепляем к тому же родителю r.parent,
+               чтобы не сломать однoуровневую вёрстку тредов -->
+          <button type="button" class="comment-reply-btn" data-comment-id="<%= r.parent %>" data-username="<%= r.author.username %>">Ответить</button>
+          <% if (String(r.author._id) === String(currentUser._id)) { %>
+            <button type="button" class="comment-edit-btn" data-comment-id="<%= r._id %>">Редактировать</button>
+            <button type="button" class="comment-delete-btn" data-comment-id="<%= r._id %>">Удалить</button>
+          <% } %>
+        <% } %>
+      </div>
+    </div>
+  <% }) %>
 
-          </div>
+</div>
 
         <% }) %>
 
