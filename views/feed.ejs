@@ -285,31 +285,6 @@
 
 <!-- Мобильная кнопка -->
 <div class="mobile-suggest-container">
-<button type="button" class="btn-suggest-video" onclick="document.getElementById('open-suggest-video').click()">
-    Предложить видео
-  </button>
-</div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const openBtn = document.getElementById('open-suggest-video');
-
-    if (openBtn) {
-      openBtn.addEventListener('click', () => {
-        // Открываем popup, который подключается через footer.ejs
-        const modal = document.getElementById('suggest-video-modal');
-
-        if (modal) {
-          modal.hidden = false;
-          modal.style.display = 'flex';
-        }
-      });
-    }
-  });
-</script>
-
-<!-- Мобильная кнопка -->
-<div class="mobile-suggest-container">
   <button type="button" class="btn-suggest-video" onclick="document.getElementById('open-suggest-video').click()">
     Предложить видео
   </button>
