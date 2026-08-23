@@ -972,15 +972,30 @@ a { color: inherit; text-decoration: none; }
 }
 .comment-login-new a { color: var(--accent); text-decoration: underline; }
 
-/* Мобильная адаптация: медиа сверху, инфо и комментарии снизу со своим скроллом */
+/* Мобильная адаптация: у страницы поста на мобильном не должно быть
+   отдельных скроллящихся контейнеров — вся страница просто длинная
+   и скроллится целиком, как обычная веб-страница. */
 
 @media (max-width: 760px) {
-  .post-overlay { padding: 0; }
-  .post-overlay-content, .post-standalone { border-radius: 0; max-width: 100%; height: 100vh; }
-  .post-modal-inner { flex-direction: column; }
-  .post-media-area { flex: 1 1 50%; max-height: 55vh; }
-  .post-side, .post-side-new { flex: 1 1 50%; max-width: 100%; border-left: none; border-top: 1px solid var(--border); }
-  .post-standalone { height: 100vh; }
+  .post-overlay {
+    padding: 0;
+    /* Сам оверлей — единственное место, где в принципе нужен скролл на
+       мобильном: он фиксирован на весь экран (position: fixed), а фон
+       (body) в это время заблокирован от скролла в JS. Поэтому длинный
+       контент поста прокручивается именно оверлеем целиком, а не
+       какими-то внутренними блоками внутри него. */
+    align-items: flex-start;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .post-overlay-content, .post-standalone {
+    border-radius: 0; max-width: 100%;
+    height: auto; min-height: 100%;
+    overflow: visible;
+  }
+  .post-modal-inner { flex-direction: column; height: auto; }
+  .post-media-area { flex: 0 0 auto; width: 100%; height: 45vh; max-height: 55vh; }
+  .post-side, .post-side-new { flex: 0 0 auto; max-width: 100%; border-left: none; border-top: 1px solid var(--border); overflow: visible; }
 }
 
 .form-page { max-width: 500px; margin: 0 auto; }
@@ -1494,9 +1509,11 @@ a { color: inherit; text-decoration: none; }
   .post-overlay-content {
     width: 100% !important;
     max-width: 100% !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 100% !important;
     border-radius: 0 !important;
+    overflow: visible !important;
   }
 }
 .post-copy-link-new.copied {
@@ -1888,7 +1905,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 760px) {
   .post-side.post-side-new {
-    flex: 1 1 auto !important;
+    flex: 0 0 auto !important;
     width: 100% !important;
     min-width: 0 !important;
     max-width: 100% !important;
@@ -1898,29 +1915,31 @@ a { color: inherit; text-decoration: none; }
 
     padding: 22px !important;
 
-    /* На десктопе панель обрезает лишний контент (overflow: hidden), рассчитывая
-       на то, что список комментариев сам скроллится внутри своей области.
-       На мобильном высота панели плавающая (flex: 1 1 auto вместо жёстких 50%),
-       и если контента больше, чем помещается на экране, весь блок должен
-       прокручиваться целиком — иначе поле ввода комментария и кнопка
-       "Отправить" уезжают за пределы видимой области и до них не добраться. */
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    max-height: none;
-    min-height: 0; /* без этого flex-элемент не сжимается и overflow-y: auto не срабатывает */
+    /* На десктопе панель — это отдельный скроллящийся блок (overflow: hidden
+       + внутренний скролл списка комментариев). На мобильном никаких
+       внутренних скроллов быть не должно: панель просто растягивается
+       под свой контент, и скроллится вся страница целиком. */
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
   }
 
   .post-side.post-side-new .post-title-new {
     font-size: 24px;
   }
 
+  .post-side.post-side-new .post-description-new {
+    /* Убираем собственный мини-скролл описания — на мобильном оно
+       просто разворачивается целиком вместе со страницей. */
+    max-height: none;
+    overflow: visible;
+  }
+
   .post-side.post-side-new .comments-new,
   .post-side.post-side-new .comments-list-new {
-    /* Внутри мобильной прокрутки всей панели не нужно, чтобы список
-       комментариев ещё раз сам зажимался и скроллился отдельно —
-       иначе получается скролл в скролле и контент "прыгает". */
     flex: 0 0 auto;
     overflow: visible;
+    max-height: none;
   }
 
   .post-side.post-side-new .comments-empty-new {
@@ -1928,9 +1947,6 @@ a { color: inherit; text-decoration: none; }
   }
 
   .post-side.post-side-new .comment-form-new {
-    /* margin-top: auto работал только пока высота панели была жёстко
-       задана (flex: 1 1 50%) — при flex: 1 1 auto это больше не нужно
-       и мешает форме комментария сразу идти следом за содержимым. */
     margin-top: 18px;
   }
 
