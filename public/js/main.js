@@ -56,6 +56,180 @@ document.addEventListener('DOMContentLoaded', function () {
   attachLikeHandler();
   attachCopyLinkHandler(document);
 
+  // Обновляет содержимое текущего поста после изменения комментария.
+  // В модалке перерисовываем только HTML поста, на отдельной странице
+  // делаем обычную перезагрузку страницы.
+  function refreshCurrentPost() {
+    var root = document.querySelector('.post-modal-inner[data-post-shortid]');
+    var shortId = root ? root.dataset.postShortid : null;
+
+    if (!shortId) {
+      window.location.reload();
+      return Promise.resolve();
+    }
+
+    if (!overlay || overlay.hidden || !isModalOpen) {
+      window.location.reload();
+      return Promise.resolve();
+    }
+
+    return fetch('/api/post/' + shortId, {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('Не удалось обновить пост');
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data.ok) throw new Error('Не удалось обновить пост');
+        overlayContent.innerHTML = data.html;
+        attachLikeHandler();
+        attachCopyLinkHandler(overlayContent);
+        if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
+      });
+  }
+
+  function submitCommentForm(form) {
+    if (form.dataset.submitting === '1') return;
+    form.dataset.submitting = '1';
+
+    var buttons = form.querySelectorAll('button');
+    buttons.forEach(function (button) { button.disabled = true; });
+
+    var body = new FormData(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: body,
+      headers: { 'Accept': 'application/json' },
+      credentials: 'same-origin'
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          return response.text().then(function (text) {
+            throw new Error(text || 'Не удалось выполнить действие');
+          });
+        }
+        return refreshCurrentPost();
+      })
+      .catch(function (error) {
+        console.error(error);
+        alert('Не удалось выполнить действие с комментарием. Попробуйте ещё раз.');
+      })
+      .finally(function () {
+        form.dataset.submitting = '';
+        buttons.forEach(function (button) { button.disabled = false; });
+      });
+  }
+
+  // ===== Действия с комментариями =====
+  document.addEventListener('click', function (e) {
+    var replyButton = e.target.closest('.js-reply-comment');
+    if (replyButton) {
+      var replyScope = replyButton.closest('.comment-content-new');
+      var replyForm = replyScope ? replyScope.querySelector('.comment-reply-form-new') : null;
+      if (!replyForm) return;
+
+      e.preventDefault();
+
+      document.querySelectorAll('.comment-reply-form-new:not([hidden])').forEach(function (form) {
+        if (form !== replyForm) form.hidden = true;
+      });
+
+      document.querySelectorAll('.comment-edit-form-new:not([hidden])').forEach(function (form) {
+        form.hidden = true;
+      });
+
+      replyForm.hidden = false;
+      var textarea = replyForm.querySelector('textarea');
+      if (textarea) {
+        textarea.focus();
+      }
+      return;
+    }
+
+    var cancelReply = e.target.closest('.js-cancel-reply');
+    if (cancelReply) {
+      e.preventDefault();
+      var replyFormToClose = cancelReply.closest('.comment-reply-form-new');
+      if (replyFormToClose) {
+        replyFormToClose.hidden = true;
+        var replyTextarea = replyFormToClose.querySelector('textarea');
+        if (replyTextarea) replyTextarea.value = '';
+      }
+      return;
+    }
+
+    var editButton = e.target.closest('.js-edit-comment');
+    if (editButton) {
+      var editScope = editButton.closest('.comment-content-new');
+      var editForm = editScope ? editScope.querySelector('.comment-edit-form-new') : null;
+      if (!editForm) return;
+
+      e.preventDefault();
+      editForm.hidden = false;
+
+      var editTextarea = editForm.querySelector('textarea');
+      if (editTextarea) {
+        editTextarea.focus();
+        editTextarea.setSelectionRange(editTextarea.value.length, editTextarea.value.length);
+      }
+      return;
+    }
+
+    var cancelEdit = e.target.closest('.js-cancel-comment-edit');
+    if (cancelEdit) {
+      e.preventDefault();
+      var editFormToClose = cancelEdit.closest('.comment-edit-form-new');
+      if (editFormToClose) editFormToClose.hidden = true;
+      return;
+    }
+
+    var commentLike = e.target.closest('.comment-like-btn-new');
+    if (commentLike) {
+      e.preventDefault();
+      if (commentLike.dataset.loading === '1') return;
+      commentLike.dataset.loading = '1';
+      commentLike.disabled = true;
+
+      fetch('/comment/' + commentLike.dataset.commentId + '/like', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data.ok) throw new Error('Не удалось поставить лайк');
+          var count = commentLike.querySelector('span');
+          if (count) count.textContent = data.count;
+          commentLike.classList.toggle('liked', data.liked);
+        })
+        .catch(function (error) {
+          console.error(error);
+        })
+        .finally(function () {
+          commentLike.dataset.loading = '';
+          commentLike.disabled = false;
+        });
+      return;
+    }
+  });
+
+  document.addEventListener('submit', function (e) {
+    var form = e.target.closest('.js-comment-form');
+    if (!form) return;
+
+    if (form.classList.contains('comment-delete-form-new')) {
+      if (!window.confirm('Удалить комментарий? Все его ответы тоже будут удалены.')) {
+        e.preventDefault();
+        return;
+      }
+    }
+
+    e.preventDefault();
+    submitCommentForm(form);
+  });
+
   function openPostModal(shortId, pushState) {
     if (!overlay) return;
     if (!isModalOpen) {
