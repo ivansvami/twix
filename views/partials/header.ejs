@@ -7,7 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="/css/style.css?v=5">
+  <link rel="stylesheet" href="/css/style.css?v=6">
 </head>
 <body>
 <header class="topbar">
@@ -16,7 +16,7 @@
 </a>
   <nav class="mainnav">
     <a href="/" class="<%= typeof activeNav !== 'undefined' && activeNav === 'feed' ? 'active' : '' %>">Лента</a>
-    <a href="/videos" class="<%= typeof activeNav !== 'undefined' && activeNav === 'videos' ? 'active' : '' %>">Видосы</a>
+    <a href="/videos" class="<%= typeof activeNav !== 'undefined' && activeNav === 'videos' ? 'active' : '' %>">Видео</a>
     <% if (currentUser) { %>
       <a href="/new">Новый пост</a>
     <% } %>
