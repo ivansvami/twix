@@ -55,129 +55,180 @@ document.addEventListener('DOMContentLoaded', function () {
 
   attachLikeHandler();
   attachCopyLinkHandler(document);
-  attachCommentHandlers(document);
 
-  // ===== Выпадающее меню профиля (аватарка в шапке) =====
-  var profileWrap = document.getElementById('profile-menu-wrap');
-  var profileToggle = document.getElementById('profile-toggle');
-  if (profileWrap && profileToggle) {
-    profileToggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var isOpen = profileWrap.classList.toggle('open');
-      profileToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
-    document.addEventListener('click', function (e) {
-      if (!profileWrap.contains(e.target)) {
-        profileWrap.classList.remove('open');
-        profileToggle.setAttribute('aria-expanded', 'false');
-      }
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') {
-        profileWrap.classList.remove('open');
-        profileToggle.setAttribute('aria-expanded', 'false');
-      }
-    });
+  // Обновляет содержимое текущего поста после изменения комментария.
+  // В модалке перерисовываем только HTML поста, на отдельной странице
+  // делаем обычную перезагрузку страницы.
+  function refreshCurrentPost() {
+    var root = document.querySelector('.post-modal-inner[data-post-shortid]');
+    var shortId = root ? root.dataset.postShortid : null;
+
+    if (!shortId) {
+      window.location.reload();
+      return Promise.resolve();
+    }
+
+    if (!overlay || overlay.hidden || !isModalOpen) {
+      window.location.reload();
+      return Promise.resolve();
+    }
+
+    return fetch('/api/post/' + shortId, {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('Не удалось обновить пост');
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data.ok) throw new Error('Не удалось обновить пост');
+        overlayContent.innerHTML = data.html;
+        attachLikeHandler();
+        attachCopyLinkHandler(overlayContent);
+        if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
+      });
   }
 
-  // ===== Комментарии: лайк, ответ, редактирование, удаление =====
-  function attachCommentHandlers(root) {
-    var scope = root || document;
+  function submitCommentForm(form) {
+    if (form.dataset.submitting === '1') return;
+    form.dataset.submitting = '1';
 
-    // Лайк комментария
-    scope.querySelectorAll('[data-comment-like]').forEach(function (btn) {
-      if (btn.dataset.bound) return;
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', function () {
-        fetch('/comment/' + btn.dataset.id + '/like', { method: 'POST' })
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            if (!data.ok) return;
-            var countEl = btn.querySelector('[data-like-count]');
-            if (countEl) countEl.textContent = data.count;
-            btn.classList.toggle('liked', data.liked);
+    var buttons = form.querySelectorAll('button');
+    buttons.forEach(function (button) { button.disabled = true; });
+
+    var body = new FormData(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: body,
+      headers: { 'Accept': 'application/json' },
+      credentials: 'same-origin'
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          return response.text().then(function (text) {
+            throw new Error(text || 'Не удалось выполнить действие');
           });
+        }
+        return refreshCurrentPost();
+      })
+      .catch(function (error) {
+        console.error(error);
+        alert('Не удалось выполнить действие с комментарием. Попробуйте ещё раз.');
+      })
+      .finally(function () {
+        form.dataset.submitting = '';
+        buttons.forEach(function (button) { button.disabled = false; });
       });
-    });
+  }
 
-    // Показать/скрыть форму ответа
-    scope.querySelectorAll('[data-reply-toggle]').forEach(function (btn) {
-      if (btn.dataset.bound) return;
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', function () {
-        var form = scope.querySelector('[data-reply-form][data-id="' + btn.dataset.id + '"]');
-        if (!form) return;
-        form.hidden = !form.hidden;
-        if (!form.hidden) form.querySelector('textarea').focus();
+  // ===== Действия с комментариями =====
+  document.addEventListener('click', function (e) {
+    var replyButton = e.target.closest('.js-reply-comment');
+    if (replyButton) {
+      var replyScope = replyButton.closest('.comment-content-new');
+      var replyForm = replyScope ? replyScope.querySelector('.comment-reply-form-new') : null;
+      if (!replyForm) return;
+
+      e.preventDefault();
+
+      document.querySelectorAll('.comment-reply-form-new:not([hidden])').forEach(function (form) {
+        if (form !== replyForm) form.hidden = true;
       });
-    });
 
-    // Редактирование комментария
-    scope.querySelectorAll('[data-edit-toggle]').forEach(function (btn) {
-      if (btn.dataset.bound) return;
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', function () {
-        var wrap = btn.closest('.comment-new');
-        var textEl = wrap ? wrap.querySelector('[data-comment-text]') : null;
-        if (!textEl || wrap.querySelector('.comment-edit-form-new')) return;
+      document.querySelectorAll('.comment-edit-form-new:not([hidden])').forEach(function (form) {
+        form.hidden = true;
+      });
 
-        var form = document.createElement('form');
-        form.className = 'comment-edit-form-new';
-        var textarea = document.createElement('textarea');
-        textarea.value = textEl.textContent.trim();
-        var actions = document.createElement('div');
-        actions.className = 'comment-edit-actions-new';
-        actions.innerHTML =
-          '<button type="button" class="comment-edit-cancel-new">Отмена</button>' +
-          '<button type="submit">Сохранить</button>';
-        form.appendChild(textarea);
-        form.appendChild(actions);
-
-        textEl.hidden = true;
-        textEl.insertAdjacentElement('afterend', form);
+      replyForm.hidden = false;
+      var textarea = replyForm.querySelector('textarea');
+      if (textarea) {
         textarea.focus();
+      }
+      return;
+    }
 
-        actions.querySelector('.comment-edit-cancel-new').addEventListener('click', function () {
-          form.remove();
-          textEl.hidden = false;
+    var cancelReply = e.target.closest('.js-cancel-reply');
+    if (cancelReply) {
+      e.preventDefault();
+      var replyFormToClose = cancelReply.closest('.comment-reply-form-new');
+      if (replyFormToClose) {
+        replyFormToClose.hidden = true;
+        var replyTextarea = replyFormToClose.querySelector('textarea');
+        if (replyTextarea) replyTextarea.value = '';
+      }
+      return;
+    }
+
+    var editButton = e.target.closest('.js-edit-comment');
+    if (editButton) {
+      var editScope = editButton.closest('.comment-content-new');
+      var editForm = editScope ? editScope.querySelector('.comment-edit-form-new') : null;
+      if (!editForm) return;
+
+      e.preventDefault();
+      editForm.hidden = false;
+
+      var editTextarea = editForm.querySelector('textarea');
+      if (editTextarea) {
+        editTextarea.focus();
+        editTextarea.setSelectionRange(editTextarea.value.length, editTextarea.value.length);
+      }
+      return;
+    }
+
+    var cancelEdit = e.target.closest('.js-cancel-comment-edit');
+    if (cancelEdit) {
+      e.preventDefault();
+      var editFormToClose = cancelEdit.closest('.comment-edit-form-new');
+      if (editFormToClose) editFormToClose.hidden = true;
+      return;
+    }
+
+    var commentLike = e.target.closest('.comment-like-btn-new');
+    if (commentLike) {
+      e.preventDefault();
+      if (commentLike.dataset.loading === '1') return;
+      commentLike.dataset.loading = '1';
+      commentLike.disabled = true;
+
+      fetch('/comment/' + commentLike.dataset.commentId + '/like', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data.ok) throw new Error('Не удалось поставить лайк');
+          var count = commentLike.querySelector('span');
+          if (count) count.textContent = data.count;
+          commentLike.classList.toggle('liked', data.liked);
+        })
+        .catch(function (error) {
+          console.error(error);
+        })
+        .finally(function () {
+          commentLike.dataset.loading = '';
+          commentLike.disabled = false;
         });
+      return;
+    }
+  });
 
-        form.addEventListener('submit', function (e) {
-          e.preventDefault();
-          var newText = textarea.value.trim();
-          if (!newText) return;
-          fetch('/comment/' + btn.dataset.id + '/edit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'text=' + encodeURIComponent(newText)
-          })
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-              if (!data.ok) { alert(data.error || 'Не удалось сохранить'); return; }
-              textEl.textContent = data.text;
-              form.remove();
-              textEl.hidden = false;
-            });
-        });
-      });
-    });
+  document.addEventListener('submit', function (e) {
+    var form = e.target.closest('.js-comment-form');
+    if (!form) return;
 
-    // Удаление комментария
-    scope.querySelectorAll('[data-delete]').forEach(function (btn) {
-      if (btn.dataset.bound) return;
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', function () {
-        if (!confirm('Удалить комментарий?')) return;
-        fetch('/comment/' + btn.dataset.id + '/delete', { method: 'POST' })
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            if (!data.ok) { alert(data.error || 'Не удалось удалить'); return; }
-            var wrap = btn.closest('.comment-new');
-            if (wrap) wrap.remove();
-          });
-      });
-    });
-  }
+    if (form.classList.contains('comment-delete-form-new')) {
+      if (!window.confirm('Удалить комментарий? Все его ответы тоже будут удалены.')) {
+        e.preventDefault();
+        return;
+      }
+    }
+
+    e.preventDefault();
+    submitCommentForm(form);
+  });
 
   function openPostModal(shortId, pushState) {
     if (!overlay) return;
@@ -199,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function () {
 overlayContent.innerHTML = data.html;
         attachLikeHandler();
         attachCopyLinkHandler(overlayContent);
-        attachCommentHandlers(overlayContent);
         if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
       })
       .catch(function () {
@@ -274,6 +324,50 @@ overlayContent.innerHTML = data.html;
     }
   });
 
+  // ===== Выпадающее меню профиля =====
+  var profileWrap = document.getElementById('profile-menu-wrap');
+  var profileToggle = document.getElementById('profile-toggle');
+  var profileMenu = document.getElementById('profile-menu');
+
+  function closeProfileMenu() {
+    if (!profileWrap) return;
+    profileWrap.classList.remove('open');
+    if (profileToggle) profileToggle.setAttribute('aria-expanded', 'false');
+    if (profileMenu) profileMenu.setAttribute('aria-hidden', 'true');
+  }
+
+  function openProfileMenu() {
+    if (!profileWrap) return;
+    profileWrap.classList.add('open');
+    if (profileToggle) profileToggle.setAttribute('aria-expanded', 'true');
+    if (profileMenu) profileMenu.setAttribute('aria-hidden', 'false');
+  }
+
+  if (profileWrap && profileToggle) {
+    profileToggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (profileWrap.classList.contains('open')) {
+        closeProfileMenu();
+      } else {
+        openProfileMenu();
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!profileWrap.contains(e.target)) {
+        closeProfileMenu();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        closeProfileMenu();
+      }
+    });
+  }
+
   var notifCount = document.getElementById('notif-count');
   if (notifCount) {
     fetch('/api/notifications/unread-count')
@@ -345,6 +439,112 @@ overlayContent.innerHTML = data.html;
 
   setupPasteUpload('files-input', 'paste-preview');
   setupPasteUpload('newfiles-input', 'edit-paste-preview');
+
+  // ===== Бесконечная лента =====
+  // Загружает следующую страницу, когда пользователь приближается к концу сетки.
+  // Фильтры и вкладка передаются на backend, поэтому при смене сортировки
+  // или периода всегда загружается правильная последовательность постов.
+  (function initInfiniteFeed() {
+    var grid = document.getElementById('posts-grid');
+    var loader = document.getElementById('feed-loader');
+    var endMessage = document.getElementById('feed-end');
+
+    if (!grid || !loader || typeof window.IntersectionObserver === 'undefined') return;
+
+    var page = parseInt(grid.dataset.page || '1', 10) || 1;
+    var hasMore = grid.dataset.hasMore === '1';
+    var loading = false;
+
+    function setLoading(isLoading, error) {
+      loading = isLoading;
+      var text = loader.querySelector('.feed-loader-text');
+      if (text) {
+        text.textContent = error ? 'Не удалось загрузить. Прокрутите ещё раз.' : 'Загрузка...';
+      }
+      loader.hidden = !isLoading && !error;
+    }
+
+    function loadNextPage() {
+      if (loading || !hasMore) return;
+
+      loading = true;
+      loader.hidden = false;
+
+      var nextPage = page + 1;
+      var params = new URLSearchParams();
+      params.set('page', String(nextPage));
+      params.set('source', grid.dataset.feedSource || 'feed');
+      params.set('category', grid.dataset.category || 'all');
+      params.set('sort', grid.dataset.sort || 'new');
+      params.set('period', grid.dataset.period || 'all');
+
+      fetch('/api/feed?' + params.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      })
+        .then(function (response) {
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          return response.json();
+        })
+        .then(function (data) {
+          if (!data.ok) throw new Error(data.error || 'Не удалось загрузить посты');
+
+          // Удаляем сообщение "Нет файлов", если оно осталось в DOM.
+          var empty = document.getElementById('empty-feed');
+          if (empty) empty.remove();
+
+          if (data.html) {
+            grid.insertAdjacentHTML('beforeend', data.html);
+          }
+
+          page = nextPage;
+          grid.dataset.page = String(page);
+          hasMore = !!data.hasMore;
+          grid.dataset.hasMore = hasMore ? '1' : '0';
+
+          if (window.initCustomPlayers) {
+            window.initCustomPlayers(grid);
+          }
+
+          if (hasMore) {
+            loader.hidden = false;
+            var text = loader.querySelector('.feed-loader-text');
+            if (text) text.textContent = 'Загрузка...';
+          } else {
+            loader.hidden = true;
+            if (endMessage) endMessage.hidden = false;
+          }
+        })
+        .catch(function (error) {
+          console.error('Infinite feed error:', error);
+          var text = loader.querySelector('.feed-loader-text');
+          if (text) text.textContent = 'Не удалось загрузить. Прокрутите ещё раз.';
+          loader.hidden = false;
+        })
+        .finally(function () {
+          loading = false;
+        });
+    }
+
+    if (!hasMore) {
+      loader.hidden = true;
+      if (endMessage) endMessage.hidden = false;
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) loadNextPage();
+      });
+    }, {
+      root: null,
+      rootMargin: '900px 0px 900px 0px',
+      threshold: 0
+    });
+
+    observer.observe(loader);
+  }());
 
   // ===== Проигрывание YouTube-превью при наведении курсора =====
   var youtubeCards = document.querySelectorAll('.card-youtube');
