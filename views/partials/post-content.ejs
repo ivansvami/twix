@@ -22,7 +22,7 @@
 
 
 
-<div class="post-modal-inner">
+<div class="post-modal-inner" data-post-shortid="<%= post.shortId %>">
 
   <a href="/" class="post-close js-close-post" aria-label="Закрыть">✕</a>
 
@@ -265,411 +265,283 @@
   </div>
 
 
-<!-- Комментарии -->
-<div class="comments comments-new">
+  <!-- Комментарии -->
+  <div class="comments comments-new">
 
-  <h2>
-    <%= post.commentsCount || 0 %> комментарий<%= (post.commentsCount || 0) === 1 ? '' : 'ев' %>
-  </h2>
+    <h2>
+      <%= post.commentsCount || 0 %> комментар<%= (post.commentsCount || 0) === 1 ? 'ий' : 'иев' %>
+    </h2>
 
-  <!-- Список комментариев -->
-  <div class="comments-list-new">
+    <div class="comments-list-new">
 
-    <% if (!comments || comments.length === 0) { %>
+      <% if (!comments || comments.length === 0) { %>
 
-      <div class="comments-empty-new">
-        Пока нет комментариев. Будьте первым.
-      </div>
+        <div class="comments-empty-new">
+          Пока нет комментариев. Будьте первым.
+        </div>
 
-    <% } else { %>
+      <% } else { %>
 
-      <% comments.forEach(function(c) { 
+        <% comments.forEach(function(c) {
+          const isCommentAuthor = currentUser && c.author && currentUser._id.toString() === c.author._id.toString();
+          const canManageComment = currentUser && (isCommentAuthor || currentUser.isAdmin);
+          const isPostAuthor = post.author && c.author && post.author._id.toString() === c.author._id.toString();
+          const commentTime = c.createdAt
+            ? new Date(c.createdAt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+            : '';
+        %>
 
-        const isPostAuthor =
-          post.author &&
-          c.author &&
-          post.author._id.toString() === c.author._id.toString();
+          <article class="comment-new" data-comment-id="<%= c._id %>">
 
-        const isCurrentUser =
-          currentUser &&
-          c.author &&
-          currentUser._id.toString() === c.author._id.toString();
+            <div class="comment-main-new">
 
-        const commentDate = c.createdAt ? new Date(c.createdAt) : null;
-
-        let commentTime = 'только что';
-
-        if (commentDate) {
-          const diff = Date.now() - commentDate.getTime();
-          const minutes = Math.floor(diff / 60000);
-          const hours = Math.floor(diff / 3600000);
-          const days = Math.floor(diff / 86400000);
-
-          if (minutes >= 1 && minutes < 60) {
-            commentTime = minutes + ' мин. назад';
-          } else if (hours >= 1 && hours < 24) {
-            commentTime = hours + ' ч. назад';
-          } else if (days >= 1) {
-            commentTime = days + ' дн. назад';
-          }
-        }
-      %>
-
-        <!-- Основной комментарий -->
-        <div class="comment-new">
-
-          <div class="comment-main-new">
-
-            <!-- Аватар -->
-            <div class="comment-avatar-new">
-
-              <% if (c.author && c.author.avatarUrl) { %>
-
-                <img
-                  src="<%= c.author.avatarUrl %>"
-                  alt="<%= c.author.username %>"
-                >
-
-              <% } else { %>
-
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <circle
-                    cx="12"
-                    cy="8"
-                    r="3.5"
-                    stroke="white"
-                    stroke-width="2"
-                  />
-
-                  <path
-                    d="M5 21c.5-4 2.8-6 7-6s6.5 2 7 6"
-                    stroke="white"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
-
-              <% } %>
-
-            </div>
-
-
-            <!-- Содержимое -->
-            <div class="comment-content-new">
-
-              <div class="comment-head-new">
-
-                <span class="comment-author-new">
-                  <%= c.author.username %>
-                </span>
-
-                <% if (isPostAuthor) { %>
-
-                  <span class="comment-badge-new">
-                    Автор
-                  </span>
-
-                <% } %>
-
-                <span class="comment-time-new">
-                  <%= commentTime %>
-                </span>
-
-              </div>
-
-
-              <p class="comment-text-new">
-                <%= c.text %>
-              </p>
-
-
-              <!-- Действия -->
-              <div class="comment-actions-new">
-
-                <button
-                  type="button"
-                  class="comment-like-btn-new <%= currentUser && c.likes && c.likes.some(id => id.toString() === currentUser._id.toString()) ? 'liked' : '' %>"
-                  data-comment-id="<%= c._id %>"
-                  aria-label="Нравится"
-                >
-
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8C3.2 6 5.2 4 7.7 4c1.6 0 3.2.8 4.3 2.1C13.1 4.8 14.7 4 16.3 4c2.5 0 4.5 2 4.5 4.8Z"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                    />
-                  </svg>
-
-                  <span>
-                    <%= c.likes ? c.likes.length : 0 %>
-                  </span>
-
-                </button>
-
-
-                <% if (currentUser) { %>
-
-                  <button
-                    type="button"
-                    class="comment-action-link-new js-reply-comment"
-                    data-comment-id="<%= c._id %>"
-                    data-username="<%= c.author.username %>"
-                  >
-                    Ответить
-                  </button>
-
+              <div class="comment-avatar-new">
+                <% if (c.author && c.author.avatarUrl) { %>
+                  <img src="<%= c.author.avatarUrl %>" alt="<%= c.author.username %>">
                 <% } else { %>
-
-                  <span class="comment-action-link-new">
-                    Ответить
-                  </span>
-
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="8" r="3.5" stroke="white" stroke-width="2"/>
+                    <path d="M5 21c.5-4 2.8-6 7-6s6.5 2 7 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
                 <% } %>
-
-
-                <% if (isCurrentUser) { %>
-
-                  <button
-                    type="button"
-                    class="comment-action-link-new"
-                  >
-                    Редактировать
-                  </button>
-
-                  <button
-                    type="button"
-                    class="comment-action-link-new comment-action-danger-new"
-                  >
-                    Удалить
-                  </button>
-
-                <% } %>
-
               </div>
 
-            </div>
+              <div class="comment-content-new">
 
-          </div>
+                <div class="comment-head-new">
+                  <span class="comment-author-new"><%= c.author.username %></span>
 
+                  <% if (isPostAuthor) { %>
+                    <span class="comment-badge-new">Автор</span>
+                  <% } %>
 
-          <!-- Ответы -->
-          <% if (c.replies && c.replies.length) { %>
+                  <span class="comment-time-new"><%= commentTime %></span>
+                </div>
 
-            <% c.replies.forEach(function(r) {
+                <p class="comment-text-new js-comment-text"><%= c.text %></p>
 
-              const isReplyCurrentUser =
-                currentUser &&
-                r.author &&
-                currentUser._id.toString() === r.author._id.toString();
+                <% if (canManageComment) { %>
+                  <form
+                    action="/comment/<%= c._id %>/edit"
+                    method="POST"
+                    class="comment-edit-form-new js-comment-form"
+                    hidden
+                  >
+                    <textarea name="text" maxlength="1000" required><%= c.text %></textarea>
+                    <div class="comment-edit-actions-new">
+                      <button type="button" class="comment-edit-cancel-new js-cancel-comment-edit">Отмена</button>
+                      <button type="submit">Сохранить</button>
+                    </div>
+                  </form>
+                <% } %>
 
-              const replyDate = r.createdAt ? new Date(r.createdAt) : null;
+                <div class="comment-actions-new">
 
-              let replyTime = 'только что';
-
-              if (replyDate) {
-                const diff = Date.now() - replyDate.getTime();
-                const minutes = Math.floor(diff / 60000);
-                const hours = Math.floor(diff / 3600000);
-                const days = Math.floor(diff / 86400000);
-
-                if (minutes >= 1 && minutes < 60) {
-                  replyTime = minutes + ' мин. назад';
-                } else if (hours >= 1 && hours < 24) {
-                  replyTime = hours + ' ч. назад';
-                } else if (days >= 1) {
-                  replyTime = days + ' дн. назад';
-                }
-              }
-            %>
-
-              <div class="comment-reply-new">
-
-                <!-- Аватар ответа -->
-                <div class="comment-avatar-new comment-avatar-reply-new">
-
-                  <% if (r.author && r.author.avatarUrl) { %>
-
-                    <img
-                      src="<%= r.author.avatarUrl %>"
-                      alt="<%= r.author.username %>"
-                    >
-
-                  <% } else { %>
-
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <circle
-                        cx="12"
-                        cy="8"
-                        r="3.5"
-                        stroke="white"
-                        stroke-width="2"
-                      />
-
-                      <path
-                        d="M5 21c.5-4 2.8-6 7-6s6.5 2 7 6"
-                        stroke="white"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                      />
+                  <button
+                    type="button"
+                    class="comment-like-btn-new <%= currentUser && c.likes && c.likes.some(function(id) { return id.toString() === currentUser._id.toString(); }) ? 'liked' : '' %>"
+                    data-comment-id="<%= c._id %>"
+                    aria-label="Поставить лайк"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8C3.2 6 5.2 4 7.7 4c1.6 0 3.2.8 4.3 2.1C13.1 4.8 14.7 4 16.3 4c2.5 0 4.5 2 4.5 4.8Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
                     </svg>
+                    <span><%= c.likes ? c.likes.length : 0 %></span>
+                  </button>
 
+                  <% if (currentUser) { %>
+                    <button
+                      type="button"
+                      class="comment-action-link-new js-reply-comment"
+                      data-comment-id="<%= c._id %>"
+                      data-username="<%= c.author.username %>"
+                    >Ответить</button>
+                  <% } %>
+
+                  <% if (canManageComment) { %>
+                    <button
+                      type="button"
+                      class="comment-action-link-new js-edit-comment"
+                    >Редактировать</button>
+
+                    <form
+                      action="/comment/<%= c._id %>/delete"
+                      method="POST"
+                      class="comment-delete-form-new js-comment-form"
+                    >
+                      <button type="submit" class="comment-action-link-new comment-action-danger-new">Удалить</button>
+                    </form>
                   <% } %>
 
                 </div>
 
-
-                <div class="comment-content-new">
-
-                  <div class="comment-head-new">
-
-                    <span class="comment-author-new">
-                      <%= r.author.username %>
-                    </span>
-
-                    <span class="comment-time-new">
-                      <%= replyTime %>
-                    </span>
-
-                  </div>
-
-
-                  <p class="comment-text-new">
-
-                    <span class="comment-mention-new">
-                      @<%= c.author.username %>
-                    </span>
-
-                    <%= r.text %>
-
-                  </p>
-
-
-                  <div class="comment-actions-new">
-
-                    <button
-                      type="button"
-                      class="comment-like-btn-new"
-                      data-comment-id="<%= r._id %>"
-                      aria-label="Нравится"
-                    >
-
-                      <svg
-                        width="15"
-                        height="15"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <path
-                          d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8C3.2 6 5.2 4 7.7 4c1.6 0 3.2.8 4.3 2.1C13.1 4.8 14.7 4 16.3 4c2.5 0 4.5 2 4.5 4.8Z"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.8"
-                        />
-                      </svg>
-
-                      <span>
-                        <%= r.likes ? r.likes.length : 0 %>
-                      </span>
-
-                    </button>
-
-
-                    <% if (currentUser) { %>
-
-                      <button
-                        type="button"
-                        class="comment-action-link-new js-reply-comment"
-                        data-comment-id="<%= r._id %>"
-                        data-username="<%= r.author.username %>"
-                      >
-                        Ответить
-                      </button>
-
-                    <% } %>
-
-
-                    <% if (isReplyCurrentUser) { %>
-
-                      <button
-                        type="button"
-                        class="comment-action-link-new"
-                      >
-                        Редактировать
-                      </button>
-
-                      <button
-                        type="button"
-                        class="comment-action-link-new comment-action-danger-new"
-                      >
-                        Удалить
-                      </button>
-
-                    <% } %>
-
-                  </div>
-
-                </div>
+                <% if (currentUser) { %>
+                  <form
+                    action="/post/<%= post.shortId %>/comment"
+                    method="POST"
+                    class="comment-reply-form-new js-comment-form"
+                    data-reply-to="<%= c._id %>"
+                    hidden
+                  >
+                    <input type="hidden" name="parent" value="<%= c._id %>">
+                    <textarea
+                      name="text"
+                      maxlength="1000"
+                      placeholder="Ответить @<%= c.author.username %>..."
+                      required
+                    ></textarea>
+                    <div class="comment-edit-actions-new">
+                      <button type="button" class="comment-edit-cancel-new js-cancel-reply">Отмена</button>
+                      <button type="submit">Ответить</button>
+                    </div>
+                  </form>
+                <% } %>
 
               </div>
+            </div>
 
-            <% }) %>
+            <% if (c.replies && c.replies.length) { %>
+              <div class="comment-replies-new">
+                <% c.replies.forEach(function(r) {
+                  const isReplyAuthor = currentUser && r.author && currentUser._id.toString() === r.author._id.toString();
+                  const canManageReply = currentUser && (isReplyAuthor || currentUser.isAdmin);
+                  const replyTime = r.createdAt
+                    ? new Date(r.createdAt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+                    : '';
+                %>
 
-          <% } %>
+                  <article class="comment-reply-new" data-comment-id="<%= r._id %>">
 
-        </div>
+                    <div class="comment-avatar-new comment-avatar-reply-new">
+                      <% if (r.author && r.author.avatarUrl) { %>
+                        <img src="<%= r.author.avatarUrl %>" alt="<%= r.author.username %>">
+                      <% } else { %>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <circle cx="12" cy="8" r="3.5" stroke="white" stroke-width="2"/>
+                          <path d="M5 21c.5-4 2.8-6 7-6s6.5 2 7 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                      <% } %>
+                    </div>
 
-      <% }) %>
+                    <div class="comment-content-new">
+                      <div class="comment-head-new">
+                        <span class="comment-author-new"><%= r.author.username %></span>
+                        <span class="comment-time-new"><%= replyTime %></span>
+                      </div>
 
+                      <p class="comment-text-new js-comment-text">
+                        <span class="comment-mention-new">@<%= c.author.username %></span> <%= r.text %>
+                      </p>
+
+                      <% if (canManageReply) { %>
+                        <form
+                          action="/comment/<%= r._id %>/edit"
+                          method="POST"
+                          class="comment-edit-form-new js-comment-form"
+                          hidden
+                        >
+                          <textarea name="text" maxlength="1000" required><%= r.text %></textarea>
+                          <div class="comment-edit-actions-new">
+                            <button type="button" class="comment-edit-cancel-new js-cancel-comment-edit">Отмена</button>
+                            <button type="submit">Сохранить</button>
+                          </div>
+                        </form>
+                      <% } %>
+
+                      <div class="comment-actions-new">
+                        <button
+                          type="button"
+                          class="comment-like-btn-new <%= currentUser && r.likes && r.likes.some(function(id) { return id.toString() === currentUser._id.toString(); }) ? 'liked' : '' %>"
+                          data-comment-id="<%= r._id %>"
+                          aria-label="Поставить лайк"
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8C3.2 6 5.2 4 7.7 4c1.6 0 3.2.8 4.3 2.1C13.1 4.8 14.7 4 16.3 4c2.5 0 4.5 2 4.5 4.8Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                          </svg>
+                          <span><%= r.likes ? r.likes.length : 0 %></span>
+                        </button>
+
+                        <% if (currentUser) { %>
+                          <button
+                            type="button"
+                            class="comment-action-link-new js-reply-comment"
+                            data-comment-id="<%= c._id %>"
+                            data-username="<%= r.author.username %>"
+                          >Ответить</button>
+                        <% } %>
+
+                        <% if (canManageReply) { %>
+                          <button type="button" class="comment-action-link-new js-edit-comment">Редактировать</button>
+
+                          <form
+                            action="/comment/<%= r._id %>/delete"
+                            method="POST"
+                            class="comment-delete-form-new js-comment-form"
+                          >
+                            <button type="submit" class="comment-action-link-new comment-action-danger-new">Удалить</button>
+                          </form>
+                        <% } %>
+                      </div>
+
+                      <% if (currentUser) { %>
+                        <form
+                          action="/post/<%= post.shortId %>/comment"
+                          method="POST"
+                          class="comment-reply-form-new js-comment-form"
+                          data-reply-to="<%= c._id %>"
+                          hidden
+                        >
+                          <input type="hidden" name="parent" value="<%= c._id %>">
+                          <textarea
+                            name="text"
+                            maxlength="1000"
+                            placeholder="Ответить @<%= r.author.username %>..."
+                            required
+                          ></textarea>
+                          <div class="comment-edit-actions-new">
+                            <button type="button" class="comment-edit-cancel-new js-cancel-reply">Отмена</button>
+                            <button type="submit">Ответить</button>
+                          </div>
+                        </form>
+                      <% } %>
+                    </div>
+                  </article>
+
+                <% }) %>
+              </div>
+            <% } %>
+
+          </article>
+
+        <% }) %>
+
+      <% } %>
+
+    </div>
+
+    <% if (currentUser) { %>
+      <form
+        action="/post/<%= post.shortId %>/comment"
+        method="POST"
+        class="comment-form-new js-comment-form"
+      >
+        <textarea
+          name="text"
+          maxlength="1000"
+          placeholder="Написать комментарий..."
+          required
+        ></textarea>
+        <button type="submit">Отправить</button>
+      </form>
+    <% } else { %>
+      <div class="comment-login-new">
+        <a href="/login?next=/post/<%= post.shortId %>">Войдите</a>, чтобы оставить комментарий.
+      </div>
     <% } %>
 
   </div>
 
-
-  <!-- Форма нового комментария -->
-  <% if (currentUser) { %>
-
-    <form
-      action="/post/<%= post.shortId %>/comment"
-      method="POST"
-      class="comment-form-new"
-    >
-
-      <textarea
-        name="text"
-        placeholder="Написать комментарий..."
-        required
-      ></textarea>
-
-      <button type="submit">
-        Отправить
-      </button>
-
-    </form>
-
-  <% } else { %>
-
-    <div class="comment-login-new">
-      <a href="/login">Войдите</a>, чтобы оставить комментарий.
-    </div>
-
-  <% } %>
-
 </div>
+
+</div> 
 
