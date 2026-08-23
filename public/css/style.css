@@ -1888,7 +1888,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 760px) {
   .post-side.post-side-new {
-    flex: 1 1 50% !important;
+    flex: 1 1 auto !important;
     width: 100% !important;
     min-width: 0 !important;
     max-width: 100% !important;
@@ -1897,10 +1897,41 @@ a { color: inherit; text-decoration: none; }
     border-top: 1px solid var(--border);
 
     padding: 22px !important;
+
+    /* На десктопе панель обрезает лишний контент (overflow: hidden), рассчитывая
+       на то, что список комментариев сам скроллится внутри своей области.
+       На мобильном высота панели плавающая (flex: 1 1 auto вместо жёстких 50%),
+       и если контента больше, чем помещается на экране, весь блок должен
+       прокручиваться целиком — иначе поле ввода комментария и кнопка
+       "Отправить" уезжают за пределы видимой области и до них не добраться. */
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    max-height: none;
+    min-height: 0; /* без этого flex-элемент не сжимается и overflow-y: auto не срабатывает */
   }
 
   .post-side.post-side-new .post-title-new {
     font-size: 24px;
+  }
+
+  .post-side.post-side-new .comments-new,
+  .post-side.post-side-new .comments-list-new {
+    /* Внутри мобильной прокрутки всей панели не нужно, чтобы список
+       комментариев ещё раз сам зажимался и скроллился отдельно —
+       иначе получается скролл в скролле и контент "прыгает". */
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  .post-side.post-side-new .comments-empty-new {
+    min-height: 80px;
+  }
+
+  .post-side.post-side-new .comment-form-new {
+    /* margin-top: auto работал только пока высота панели была жёстко
+       задана (flex: 1 1 50%) — при flex: 1 1 auto это больше не нужно
+       и мешает форме комментария сразу идти следом за содержимым. */
+    margin-top: 18px;
   }
 
   .post-side.post-side-new .post-user-new,
