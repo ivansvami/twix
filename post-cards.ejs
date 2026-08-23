@@ -1,78 +1,78 @@
-  <% posts.forEach(function(post) {
-      const firstFile = post.files && post.files[0];
-      const rawUrl = firstFile ? firstFile.url : '';
-      
-      const ytMatch = rawUrl && rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-      const youtubeId = ytMatch ? ytMatch[1] : null;
-      const ytEmbedUrl = youtubeId ? 'https://www.youtube.com/embed/' + youtubeId : null;
-      const ytWatchUrl = youtubeId ? 'https://www.youtube.com/watch?v=' + youtubeId : null;
-      
-      const tiktokMatch = rawUrl && rawUrl.match(/tiktok\.com\/.*\/video\/(\d+)/);
-      const instaMatch = rawUrl && rawUrl.match(/instagram\.com\/(?:reel|reels)\/([\w-]+)/);
-      
-      const isYoutube = Boolean(youtubeId);
-      const isTiktok = Boolean(tiktokMatch);
-      const isInsta = Boolean(instaMatch);
-      const mediaUrl = rawUrl || '';
-  %>
-    <article class="card <%= isYoutube ? 'card-youtube' : '' %>" data-shortid="<%= post.shortId %>">
-      <div class="card-media">
-       <% if (isYoutube) { %>
-          <% 
-            const ytThumbUrl = 'https://img.youtube.com/vi/' + youtubeId + '/hqdefault.jpg';
-            const ytWatchUrl = 'https://www.youtube.com/watch?v=' + youtubeId;
-          %>
-          
-          <div class="yt-hover-card" data-ytid="<%= youtubeId %>" style="position: relative; width: 100%; padding-top: 56.25%; background: #000; overflow: hidden;">
-            
-            <!-- 1. Сам плеер (спрятан сзади, воспроизводится при наведении) -->
-            <div class="yt-player-container" style="position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; pointer-events: none;">
-              <div class="yt-player-target"></div>
+<% posts.forEach(function(post) {
+    const firstFile = post.files && post.files[0];
+    const rawUrl = firstFile ? firstFile.url : '';
+
+    const ytMatch = rawUrl && rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+    const youtubeId = ytMatch ? ytMatch[1] : null;
+    const ytEmbedUrl = youtubeId ? 'https://www.youtube.com/embed/' + youtubeId : null;
+    const ytWatchUrl = youtubeId ? 'https://www.youtube.com/watch?v=' + youtubeId : null;
+
+    const tiktokMatch = rawUrl && rawUrl.match(/tiktok\.com\/.*\/video\/(\d+)/);
+    const instaMatch = rawUrl && rawUrl.match(/instagram\.com\/(?:reel|reels)\/([\w-]+)/);
+
+    const isYoutube = Boolean(youtubeId);
+    const isTiktok = Boolean(tiktokMatch);
+    const isInsta = Boolean(instaMatch);
+    const mediaUrl = rawUrl || '';
+%>
+  <article class="card <%= isYoutube ? 'card-youtube' : '' %>" data-shortid="<%= post.shortId %>">
+    <div class="card-media">
+     <% if (isYoutube) { %>
+        <%
+          const ytThumbUrl = 'https://img.youtube.com/vi/' + youtubeId + '/hqdefault.jpg';
+          const ytWatchUrlCard = 'https://www.youtube.com/watch?v=' + youtubeId;
+        %>
+
+        <div class="yt-hover-card" data-ytid="<%= youtubeId %>" style="position: relative; width: 100%; padding-top: 56.25%; background: #000; overflow: hidden;">
+
+          <!-- 1. Сам плеер (спрятан сзади, воспроизводится при наведении) -->
+          <div class="yt-player-container" style="position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; pointer-events: none;">
+            <div class="yt-player-target"></div>
+          </div>
+
+          <!-- 2. Кликабельная обложка-заглушка, ведущая на YouTube в новой вкладке -->
+          <a href="<%= ytWatchUrlCard %>" target="_blank" rel="noopener noreferrer" class="yt-cover-link" aria-label="Открыть видео на YouTube" style="position: absolute; inset: 0; z-index: 3; display: block;">
+            <img class="yt-cover-img" src="<%= ytThumbUrl %>" alt="<%= post.title || 'YouTube видео' %>" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s ease;">
+
+            <!-- Небольшая иконка Play по центру для красоты -->
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); opacity: 0.8;"><path d="M8 5v14l11-7z"/></svg>
             </div>
+          </a>
 
-            <!-- 2. Кликабельная обложка-заглушка, ведущая на YouTube в новой вкладке -->
-            <a href="<%= ytWatchUrl %>" target="_blank" rel="noopener noreferrer" class="yt-cover-link" aria-label="Открыть видео на YouTube" style="position: absolute; inset: 0; z-index: 3; display: block;">
-              <img class="yt-cover-img" src="<%= ytThumbUrl %>" alt="<%= post.title || 'YouTube видео' %>" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s ease;">
-              
-              <!-- Небольшая иконка Play по центру для красоты -->
-              <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); opacity: 0.8;"><path d="M8 5v14l11-7z"/></svg>
-              </div>
-            </a>
-
-          </div>
-
-        <% } else if (isTiktok) { %>
-          <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;">
-            <iframe src="https://www.tiktok.com/embed/v2/<%= tiktokMatch[1] %>" style="width: 100%; height: 100%; border: none; pointer-events: none;" allowfullscreen></iframe>
-            <a href="/post/<%= post.shortId %>" class="post-card-open js-post-link" data-shortid="<%= post.shortId %>" style="position: absolute; inset: 0; z-index: 3;" aria-label="Открыть публикацию"></a>
-          </div>
-        <% } else if (isInsta) { %>
-          <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;">
-            <iframe src="https://www.instagram.com/reel/<%= instaMatch[1] %>/embed/" style="width: 100%; height: 100%; border: none; pointer-events: none;" allowfullscreen></iframe>
-            <a href="/post/<%= post.shortId %>" class="post-card-open js-post-link" data-shortid="<%= post.shortId %>" style="position: absolute; inset: 0; z-index: 3;" aria-label="Открыть публикацию"></a>
-          </div>
-        <% } else if (firstFile) { %>
-          <% if (firstFile.resourceType === 'video') { %>
-            <video src="<%= mediaUrl %>" muted playsinline preload="metadata"></video>
-          <% } else if (firstFile.resourceType === 'audio') { %>
-            <div class="audio-thumb" aria-label="Аудиофайл">🎵</div>
-          <% } else { %>
-            <img src="<%= mediaUrl %>" alt="<%= post.title || 'Изображение' %>" loading="lazy">
-          <% } %>
-        <% } %>
-        <% if (post.isNsfw) { %><span class="tag-nsfw">18+</span><% } %>
-      </div>
-      <button type="button" class="post-card-open js-post-link" data-shortid="<%= post.shortId %>" aria-label="Открыть публикацию <%= post.title || 'Без названия' %>">
-        <div class="card-body">
-          <h3 class="card-title"><%= post.title || 'Без названия' %></h3>
-          <p class="card-meta">
-            <span>👁 <%= post.views || 0 %></span>
-            <span>❤ <%= post.likesCount || 0 %></span>
-            <span>💬 <%= post.commentsCount || 0 %></span>
-          </p>
-          <p class="card-author">@<%= post.author.username %></p>
         </div>
-      </button>
-    </article>
-  <% }) %>
+
+      <% } else if (isTiktok) { %>
+        <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;">
+          <iframe src="https://www.tiktok.com/embed/v2/<%= tiktokMatch[1] %>" style="width: 100%; height: 100%; border: none; pointer-events: none;" allowfullscreen></iframe>
+          <a href="/post/<%= post.shortId %>" class="post-card-open js-post-link" data-shortid="<%= post.shortId %>" style="position: absolute; inset: 0; z-index: 3;" aria-label="Открыть публикацию"></a>
+        </div>
+      <% } else if (isInsta) { %>
+        <div class="external-video-wrap" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;">
+          <iframe src="https://www.instagram.com/reel/<%= instaMatch[1] %>/embed/" style="width: 100%; height: 100%; border: none; pointer-events: none;" allowfullscreen></iframe>
+          <a href="/post/<%= post.shortId %>" class="post-card-open js-post-link" data-shortid="<%= post.shortId %>" style="position: absolute; inset: 0; z-index: 3;" aria-label="Открыть публикацию"></a>
+        </div>
+      <% } else if (firstFile) { %>
+        <% if (firstFile.resourceType === 'video') { %>
+          <video src="<%= mediaUrl %>" muted playsinline preload="metadata"></video>
+        <% } else if (firstFile.resourceType === 'audio') { %>
+          <div class="audio-thumb" aria-label="Аудиофайл">🎵</div>
+        <% } else { %>
+          <img src="<%= mediaUrl %>" alt="<%= post.title || 'Изображение' %>" loading="lazy">
+        <% } %>
+      <% } %>
+      <% if (post.isNsfw) { %><span class="tag-nsfw">18+</span><% } %>
+    </div>
+    <button type="button" class="post-card-open js-post-link" data-shortid="<%= post.shortId %>" aria-label="Открыть публикацию <%= post.title || 'Без названия' %>">
+      <div class="card-body">
+        <h3 class="card-title"><%= post.title || 'Без названия' %></h3>
+        <p class="card-meta">
+          <span>👁 <%= post.views || 0 %></span>
+          <span>❤ <%= post.likesCount || 0 %></span>
+          <span>💬 <%= post.commentsCount || 0 %></span>
+        </p>
+        <p class="card-author">@<%= post.author.username %></p>
+      </div>
+    </button>
+  </article>
+<% }) %>

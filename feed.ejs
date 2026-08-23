@@ -5,8 +5,8 @@
   method="GET"
   action="<%= activeNav === 'videos' ? '/videos' : '/' %>"
 >
-  <% if ((feedSource || 'feed') !== 'youtube') { %>
-  <!-- Категория -->
+  <!-- Категория (только для общей ленты — во вкладке "Видео" всегда только YouTube-ролики) -->
+  <% if (activeNav !== 'videos') { %>
   <div class="filter-dropdown" data-filter="category">
     <button type="button" class="filter-dropdown-toggle">
       <span class="filter-dropdown-value">
@@ -68,9 +68,8 @@
       value="<%= category || 'all' %>"
     >
   </div>
-
-
   <% } %>
+
 
   <!-- Сортировка -->
   <div class="filter-dropdown" data-filter="sort">
@@ -201,18 +200,24 @@
   </button>
 </form>
 
-<div class="grid" id="posts-grid" data-feed-source="<%= feedSource || 'feed' %>" data-category="<%= category || 'all' %>" data-sort="<%= sort || 'new' %>" data-period="<%= period || 'all' %>" data-page="1" data-has-more="<%= hasMore ? '1' : '0' %>">
+<div
+  class="grid"
+  id="posts-grid"
+  data-endpoint="<%= activeNav === 'videos' ? '/api/videos' : '/api/feed' %>"
+  data-page="<%= page || 1 %>"
+  data-has-more="<%= hasMore ? '1' : '0' %>"
+>
   <% if (posts.length === 0) { %>
     <p class="empty" id="empty-feed">Нет файлов для отображения</p>
-  <% } else { %>
-    <%- include('partials/post-cards', { posts }) %>
   <% } %>
+
+  <%- include('partials/post-cards', { posts }) %>
 </div>
-<div id="feed-loader" class="feed-loader" <%= hasMore ? '' : 'hidden' %>>
-  <span class="feed-loader-spinner" aria-hidden="true"></span>
-  <span class="feed-loader-text">Загрузка...</span>
-</div>
-<div id="feed-end" class="feed-end" <%= (hasMore || posts.length === 0) ? 'hidden' : '' %>>Вы дошли до конца ленты</div>
+
+<!-- Бесконечная подгрузка -->
+<div id="feed-sentinel" aria-hidden="true"></div>
+<p id="feed-loading" class="feed-status" hidden>Загрузка…</p>
+<p id="feed-end" class="feed-status" <%= (posts.length === 0 || hasMore) ? 'hidden' : '' %>>Это все публикации</p>
 
 <!-- Мобильная кнопка -->
 <div class="mobile-suggest-container">
