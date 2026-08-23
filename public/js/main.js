@@ -324,6 +324,50 @@ overlayContent.innerHTML = data.html;
     }
   });
 
+  // ===== Выпадающее меню профиля =====
+  var profileWrap = document.getElementById('profile-menu-wrap');
+  var profileToggle = document.getElementById('profile-toggle');
+  var profileMenu = document.getElementById('profile-menu');
+
+  function closeProfileMenu() {
+    if (!profileWrap) return;
+    profileWrap.classList.remove('open');
+    if (profileToggle) profileToggle.setAttribute('aria-expanded', 'false');
+    if (profileMenu) profileMenu.setAttribute('aria-hidden', 'true');
+  }
+
+  function openProfileMenu() {
+    if (!profileWrap) return;
+    profileWrap.classList.add('open');
+    if (profileToggle) profileToggle.setAttribute('aria-expanded', 'true');
+    if (profileMenu) profileMenu.setAttribute('aria-hidden', 'false');
+  }
+
+  if (profileWrap && profileToggle) {
+    profileToggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (profileWrap.classList.contains('open')) {
+        closeProfileMenu();
+      } else {
+        openProfileMenu();
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!profileWrap.contains(e.target)) {
+        closeProfileMenu();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        closeProfileMenu();
+      }
+    });
+  }
+
   var notifCount = document.getElementById('notif-count');
   if (notifCount) {
     fetch('/api/notifications/unread-count')
