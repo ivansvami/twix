@@ -149,20 +149,48 @@
   <!-- Информация о посте -->
   <div class="post-info-new">
 
-    <!-- Автор -->
-    <div class="post-user-new">
-      <div class="post-user-avatar-new">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="8" r="3.5" stroke="white" stroke-width="2"/>
-          <path d="M5 21c.5-4 2.8-6 7-6s6.5 2 7 6"
-                stroke="white"
-                stroke-width="2"
-                stroke-linecap="round"/>
-        </svg>
-      </div>
+<div class="post-user-new">
 
-      <span>@<%= post.author.username %></span>
-    </div>
+  <div class="post-user-avatar-new">
+
+    <% if (post.author && post.author.avatarUrl) { %>
+
+      <img
+        src="<%= post.author.avatarUrl %>"
+        alt="<%= post.author.username %>"
+      >
+
+    <% } else { %>
+
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <circle
+          cx="12"
+          cy="8"
+          r="3.5"
+          stroke="white"
+          stroke-width="2"
+        />
+
+        <path
+          d="M5 21c.5-4 2.8-6 7-6s6.5 2 7 6"
+          stroke="white"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </svg>
+
+    <% } %>
+
+  </div>
+
+  <span>@<%= post.author.username %></span>
+
+</div>
 
 
     <!-- Заголовок -->
