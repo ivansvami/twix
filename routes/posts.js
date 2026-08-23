@@ -66,16 +66,30 @@ function buildSort(sort) {
   }
 }
 
-// Оптимизированная общая лента / фильтр по категории
-async function renderFeed(req, res, forcedCategory) {
-  const category = forcedCategory || req.query.category || 'all';
+// Ссылки на YouTube — по ним отличаем "предложенные видео" (вкладка "Видео")
+// от обычных постов, загруженных через страницу "Новый пост" (вкладка "Лента").
+const YOUTUBE_URL_REGEX = /^https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\//i;
+
+// Собирает данные страницы ленты/вкладки "Видео": сама выборка постов не зависит
+// от того, нужен ли в итоге полный рендер страницы или JSON для подгрузки.
+async function fetchFeedPage(req, forcedCategory) {
+  const isVideosTab = forcedCategory === 'video';
+  const category = isVideosTab ? 'video' : (req.query.category || 'all');
   const sort = req.query.sort || 'new';
   const period = req.query.period || 'all';
   const page = Math.max(parseInt(req.query.page) || 1, 1);
   const perPage = 24;
 
   const filter = { ...buildDateFilter(period) };
-  if (category && category !== 'all') filter.category = category;
+
+  if (isVideosTab) {
+    // Вкладка "Видео" — показываем только предложенные YouTube-ролики
+    filter['files.url'] = YOUTUBE_URL_REGEX;
+  } else {
+    // Общая лента — обычные посты (фото/видео/аудио/альбомы), без YouTube-ссылок
+    filter['files.url'] = { $not: YOUTUBE_URL_REGEX };
+    if (category && category !== 'all') filter.category = category;
+  }
 
   // Посты с типом доступа "только по ссылке" не показываются в общей ленте.
   // Используем "не равно unlisted", а не "равно public" — так старые посты,
@@ -85,12 +99,25 @@ async function renderFeed(req, res, forcedCategory) {
   const showNsfw = req.user ? !!req.user.showNsfw : false;
   if (!showNsfw) filter.isNsfw = false;
 
-  const posts = await Post.find(filter)
+  // Запрашиваем на один пост больше лимита, чтобы понять, есть ли ещё
+  // страницы для автоподгрузки, не делая отдельный count-запрос.
+  const rawPosts = await Post.find(filter)
     .sort(buildSort(sort))
     .skip((page - 1) * perPage)
-    .limit(perPage)
+    .limit(perPage + 1)
     .populate('author')
     .lean();
+
+  const hasMore = rawPosts.length > perPage;
+  const posts = hasMore ? rawPosts.slice(0, perPage) : rawPosts;
+
+  return { posts, category, sort, period, page, hasMore, isVideosTab };
+}
+
+// Оптимизированная общая лента / фильтр по категории
+async function renderFeed(req, res, forcedCategory) {
+  const { posts, category, sort, period, page, hasMore, isVideosTab } =
+    await fetchFeedPage(req, forcedCategory);
 
   res.render('feed', {
     posts,
@@ -98,12 +125,30 @@ async function renderFeed(req, res, forcedCategory) {
     sort,
     period,
     page,
-    activeNav: forcedCategory === 'video' ? 'videos' : 'feed'
+    hasMore,
+    activeNav: isVideosTab ? 'videos' : 'feed'
   });
 }
 
 router.get('/', asyncHandler((req, res) => renderFeed(req, res, null)));
 router.get('/videos', asyncHandler((req, res) => renderFeed(req, res, 'video')));
+
+// JSON-эндпоинты для бесконечной подгрузки ленты и вкладки "Видео"
+function renderFeedJson(forcedCategory) {
+  return asyncHandler(async (req, res) => {
+    const { posts, page, hasMore } = await fetchFeedPage(req, forcedCategory);
+    res.render('partials/post-cards', { posts }, (err, html) => {
+      if (err) {
+        console.error('Ошибка рендера карточек ленты:', err);
+        return res.status(500).json({ ok: false, error: 'Внутренняя ошибка сервера' });
+      }
+      res.json({ ok: true, html, hasMore, nextPage: page + 1 });
+    });
+  });
+}
+
+router.get('/api/feed', renderFeedJson(null));
+router.get('/api/videos', renderFeedJson('video'));
 
 router.get('/api/imagekit-auth', requireAuth, asyncHandler(async (req, res) => {
   try {
