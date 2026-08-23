@@ -66,42 +66,32 @@ function buildSort(sort) {
   }
 }
 
-// Общая лента и вкладка YouTube-видео.
-//
-// ВАЖНО:
-// - обычная "Лента" показывает только посты, созданные через /new;
-//   YouTube-ссылки из "Предложить видео" сюда не попадают;
-// - /videos показывает только посты с YouTube-ссылкой;
-// - для бесконечной ленты используем API с page + limit. На каждом запросе
-//   возвращаем только следующую порцию карточек.
+// Лента: обычные посты из «Новый пост» и отдельная вкладка YouTube.
+// YouTube-посты создаются маршрутом /api/suggest-video, но физически тоже
+// лежат в Post. Поэтому при выборке разделяем их по URL файла.
 const YOUTUBE_URL_RE = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\//i;
 const FEED_PAGE_SIZE = 24;
 
-function applyFeedSourceFilter(filter, source) {
+function getFeedFilter({ category, period, source, showNsfw }) {
+  const filter = { ...buildDateFilter(period) };
+
   if (source === 'youtube') {
-    // YouTube-посты создаются через "Предложить видео" и имеют category=video.
+    // Во вкладке «Видео» показываем только YouTube.
     filter.category = 'video';
     filter['files.url'] = { $regex: YOUTUBE_URL_RE };
   } else {
-    // В обычной ленте оставляем только обычные загруженные посты.
-    // YouTube-посты полностью исключаем независимо от выбранной категории.
+    // Обычная лента никогда не показывает YouTube.
     filter.$nor = [{ 'files.url': { $regex: YOUTUBE_URL_RE } }];
+    if (category && category !== 'all') filter.category = category;
   }
+
+  filter.visibility = { $ne: 'unlisted' };
+  if (!showNsfw) filter.isNsfw = false;
+  return filter;
 }
 
-async function getFeedPosts({ category, sort, period, page, source, showNsfw }) {
-  const filter = { ...buildDateFilter(period) };
-
-  if (source !== 'youtube' && category && category !== 'all') {
-    filter.category = category;
-  }
-
-  // Посты с типом доступа "только по ссылке" не показываются в общей ленте.
-  filter.visibility = { $ne: 'unlisted' };
-
-  if (!showNsfw) filter.isNsfw = false;
-
-  applyFeedSourceFilter(filter, source);
+async function findFeedPosts({ category, sort, period, page, source, showNsfw }) {
+  const filter = getFeedFilter({ category, period, source, showNsfw });
 
   const posts = await Post.find(filter)
     .sort(buildSort(sort))
@@ -112,22 +102,20 @@ async function getFeedPosts({ category, sort, period, page, source, showNsfw }) 
 
   const hasMore = posts.length > FEED_PAGE_SIZE;
   if (hasMore) posts.pop();
-
   return { posts, hasMore };
 }
 
 async function renderFeed(req, res, forcedSource) {
   const source = forcedSource || 'feed';
   const category = source === 'youtube' ? 'youtube' : (req.query.category || 'all');
-  const sort = req.query.sort || 'new';
-  const period = req.query.period || 'all';
-  const page = 1;
+  const sort = ['new', 'views', 'likes', 'comments'].includes(req.query.sort) ? req.query.sort : 'new';
+  const period = ['today', 'week', 'month', 'year', 'all'].includes(req.query.period) ? req.query.period : 'all';
 
-  const { posts, hasMore } = await getFeedPosts({
+  const { posts, hasMore } = await findFeedPosts({
     category,
     sort,
     period,
-    page,
+    page: 1,
     source,
     showNsfw: req.user ? !!req.user.showNsfw : false
   });
@@ -137,7 +125,7 @@ async function renderFeed(req, res, forcedSource) {
     category,
     sort,
     period,
-    page,
+    page: 1,
     hasMore,
     feedSource: source,
     activeNav: source === 'youtube' ? 'videos' : 'feed'
@@ -147,22 +135,15 @@ async function renderFeed(req, res, forcedSource) {
 router.get('/', asyncHandler((req, res) => renderFeed(req, res, 'feed')));
 router.get('/videos', asyncHandler((req, res) => renderFeed(req, res, 'youtube')));
 
-// API для бесконечной ленты.
-// Примеры:
-// /api/feed?page=2&sort=new&period=all&category=all&source=feed
-// /api/feed?page=2&sort=new&period=all&source=youtube
+// API следующей страницы для infinite scroll.
 router.get('/api/feed', asyncHandler(async (req, res) => {
   const source = req.query.source === 'youtube' ? 'youtube' : 'feed';
   const category = source === 'youtube' ? 'youtube' : (req.query.category || 'all');
-  const sort = ['new', 'views', 'likes', 'comments'].includes(req.query.sort)
-    ? req.query.sort
-    : 'new';
-  const period = ['today', 'week', 'month', 'year', 'all'].includes(req.query.period)
-    ? req.query.period
-    : 'all';
+  const sort = ['new', 'views', 'likes', 'comments'].includes(req.query.sort) ? req.query.sort : 'new';
+  const period = ['today', 'week', 'month', 'year', 'all'].includes(req.query.period) ? req.query.period : 'all';
   const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
 
-  const { posts, hasMore } = await getFeedPosts({
+  const { posts, hasMore } = await findFeedPosts({
     category,
     sort,
     period,
@@ -173,17 +154,10 @@ router.get('/api/feed', asyncHandler(async (req, res) => {
 
   res.render('partials/post-cards', { posts }, (err, html) => {
     if (err) {
-      console.error('Ошибка рендера карточек ленты:', err);
+      console.error('Ошибка рендера следующей страницы ленты:', err);
       return res.status(500).json({ ok: false, error: 'Не удалось загрузить посты' });
     }
-
-    res.json({
-      ok: true,
-      html,
-      page,
-      hasMore,
-      count: posts.length
-    });
+    res.json({ ok: true, html, page, hasMore, count: posts.length });
   });
 }));
 

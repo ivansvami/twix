@@ -68,8 +68,9 @@
       value="<%= category || 'all' %>"
     >
   </div>
-  <% } %>
 
+
+  <% } %>
 
   <!-- Сортировка -->
   <div class="filter-dropdown" data-filter="sort">
@@ -200,33 +201,17 @@
   </button>
 </form>
 
-<div
-  class="grid"
-  id="posts-grid"
-  data-feed-source="<%= feedSource || 'feed' %>"
-  data-category="<%= category || 'all' %>"
-  data-sort="<%= sort || 'new' %>"
-  data-period="<%= period || 'all' %>"
-  data-page="1"
-  data-has-more="<%= hasMore ? '1' : '0' %>"
->
+<div class="grid" id="posts-grid" data-feed-source="<%= feedSource || 'feed' %>" data-category="<%= category || 'all' %>" data-sort="<%= sort || 'new' %>" data-period="<%= period || 'all' %>" data-page="1" data-has-more="<%= hasMore ? '1' : '0' %>">
   <% if (posts.length === 0) { %>
     <p class="empty" id="empty-feed">Нет файлов для отображения</p>
   <% } else { %>
     <%- include('partials/post-cards', { posts }) %>
   <% } %>
 </div>
-
-<div
-  id="feed-loader"
-  class="feed-loader"
-  data-feed-loader
-  <%= hasMore ? '' : 'hidden' %>
->
+<div id="feed-loader" class="feed-loader" <%= hasMore ? '' : 'hidden' %>>
   <span class="feed-loader-spinner" aria-hidden="true"></span>
   <span class="feed-loader-text">Загрузка...</span>
 </div>
-
 <div id="feed-end" class="feed-end" <%= (hasMore || posts.length === 0) ? 'hidden' : '' %>>Вы дошли до конца ленты</div>
 
 <!-- Мобильная кнопка -->

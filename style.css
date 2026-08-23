@@ -65,132 +65,82 @@ a { color: inherit; text-decoration: none; }
 .badge { background: var(--accent); border-radius: 10px; padding: 1px 7px; font-size: 12px; margin-left: 4px; }
 .username { color: var(--text-dim); }
 
-/* ===== Аватарка пользователя + выпадающее меню профиля ===== */
+/* ===== Аватарка пользователя в шапке + выпадающее меню профиля ===== */
 
-.topbar-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-left: auto;
-}
-
-.profile-menu-wrap {
-  position: relative;
-  flex: 0 0 auto;
-}
+.profile-menu-wrap { position: relative; }
 
 .profile-avatar-btn {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
+  width: 40px; height: 40px;
   border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: none; padding: 0;
   cursor: pointer;
-  flex: 0 0 40px;
-  transition: opacity .12s ease, transform .12s ease;
+  background: var(--accent);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
-
-.profile-avatar-btn:hover {
-  opacity: .92;
-}
-
-.profile-avatar-btn:active {
-  transform: scale(.96);
-}
-
 .profile-avatar-btn img {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   object-fit: cover;
   display: block;
 }
+.profile-avatar-btn:hover { opacity: 0.9; }
 
 .profile-dropdown {
   position: absolute;
-  top: calc(100% + 9px);
+  top: calc(100% + 10px);
   right: 0;
-  width: 249px;
-  padding: 7px;
+  min-width: 170px;
+
+  padding: 4px;
+  border-radius: 8px;
+
+  background: #171515;
   border: 1px solid #202024;
-  border-radius: 16px;
-  background: #17161b;
-  box-shadow: 0 14px 35px rgba(0, 0, 0, .45);
-  z-index: 1000;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+
+  z-index: 50;
 
   opacity: 0;
   visibility: hidden;
-  pointer-events: none;
-  transform: translateY(-6px);
-  transition: opacity .14s ease, transform .14s ease, visibility .14s ease;
+  transform: translateY(-4px);
+
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease,
+    visibility 0.12s ease;
 }
 
 .profile-menu-wrap.open .profile-dropdown {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
   transform: translateY(0);
 }
 
-.profile-dropdown-item {
+.profile-dropdown a,
+.profile-dropdown button {
   display: flex;
   align-items: center;
   width: 100%;
-  min-height: 50px;
-  padding: 0 14px;
+  min-height: 38px;
+  padding: 0 12px;
+
   border: 0;
-  border-radius: 11px;
+  border-radius: 5px;
   background: transparent;
-  color: #e8e8ee;
+
+  color: #e5e5e8;
   font-family: inherit;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1;
+  font-size: 14px;
   text-align: left;
-  text-decoration: none;
+
   cursor: pointer;
-  transition: background .12s ease, color .12s ease;
+  transition: background 0.12s ease;
 }
 
-.profile-dropdown-item:hover {
-  background: #29282d;
-  color: #fff;
-}
-
-.profile-logout-form {
-  width: 100%;
-  margin: 7px 0 0;
-  padding: 0;
-}
-
-.profile-logout-form .profile-dropdown-item {
-  background: transparent;
-}
-
-.profile-logout-form .profile-dropdown-item:hover {
-  background: #29282d;
-}
-
-@media (max-width: 760px) {
-  .topbar {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .topbar-right {
-    gap: 14px;
-  }
-
-  .profile-dropdown {
-    width: 249px;
-    right: 0;
-  }
+.profile-dropdown a:hover,
+.profile-dropdown button:hover {
+  background: #292727;
 }
 
 .btn-primary, .btn-outline, .btn-link {
@@ -1912,135 +1862,9 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
-/* ===== Интерактивные комментарии: ответ / редактирование / удаление ===== */
-.post-side.post-side-new .comment-main-new {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  width: 100%;
-}
-
-.post-side.post-side-new .comment-content-new {
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.post-side.post-side-new .comment-avatar-new {
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.post-side.post-side-new .comment-avatar-new img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.post-side.post-side-new .comment-avatar-reply-new {
-  width: 30px;
-  height: 30px;
-  flex-basis: 30px;
-}
-
-.post-side.post-side-new .comment-replies-new {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-left: 52px;
-}
-
-.post-side.post-side-new .comment-reply-new {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  border-left: 0;
-}
-
-.post-side.post-side-new .comment-mention-new {
-  color: var(--text-dim);
-}
-
-.post-side.post-side-new .comment-delete-form-new {
-  display: contents;
-  margin: 0;
-  padding: 0;
-}
-
-.post-side.post-side-new .comment-reply-form-new[hidden],
-.post-side.post-side-new .comment-edit-form-new[hidden] {
-  display: none;
-}
-
-.post-side.post-side-new .comment-reply-form-new,
-.post-side.post-side-new .comment-edit-form-new {
-  width: 100%;
-}
-
-.post-side.post-side-new .comment-reply-form-new textarea,
-.post-side.post-side-new .comment-edit-form-new textarea {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 52px;
-}
-
-.post-side.post-side-new .comment-reply-form-new button,
-.post-side.post-side-new .comment-edit-form-new button {
-  cursor: pointer;
-}
-
-.post-side.post-side-new .comment-action-link-new:disabled,
-.post-side.post-side-new .comment-like-btn-new:disabled {
-  opacity: .55;
-  cursor: wait;
-}
-
-/* ============================================================
-   INFINITE FEED
-   ============================================================ */
-.feed-loader {
-  width: 100%;
-  min-height: 72px;
-  margin: 10px 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: var(--text-dim);
-  font-size: 14px;
-}
-
-.feed-loader[hidden],
-.feed-end[hidden] {
-  display: none;
-}
-
-.feed-loader-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: feed-spin .7s linear infinite;
-}
-
-@keyframes feed-spin {
-  to { transform: rotate(360deg); }
-}
-
-.feed-end {
-  width: 100%;
-  margin: 4px 0 28px;
-  text-align: center;
-  color: var(--text-dim);
-  font-size: 13px;
-}
+/* Infinite feed */
+.feed-loader { width: 100%; min-height: 72px; margin: 10px 0 24px; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--text-dim); font-size:14px; }
+.feed-loader[hidden], .feed-end[hidden] { display:none; }
+.feed-loader-spinner { width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:feed-spin .7s linear infinite; }
+@keyframes feed-spin { to { transform:rotate(360deg); } }
+.feed-end { width:100%; margin:4px 0 28px; text-align:center; color:var(--text-dim); font-size:13px; }
