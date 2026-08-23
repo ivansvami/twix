@@ -174,7 +174,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .profile-logout-form .profile-dropdown-item:hover {
-  background: #555558;
+  background: #29282d;
 }
 
 @media (max-width: 760px) {
