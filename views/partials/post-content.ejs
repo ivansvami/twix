@@ -30,6 +30,10 @@
 
 <div class="post-media-area" style="position: relative; width: 100%; height: 100%; min-height: 500px; background: #000; overflow: hidden; display: block;">
 
+  <div class="pm-carousel" data-pm-carousel>
+
+    <div class="pm-track" data-pm-track>
+
     <% post.files.forEach(function(f) {
 
       const ytMatch = f.url && f.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
@@ -48,19 +52,21 @@
 
     %>
 
+      <div class="pm-slide" data-pm-slide>
+
       <% if (ytEmbedUrl) { %>
 
-        <iframe src="<%= ytEmbedUrl %>" title="YouTube" loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"></iframe>
+        <iframe src="<%= ytEmbedUrl %>" title="YouTube" loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;<% if (post.files.length > 1) { %>pointer-events:none;<% } %>"></iframe>
 
       <% } else if (tiktokEmbedUrl) { %>
 
         <!-- Абсолютное позиционирование растягивает iframe на весь блок -->
 
-        <iframe src="<%= tiktokEmbedUrl %>" title="TikTok" loading="lazy" allow="autoplay; encrypted-media" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"></iframe>
+        <iframe src="<%= tiktokEmbedUrl %>" title="TikTok" loading="lazy" allow="autoplay; encrypted-media" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;<% if (post.files.length > 1) { %>pointer-events:none;<% } %>"></iframe>
 
       <% } else if (instaEmbedUrl) { %>
 
-        <iframe src="<%= instaEmbedUrl %>" title="Instagram" loading="lazy" allow="autoplay; encrypted-media" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"></iframe>
+        <iframe src="<%= instaEmbedUrl %>" title="Instagram" loading="lazy" allow="autoplay; encrypted-media" allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;<% if (post.files.length > 1) { %>pointer-events:none;<% } %>"></iframe>
 
 <% } else if (f.resourceType === 'video') { %>
 
@@ -134,11 +140,35 @@
 
       <% } else { %>
 
-        <img src="<%= f.url %>" alt="" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;">
+        <img src="<%= f.url %>" alt="" draggable="false" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;">
 
       <% } %>
 
+      </div>
+
     <% }) %>
+
+    </div>
+
+    <% if (post.files.length > 1) { %>
+
+      <button type="button" class="pm-arrow pm-arrow-prev" data-pm-prev aria-label="Предыдущий файл">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <button type="button" class="pm-arrow pm-arrow-next" data-pm-next aria-label="Следующий файл">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <div class="pm-dots" data-pm-dots role="tablist" aria-label="Вложения поста">
+        <% post.files.forEach(function(f, i) { %>
+          <button type="button" class="pm-dot <%= i === 0 ? 'is-active' : '' %>" data-pm-dot role="tab" aria-label="Показать вложение <%= i + 1 %> из <%= post.files.length %>"></button>
+        <% }) %>
+      </div>
+
+    <% } %>
+
+  </div>
 
   </div>
 
