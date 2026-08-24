@@ -1126,7 +1126,22 @@ a { color: inherit; text-decoration: none; }
     overflow: visible;
   }
   .post-modal-inner { flex-direction: column; height: auto; }
-  .post-media-area { flex: 0 0 auto; width: 100%; height: 45vh; max-height: 55vh; }
+  .post-media-area {
+    flex: 0 0 auto;
+    width: 100%;
+    /* !important нужен, т.к. у .post-media-area есть инлайн-стиль
+       height: 100%/min-height: 500px, который иначе перебивает это
+       правило. Без явной (не процентной) высоты здесь у .post-modal-inner
+       на мобильном height: auto, и вся цепочка процентных высот карусели
+       (.pm-carousel/.pm-track/.pm-slide) не может посчитаться — из-за
+       этого абсолютно позиционированные <img>/<iframe> схлопываются
+       в 0 по высоте и пропадают, хотя <video> (обычный блочный элемент)
+       в этой ситуации незаметно падает обратно на свой натуральный
+       размер и поэтому продолжает отображаться. */
+    height: 45vh !important;
+    min-height: 0 !important;
+    max-height: 55vh;
+  }
   .post-side, .post-side-new { flex: 0 0 auto; max-width: 100%; border-left: none; border-top: 1px solid var(--border); overflow: visible; }
 }
 
