@@ -55,6 +55,9 @@
       <% } else if (firstFile) { %>
         <% if (firstFile.resourceType === 'video') { %>
           <video src="<%= mediaUrl %>" muted playsinline preload="metadata"></video>
+          <div class="card-play-icon" aria-hidden="true">
+            <svg width="46" height="46" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+          </div>
         <% } else if (firstFile.resourceType === 'audio') { %>
           <div class="audio-thumb" aria-label="Аудиофайл">🎵</div>
         <% } else { %>
@@ -65,13 +68,41 @@
     </div>
     <button type="button" class="post-card-open js-post-link" data-shortid="<%= post.shortId %>" aria-label="Открыть публикацию <%= post.title || 'Без названия' %>">
       <div class="card-body">
+        <div class="card-author-row">
+          <span class="card-avatar">
+            <% if (post.author && post.author.avatarUrl) { %>
+              <img src="<%= post.author.avatarUrl %>" alt="<%= post.author.username %>">
+            <% } else { %>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="3.5" stroke="white" stroke-width="2"/>
+                <path d="M5 21c.5-4 2.8-6 7-6s6.5 2 7 6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            <% } %>
+          </span>
+          <span class="card-author">@<%= post.author.username %></span>
+        </div>
         <h3 class="card-title"><%= post.title || 'Без названия' %></h3>
         <p class="card-meta">
-          <span>👁 <%= post.views || 0 %></span>
-          <span>❤ <%= post.likesCount || 0 %></span>
-          <span>💬 <%= post.commentsCount || 0 %></span>
+          <span class="card-stat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            <%= post.views || 0 %>
+          </span>
+          <span class="card-stat">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8C3.2 6 5.2 4 7.7 4c1.6 0 3.2.8 4.3 2.1C13.1 4.8 14.7 4 16.3 4c2.5 0 4.5 2 4.5 4.8Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            <%= post.likesCount || 0 %>
+          </span>
+          <span class="card-stat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M20 11.5a7 7 0 0 1-7 7H8l-4 3v-5.2a7 7 0 1 1 16-4.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+            <%= post.commentsCount || 0 %>
+          </span>
         </p>
-        <p class="card-author">@<%= post.author.username %></p>
       </div>
     </button>
   </article>
