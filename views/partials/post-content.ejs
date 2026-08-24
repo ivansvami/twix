@@ -272,8 +272,6 @@
           class="post-like-new post-icon-btn <%= currentUser && post.likes.some(id => id.toString() === currentUser._id.toString()) ? 'liked' : '' %>"
           aria-label="Поставить лайк"
         >
-          <span id="like-count" class="post-like-count"><%= post.likes.length %></span>
-
           <svg
             class="post-like-icon"
             width="19"
@@ -287,6 +285,8 @@
               stroke-width="1.8"
             />
           </svg>
+
+          <span id="like-count" class="post-like-count"><%= post.likes.length %></span>
         </button>
 
       </div>
