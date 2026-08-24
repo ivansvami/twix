@@ -513,6 +513,80 @@ a { color: inherit; text-decoration: none; }
 .post-media-area .audio-icon { font-size: 60px; }
 .post-media-area audio { width: 280px; max-width: 100%; }
 
+/* ===== Карусель вложений поста (листание фото/видео) ===== */
+
+.pm-carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.pm-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  will-change: transform;
+}
+
+.pm-slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+}
+
+.pm-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .15s ease, opacity .15s ease;
+}
+.pm-arrow:hover:not(:disabled) { background: rgba(0, 0, 0, 0.72); }
+.pm-arrow:disabled { color: rgba(255, 255, 255, 0.45); cursor: default; opacity: 0.45; }
+.pm-arrow-prev { left: 12px; }
+.pm-arrow-next { right: 12px; }
+
+.pm-dots {
+  position: absolute;
+  left: 50%; bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  max-width: calc(100% - 90px);
+  overflow-x: auto;
+}
+
+.pm-dot {
+  flex: 0 0 auto;
+  width: 6px; height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+.pm-dot:hover { background: rgba(255, 255, 255, 0.7); }
+.pm-dot.is-active { background: #fff; transform: scale(1.3); }
+
+@media (max-width: 760px) {
+  .pm-arrow { width: 34px; height: 34px; }
+  .pm-dots { bottom: 10px; }
+}
+
 /* ===== Кастомный видеоплеер ===== */
 
 .custom-player {
