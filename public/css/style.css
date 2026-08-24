@@ -2146,7 +2146,7 @@ a { color: inherit; text-decoration: none; }
    /new — upload page redesign (matches design reference)
    ========================================================================== */
 
-.upload-page { max-width: 1500px; margin: 0 auto; }
+.upload-page { max-width: 1600px; margin: 0 auto; }
 
 .upload-grid {
   display: grid;
