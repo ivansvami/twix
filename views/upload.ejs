@@ -1,77 +1,112 @@
 <%- include('partials/header', { pageTitle: 'Новый пост - twix by salonamasle' }) %>
 
-<div class="form-page">
-  <h1>Новый пост</h1>
+<div class="upload-page">
   <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
-  
-  <form action="/new" method="POST">
-    
-<label>
-<label>
-      Заголовок
-      <input type="text" name="title" maxlength="200" placeholder="Введите заголовок" required>
-    </label>
 
-    <label>
-      Категория
-      <select name="category" required>
-        <option value="image">Изображение</option>
-        <option value="video">Видео</option>
-        <option value="audio">Аудио</option>
-        <option value="album">Альбом (несколько файлов)</option>
-      </select>
-    </label>
+  <form action="/new" method="POST" class="upload-grid" id="upload-form">
 
-    <div class="form-group">
-      <span class="field-label">Тип доступа</span>
-      <div class="visibility-toggle">
-        <button type="button" class="visibility-btn is-active" data-visibility="public">
-          👁 Опубликовать в ленту
-        </button>
-        <button type="button" class="visibility-btn" data-visibility="unlisted">
-          🔒 Доступ по ссылке
-        </button>
-      </div>
-      <input type="hidden" name="visibility" id="visibility-input" value="public">
-      <p class="visibility-hint" id="visibility-hint">Пост появится в общей ленте у всех пользователей.</p>
-    </div>
-
-    <div class="form-group">
-      <span class="field-label">Файлы</span>
-      <div class="file-input-box" id="drop-zone" onclick="document.getElementById('files-input').click()">
+    <!-- LEFT COLUMN: dropzone + file list -->
+    <div class="upload-col upload-col-left">
+      <div class="dropzone" id="drop-zone">
         <input type="file" name="files" id="files-input" multiple required hidden>
-        
+
+        <div class="dropzone-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 18a4.6 4.4 0 0 1-.3-8.8A5.5 5.5 0 0 1 17.5 8a4.5 4.5 0 0 1 1.5 8.7" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 12v8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 15l3-3 3 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
         <div id="drop-prompt" class="drop-prompt">
-          <span class="drop-icon">📁</span>
-          <span class="drop-text">Выберите или перенесите сюда файлы</span>
+          <p class="dropzone-title">Перетащи файл сюда, вставь Ctrl + V</p>
+          <p class="dropzone-or">или</p>
+          <button type="button" class="btn-select-files" id="select-files-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M14 3v6h6" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+            Выберите файлы
+          </button>
         </div>
 
         <div id="file-preview-container" class="file-preview-container" style="display: none;"></div>
       </div>
+
+      <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
+
+      <div class="uploaded-files-block" id="uploaded-files-block" style="display:none;">
+        <p class="uploaded-files-heading">Загруженные файлы (<span id="files-count">0</span>/10)</p>
+        <div class="file-grid" id="file-grid"></div>
+      </div>
     </div>
 
-    <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
+    <!-- RIGHT COLUMN: title, description, access type, submit -->
+    <div class="upload-col upload-col-right">
+      <div class="form-field">
+        <label class="field-label" for="title-input">Название (не обязательно)</label>
+        <input type="text" name="title" id="title-input" maxlength="200" placeholder="Шок! Толстая жопа не уместилась в кресле">
+      </div>
 
-    <label class="checkbox">
-      <input type="checkbox" name="isNsfw"> Отметить как «не для стрима» (18+)
-    </label>
+      <div class="form-field">
+        <label class="field-label" for="description-input">Описание</label>
+        <textarea name="description" id="description-input" maxlength="2000" placeholder="Опять же можно про жопу что-то толстую или оставить пустым"></textarea>
+      </div>
 
-    <button type="submit" class="btn-primary">Опубликовать</button>
+      <div class="form-field">
+        <span class="field-label">Тип доступа</span>
+        <div class="access-row">
+          <div class="visibility-toggle-new">
+            <button type="button" class="visibility-btn-new is-active" data-visibility="public">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+              В ленту
+            </button>
+            <button type="button" class="visibility-btn-new" data-visibility="unlisted">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="10.5" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              Доступ по ссылке
+            </button>
+          </div>
+          <input type="hidden" name="visibility" id="visibility-input" value="public">
+
+          <label class="nsfw-switch">
+            <span class="switch">
+              <input type="checkbox" name="isNsfw" id="nsfw-input">
+              <span class="knob"></span>
+            </span>
+            Не для стрима
+          </label>
+        </div>
+        <p class="visibility-hint" id="visibility-hint">Пост появится в общей ленте у всех пользователей.</p>
+      </div>
+
+      <button type="submit" class="btn-publish-new" id="publish-btn">Опубликовать</button>
+    </div>
+
   </form>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.querySelector('form[action="/new"]');
+  const form = document.getElementById('upload-form');
   const fileInput = document.getElementById('files-input');
   const dropZone = document.getElementById('drop-zone');
   const dropPrompt = document.getElementById('drop-prompt');
+  const selectFilesBtn = document.getElementById('select-files-btn');
   const previewContainer = document.getElementById('file-preview-container');
-  const submitButton = form?.querySelector('button[type="submit"]');
+  const uploadedFilesBlock = document.getElementById('uploaded-files-block');
+  const fileGrid = document.getElementById('file-grid');
+  const filesCount = document.getElementById('files-count');
+  const submitButton = document.getElementById('publish-btn');
 
-if (!form || !fileInput || !dropZone || !previewContainer) return;
+  if (!form || !fileInput || !dropZone || !previewContainer) return;
 
-  const visibilityButtons = document.querySelectorAll('.visibility-btn');
+  const visibilityButtons = document.querySelectorAll('.visibility-btn-new');
   const visibilityInput = document.getElementById('visibility-input');
   const visibilityHint = document.getElementById('visibility-hint');
   const visibilityHints = {
@@ -86,6 +121,15 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
       visibilityInput.value = btn.dataset.visibility;
       visibilityHint.textContent = visibilityHints[btn.dataset.visibility] || '';
     });
+  });
+
+  selectFilesBtn?.addEventListener('click', e => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+  dropZone.addEventListener('click', e => {
+    if (e.target.closest('.file-preview-container')) return;
+    fileInput.click();
   });
 
   let selectedFiles = [];
@@ -106,49 +150,61 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
     fileInput.files = dt.files;
   }
 
+  function iconFor(file) {
+    if (file.type.startsWith('video/')) {
+      return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="5" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M16.5 10l5-3v10l-5-3" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+    }
+    if (file.type.startsWith('audio/')) {
+      return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 18V5l11-2v13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="16" r="3" stroke="currentColor" stroke-width="1.8"/></svg>';
+    }
+    return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="9.5" r="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M21 16l-5.5-5.5L4 21" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+  }
+
   function renderFiles() {
-    previewContainer.innerHTML = '';
+    fileGrid.innerHTML = '';
+    filesCount.textContent = selectedFiles.length;
 
     if (!selectedFiles.length) {
       dropPrompt.style.display = 'flex';
       previewContainer.style.display = 'none';
+      uploadedFilesBlock.style.display = 'none';
       return;
     }
 
     dropPrompt.style.display = 'none';
-    previewContainer.style.display = 'flex';
+    previewContainer.style.display = 'none';
+    uploadedFilesBlock.style.display = 'block';
 
     selectedFiles.forEach((file, index) => {
       const card = document.createElement('div');
-      card.className = 'file-preview-card';
+      card.className = 'file-card';
 
       const left = document.createElement('div');
-      left.className = 'file-info-left';
+      left.className = 'file-card-left';
 
       const icon = document.createElement('div');
-      icon.className = 'file-thumb-icon';
-      icon.textContent = file.type.startsWith('video/') ? '🎬' :
-                         file.type.startsWith('audio/') ? '🎵' : '🖼️';
+      icon.className = 'file-thumb';
+      icon.innerHTML = iconFor(file);
 
-      const details = document.createElement('div');
-      details.className = 'file-details';
+      const meta = document.createElement('div');
+      meta.className = 'file-meta';
 
       const name = document.createElement('span');
-      name.className = 'file-name';
+      name.className = 'name';
       name.textContent = file.name;
 
       const size = document.createElement('span');
-      size.className = 'file-size';
+      size.className = 'size';
       size.textContent = formatBytes(file.size);
 
-      details.append(name, size);
-      left.append(icon, details);
+      meta.append(name, size);
+      left.append(icon, meta);
 
       const remove = document.createElement('button');
       remove.type = 'button';
-      remove.className = 'file-remove-btn';
+      remove.className = 'file-remove';
       remove.setAttribute('aria-label', 'Удалить файл');
-      remove.textContent = '🗑️';
+      remove.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       remove.addEventListener('click', e => {
         e.preventDefault();
         e.stopPropagation();
@@ -159,7 +215,7 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
       });
 
       card.append(left, remove);
-      previewContainer.appendChild(card);
+      fileGrid.appendChild(card);
     });
   }
 
@@ -291,7 +347,6 @@ if (!form || !fileInput || !dropZone || !previewContainer) return;
       }
       hidden.value = JSON.stringify(uploadedFiles);
 
-      // Файлы уже ушли напрямую в ImageKit, поэтому multipart здесь больше не нужен.
       fileInput.disabled = true;
       form.submit();
     } catch (err) {
