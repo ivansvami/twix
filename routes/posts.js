@@ -165,11 +165,7 @@ router.get('/new', requireAuth, (req, res) => {
 });
 
 router.post('/new', requireAuth, asyncHandler(async (req, res) => {
-  const title = (req.body.title || '').trim();
-
-  if (!title) {
-    return res.status(400).render('upload', { error: 'Заголовок обязателен' });
-  }
+  const title = (req.body.title || '').trim() || 'untitled';
 
   let uploadedFiles = [];
   try {
@@ -301,7 +297,7 @@ router.post('/post/:shortId/edit', requireAuth, upload.array('newFiles', 10), as
   }
 
   try {
-    post.title = (req.body.title || '').trim();
+    post.title = (req.body.title || '').trim() || 'untitled';
     post.description = (req.body.description || '').trim();
     const allowedCategories = new Set(['image', 'video', 'audio', 'album']);
     if (req.body.category && allowedCategories.has(req.body.category)) {
