@@ -97,12 +97,23 @@ document.addEventListener('DOMContentLoaded', function () {
     var buttons = form.querySelectorAll('button');
     buttons.forEach(function (button) { button.disabled = true; });
 
-    var body = new FormData(form);
+    // Формы комментариев не содержат файлов, поэтому отправляем как обычную
+    // application/x-www-form-urlencoded форму. FormData сериализуется браузером
+    // в multipart/form-data, а на сервере для этого маршрута нет парсера
+    // multipart (multer подключён только на страницах загрузки/редактирования
+    // поста) — из-за этого req.body.text приходил пустым, и комментарий
+    // молча не создавался, хотя запрос выглядел "успешным".
+    var formData = new FormData(form);
+    var params = new URLSearchParams();
+    formData.forEach(function (value, key) { params.append(key, value); });
 
     fetch(form.action, {
       method: 'POST',
-      body: body,
-      headers: { 'Accept': 'application/json' },
+      body: params,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
       credentials: 'same-origin',
       cache: 'no-store'
     })
