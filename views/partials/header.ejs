@@ -9,7 +9,7 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preload" href="/fonts/IosevkaCharon-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="/fonts/IosevkaCharon-Bold.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="/css/style.css?v=13">
+  <link rel="stylesheet" href="/css/style.css?v=14">
 </head>
 <body>
 <header class="topbar">
@@ -18,7 +18,7 @@
 </a>
   <nav class="mainnav">
     <a href="/" class="<%= typeof activeNav !== 'undefined' && activeNav === 'feed' ? 'active' : '' %>">Лента</a>
-    <a href="/videos" class="<%= typeof activeNav !== 'undefined' && activeNav === 'videos' ? 'active' : '' %>">Видео</a>
+    <a href="/videos" class="<%= typeof activeNav !== 'undefined' && activeNav === 'videos' ? 'active' : '' %>">Видосы</a>
     <% if (currentUser) { %>
       <a href="/new">Новый пост</a>
     <% } %>
