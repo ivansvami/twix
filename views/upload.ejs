@@ -330,11 +330,11 @@ document.addEventListener('DOMContentLoaded', () => {
     submitButton.textContent = 'Загрузка файлов…';
 
     try {
-      const auth = await getImageKitAuth();
       uploadedFiles = [];
 
       for (let i = 0; i < selectedFiles.length; i++) {
         submitButton.textContent = `Загрузка ${i + 1} из ${selectedFiles.length}…`;
+        const auth = await getImageKitAuth();
         uploadedFiles.push(await uploadOne(selectedFiles[i], auth));
       }
 
