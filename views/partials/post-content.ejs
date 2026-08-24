@@ -457,9 +457,7 @@
                         <span class="comment-time-new"><%= replyTime %></span>
                       </div>
 
-                      <p class="comment-text-new js-comment-text">
-                        <span class="comment-mention-new">@<%= c.author.username %></span> <%= r.text %>
-                      </p>
+                      <p class="comment-text-new js-comment-text"><span class="comment-mention-new">@<%= c.author.username %></span> <%= r.text %></p>
 
                       <% if (canManageReply) { %>
                         <form
