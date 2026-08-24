@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
         attachLikeHandler();
         attachCopyLinkHandler(overlayContent);
         if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
+        if (window.initPostCarousels) window.initPostCarousels(overlayContent);
       });
   }
 
@@ -264,6 +265,7 @@ overlayContent.innerHTML = data.html;
         attachLikeHandler();
         attachCopyLinkHandler(overlayContent);
         if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
+        if (window.initPostCarousels) window.initPostCarousels(overlayContent);
       })
       .catch(function () {
         overlayContent.innerHTML = '<div class="post-loading">Ошибка загрузки</div>';
