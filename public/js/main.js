@@ -74,7 +74,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     return fetch('/api/post/' + shortId, {
-      headers: { 'Accept': 'application/json' }
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store'
     })
       .then(function (r) {
         if (!r.ok) throw new Error('Не удалось обновить пост');
@@ -102,7 +103,8 @@ document.addEventListener('DOMContentLoaded', function () {
       method: 'POST',
       body: body,
       headers: { 'Accept': 'application/json' },
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      cache: 'no-store'
     })
       .then(function (response) {
         if (!response.ok) {

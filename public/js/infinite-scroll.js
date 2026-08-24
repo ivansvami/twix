@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var nextPage = page + 1;
 
-    fetch(buildNextUrl(nextPage), { headers: { 'Accept': 'application/json' } })
+    fetch(buildNextUrl(nextPage), { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
       .then(function (r) {
         if (!r.ok) throw new Error('Не удалось загрузить публикации');
         return r.json();
