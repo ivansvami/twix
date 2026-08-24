@@ -137,6 +137,7 @@ router.get('/videos', asyncHandler((req, res) => renderFeed(req, res, 'video')))
 function renderFeedJson(forcedCategory) {
   return asyncHandler(async (req, res) => {
     const { posts, page, hasMore } = await fetchFeedPage(req, forcedCategory);
+    res.set('Cache-Control', 'no-store');
     res.render('partials/post-cards', { posts }, (err, html) => {
       if (err) {
         console.error('Ошибка рендера карточек ленты:', err);
@@ -248,6 +249,11 @@ router.get('/post/:shortId', asyncHandler(async (req, res) => {
 router.get('/api/post/:shortId', asyncHandler(async (req, res) => {
   const data = await loadPostData(req.params.shortId, req);
   if (!data) return res.status(404).json({ ok: false });
+  // Без этого браузер иногда отвечает на повторный запрос кэшированным
+  // 304 Not Modified — а fetch() считает 304 неуспешным ответом, из-за
+  // чего JS не обновляет пост в интерфейсе (например, после добавления
+  // комментария), хотя на сервере он уже сохранён.
+  res.set('Cache-Control', 'no-store');
   res.render('partials/post-content', { ...data, currentUser: res.locals.currentUser }, (err, html) => {
     if (err) {
       console.error(err);
