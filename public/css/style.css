@@ -468,9 +468,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 .post-standalone {
-  height: calc(100vh - 140px);
-  max-width: 1600px; margin: 0 auto;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+  border-radius: 14px;
+  max-width: 100%;
+  height: auto;
+  min-height: 100%;
   overflow: hidden;
 }
 
