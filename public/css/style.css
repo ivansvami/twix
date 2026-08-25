@@ -851,9 +851,11 @@ a { color: inherit; text-decoration: none; }
 
 .post-actions-new {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .post-actions-left {
@@ -861,6 +863,7 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 10px;
   justify-self: start;
+  min-width: 0;
 }
 
 .post-actions-center {
@@ -868,10 +871,12 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 14px;
   justify-self: center;
+  min-width: 0;
 }
 
 .post-actions-right {
   justify-self: end;
+  min-width: 0;
 }
 
 /* Общая база для всех кнопок-иконок в панели действий (без фона/рамки) */
@@ -1815,9 +1820,11 @@ a { color: inherit; text-decoration: none; }
 
 .post-side.post-side-new .post-actions-new {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 43px;
   gap: 10px;
 }
@@ -1827,6 +1834,7 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 18px;
   justify-self: start;
+  min-width: 0;
 }
 
 .post-side.post-side-new .post-actions-center {
@@ -1834,10 +1842,12 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 22px;
   justify-self: center;
+  min-width: 0;
 }
 
 .post-side.post-side-new .post-actions-right {
   justify-self: end;
+  min-width: 0;
 }
 
 .post-side.post-side-new .post-icon-btn {
