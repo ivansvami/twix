@@ -59,8 +59,88 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Редактирование поста: на десктопе — попап поверх страницы, на мобильном —
+  // обычный переход по ссылке на отдельную страницу /post/:shortId/edit.
+  function attachEditPostHandler(root) {
+    var scope = root || document;
+    var editLink = scope.querySelector('.post-edit-new') || document.querySelector('.post-edit-new');
+    var backdrop = scope.querySelector('#edit-post-backdrop') || document.getElementById('edit-post-backdrop');
+    if (!editLink || !backdrop || editLink.dataset.bound) return;
+    editLink.dataset.bound = '1';
+
+    var form = backdrop.querySelector('#edit-post-form');
+    var cancelBtn = backdrop.querySelector('#edit-post-cancel');
+    var titleInput = form ? form.querySelector('input[name="title"]') : null;
+    var saveBtn = form ? form.querySelector('button[type="submit"]') : null;
+
+    function openModal() {
+      backdrop.hidden = false;
+      lockScroll();
+      if (titleInput) titleInput.focus();
+    }
+
+    function closeModal() {
+      backdrop.hidden = true;
+      unlockScroll();
+    }
+
+    editLink.addEventListener('click', function (e) {
+      if (isMobileLayout()) return; // на мобильном — обычная ссылка на страницу
+      e.preventDefault();
+      openModal();
+    });
+
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+    // Закрытие по клику вне попапа
+    backdrop.addEventListener('click', function (e) {
+      if (e.target === backdrop) closeModal();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !backdrop.hidden) closeModal();
+    });
+
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Сохранение…'; }
+
+        // Форма без файлов — отправляем как обычную urlencoded-форму (см. фикс
+        // для комментариев: multipart через FormData сервер бы не распарсил).
+        var formData = new FormData(form);
+        var params = new URLSearchParams();
+        formData.forEach(function (value, key) { params.append(key, value); });
+
+        fetch(form.action, {
+          method: 'POST',
+          body: params,
+          headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+          credentials: 'same-origin',
+          cache: 'no-store'
+        })
+          .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+          .then(function (result) {
+            if (!result.ok || !result.data.ok) {
+              throw new Error((result.data && result.data.error) || 'Не удалось сохранить изменения');
+            }
+            closeModal();
+            return refreshCurrentPost();
+          })
+          .catch(function (err) {
+            console.error(err);
+            alert('Не удалось сохранить изменения. Попробуйте ещё раз.');
+          })
+          .finally(function () {
+            if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; }
+          });
+      });
+    }
+  }
+
   attachLikeHandler();
   attachCopyLinkHandler(document);
+  attachEditPostHandler(document);
 
   // Обновляет содержимое текущего поста после изменения комментария.
   // В модалке перерисовываем только HTML поста, на отдельной странице
@@ -92,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
         overlayContent.innerHTML = data.html;
         attachLikeHandler();
         attachCopyLinkHandler(overlayContent);
+        attachEditPostHandler(overlayContent);
         if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
         if (window.initPostCarousels) window.initPostCarousels(overlayContent);
       });
@@ -275,6 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
 overlayContent.innerHTML = data.html;
         attachLikeHandler();
         attachCopyLinkHandler(overlayContent);
+        attachEditPostHandler(overlayContent);
         if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
         if (window.initPostCarousels) window.initPostCarousels(overlayContent);
       })
