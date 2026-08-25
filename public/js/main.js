@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', function () {
   function lockScroll() { document.body.style.overflow = 'hidden'; }
   function unlockScroll() { document.body.style.overflow = ''; }
 
+  // На мобильном (тот же брейкпоинт, что и в CSS) попап поста не используется —
+  // клик по посту должен вести на отдельную страницу /post/:shortId.
+  function isMobileLayout() {
+    return window.matchMedia('(max-width: 760px)').matches;
+  }
+
   function attachLikeHandler() {
     var likeBtn = overlayContent.querySelector('#like-btn') || document.getElementById('like-btn');
     if (!likeBtn || likeBtn.dataset.bound) return;
@@ -246,6 +252,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function openPostModal(shortId, pushState) {
     if (!overlay) return;
+    if (isMobileLayout()) {
+      // Подстраховка: на мобильном попап в принципе не должен открываться.
+      window.location.href = '/post/' + shortId;
+      return;
+    }
     if (!isModalOpen) {
       savedFeedUrl = window.location.pathname + window.location.search;
     }
@@ -293,6 +304,13 @@ overlayContent.innerHTML = data.html;
       var cardEl = mediaClick.closest('.card');
       var btn = cardEl ? cardEl.querySelector('.js-post-link') : null;
       if (btn) {
+        if (isMobileLayout()) {
+          // На мобильном попап не открываем — переходим сразу на страницу поста.
+          if (btn.tagName === 'A' && btn.getAttribute('href')) return;
+          e.preventDefault();
+          window.location.href = '/post/' + btn.dataset.shortid;
+          return;
+        }
         e.preventDefault();
         openPostModal(btn.dataset.shortid, true);
         return;
@@ -301,6 +319,13 @@ overlayContent.innerHTML = data.html;
 
     var link = e.target.closest('.js-post-link');
     if (link) {
+      if (isMobileLayout()) {
+        // На мобильном попап не открываем — переходим сразу на страницу поста.
+        if (link.tagName === 'A' && link.getAttribute('href')) return;
+        e.preventDefault();
+        window.location.href = '/post/' + link.dataset.shortid;
+        return;
+      }
       e.preventDefault();
       openPostModal(link.dataset.shortid, true);
       return;
