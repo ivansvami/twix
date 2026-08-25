@@ -1,58 +1,27 @@
 <%- include('partials/header', { pageTitle: 'Редактирование поста - twix by salonamasle' }) %>
 
-<div class="form-page">
-  <h1>Редактирование поста</h1>
-  <% if (error) { %><p class="error"><%= error %></p><% } %>
+<div class="edit-post-page">
+  <div class="edit-post-card">
+    <h1 class="edit-post-heading">Редактирование поста</h1>
+    <% if (error) { %><p class="error edit-post-error"><%= error %></p><% } %>
 
-  <form action="/post/<%= post.shortId %>/edit" method="POST" enctype="multipart/form-data">
-    <label>
-      Заголовок
-      <input type="text" name="title" maxlength="200" value="<%= post.title %>">
-    </label>
-    <label>
-      Категория
-      <select name="category">
-        <option value="image" <%= post.category==='image'?'selected':'' %>>Изображение</option>
-        <option value="video" <%= post.category==='video'?'selected':'' %>>Видео</option>
-        <option value="audio" <%= post.category==='audio'?'selected':'' %>>Аудио</option>
-        <option value="album" <%= post.category==='album'?'selected':'' %>>Альбом (несколько файлов)</option>
-      </select>
-    </label>
+    <form action="/post/<%= post.shortId %>/edit" method="POST" class="edit-post-form">
+      <label class="edit-post-field">
+        <span class="edit-post-field-label">Заголовок поста</span>
+        <input type="text" name="title" maxlength="200" value="<%= post.title %>" placeholder="Название поста">
+      </label>
 
-    <div class="existing-files">
-      <p class="field-label">Текущие файлы (отметьте, что удалить)</p>
-      <% post.files.forEach(function(f) { %>
-        <label class="file-row">
-          <input type="checkbox" name="removeFiles" value="<%= f.publicId %>">
-          <% if (f.resourceType === 'video') { %>
-            <video src="<%= f.url %>" muted></video>
-          <% } else if (f.resourceType === 'audio') { %>
-            <span class="audio-thumb-small">🎵</span>
-          <% } else { %>
-            <img src="<%= f.url %>" alt="">
-          <% } %>
-          <span>Удалить</span>
-        </label>
-      <% }) %>
-    </div>
+      <label class="edit-post-field edit-post-field-grow">
+        <span class="edit-post-field-label">Описание</span>
+        <textarea name="description" maxlength="2000" placeholder="Описание текст поста"><%= post.description %></textarea>
+      </label>
 
-    <label>
-      Добавить файлы (необязательно)
-      <input type="file" name="newFiles" id="newfiles-input" multiple>
-    </label>
-    <p class="paste-hint">Можно вставить картинку из буфера обмена сочетанием <strong>Ctrl+V</strong> (или ⌘+V на Mac)</p>
-    <div id="edit-paste-preview" class="paste-preview"></div>
-
-    <label class="checkbox">
-      <input type="checkbox" name="isNsfw" <%= post.isNsfw ? 'checked' : '' %>> Отметить как «не для стрима» (18+)
-    </label>
-
-    <button type="submit" class="btn-primary">Сохранить</button>
-  </form>
-
-  <form action="/post/<%= post.shortId %>/delete" method="POST" class="delete-form" onsubmit="return confirm('Удалить пост безвозвратно?');">
-    <button type="submit" class="btn-danger">Удалить пост</button>
-  </form>
+      <div class="edit-post-actions edit-post-actions-stacked">
+        <a href="/post/<%= post.shortId %>" class="btn-edit-cancel">Отмена</a>
+        <button type="submit" class="btn-edit-save">Сохранить</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <%- include('partials/footer') %>
