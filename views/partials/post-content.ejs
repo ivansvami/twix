@@ -333,6 +333,33 @@
 
       </div>
 
+      <!-- Попап редактирования поста (десктоп); на мобильном не открывается —
+           кнопка-карандаш ведёт на отдельную страницу /post/:shortId/edit -->
+      <% if (currentUser && post.author && (currentUser._id.toString() === post.author._id.toString() || currentUser.isAdmin)) { %>
+        <div class="edit-post-modal-backdrop" id="edit-post-backdrop" hidden>
+          <div class="edit-post-modal" id="edit-post-modal" role="dialog" aria-modal="true" aria-labelledby="edit-post-modal-heading">
+            <h2 id="edit-post-modal-heading" class="edit-post-heading">Редактирование поста</h2>
+
+            <form id="edit-post-form" action="/post/<%= post.shortId %>/edit" method="POST" class="edit-post-form">
+              <label class="edit-post-field">
+                <span class="edit-post-field-label">Заголовок поста</span>
+                <input type="text" name="title" maxlength="200" value="<%= post.title %>" placeholder="Название поста">
+              </label>
+
+              <label class="edit-post-field edit-post-field-grow">
+                <span class="edit-post-field-label">Описание</span>
+                <textarea name="description" maxlength="2000" placeholder="Описание текст поста"><%= post.description %></textarea>
+              </label>
+
+              <div class="edit-post-actions">
+                <button type="button" class="btn-edit-cancel" id="edit-post-cancel">Отмена</button>
+                <button type="submit" class="btn-edit-save">Сохранить</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      <% } %>
+
       <div class="post-actions-right post-stats-new">
 
         <span class="post-stat-new">
