@@ -2593,3 +2593,127 @@ a { color: inherit; text-decoration: none; }
   .file-grid { grid-template-columns: 1fr; }
   .dropzone { min-height: 260px; padding: 32px 18px; }
 }
+
+/* ==========================================================================
+   Редактирование поста — попап на десктопе, отдельная страница на мобильном
+   (редактируются только название и описание)
+   ========================================================================== */
+
+.edit-post-page {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.edit-post-card { width: 100%; max-width: 420px; }
+
+.edit-post-heading {
+  margin: 0 0 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.edit-post-error { margin: 0 0 16px; }
+
+.edit-post-form { display: flex; flex-direction: column; gap: 24px; }
+
+.edit-post-field { display: flex; flex-direction: column; gap: 8px; }
+
+.edit-post-field-label { font-size: 14px; color: var(--text-dim); }
+
+.edit-post-field input[type="text"],
+.edit-post-field textarea {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color .15s ease;
+}
+
+.edit-post-field input[type="text"]::placeholder,
+.edit-post-field textarea::placeholder { color: var(--text-dim); }
+
+.edit-post-field input[type="text"]:focus,
+.edit-post-field textarea:focus { border-color: var(--accent); }
+
+.edit-post-field textarea { min-height: 190px; resize: vertical; line-height: 1.5; }
+
+.edit-post-actions { display: flex; gap: 12px; }
+.edit-post-actions.edit-post-actions-stacked { flex-direction: column; }
+
+.btn-edit-cancel,
+.btn-edit-save {
+  flex: 1;
+  display: block;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: filter .15s ease, background-color .15s ease, transform .1s ease;
+}
+
+.btn-edit-cancel {
+  background: var(--bg-card);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+.btn-edit-cancel:hover { color: var(--text); }
+
+.btn-edit-save {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-edit-save:hover { filter: brightness(1.08); }
+.btn-edit-save:active { transform: translateY(1px); }
+.btn-edit-save:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ---- Попап (десктоп) ---- */
+
+.edit-post-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  /* 70% затемнение + блюр фона, как в макете */
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.edit-post-modal-backdrop[hidden] { display: none; }
+
+.edit-post-modal {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+}
+
+@media (max-width: 760px) {
+  /* На мобильном попап никогда не открывается (см. main.js) — редактирование
+     идёт через отдельную страницу /post/:shortId/edit. Скрываем на всякий
+     случай, чтобы не мешал, если бы вдруг оказался в DOM показанным. */
+  .edit-post-modal-backdrop { display: none !important; }
+}
