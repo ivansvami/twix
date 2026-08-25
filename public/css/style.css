@@ -468,10 +468,9 @@ a { color: inherit; text-decoration: none; }
 }
 
 .post-standalone {
-  border-radius: 14px;
-  max-width: 100%;
-  height: auto;
-  min-height: 100%;
+  height: calc(100vh - 140px);
+  max-width: 1600px; margin: 0 auto;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
   overflow: hidden;
 }
 
@@ -1148,10 +1147,15 @@ a { color: inherit; text-decoration: none; }
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  .post-overlay-content, .post-standalone {
+  .post-overlay-content {
     border-radius: 0; max-width: 100%;
     height: auto; min-height: 100%;
     overflow: visible;
+  }
+  .post-standalone {
+    border-radius: 14px; max-width: 100%;
+    height: auto; min-height: 100%;
+    overflow: hidden;
   }
   .post-modal-inner { flex-direction: column; height: auto; }
   .post-media-area {
