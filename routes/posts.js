@@ -1,7 +1,5 @@
-const { fetchVideoTitle } = require('../utils/videoParser');
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const crypto = require('crypto');
 const imagekit = require('../config/imagekit');
 const { requireAuth } = require('../middleware/auth');
@@ -11,11 +9,6 @@ const Comment = require('../models/Comment');
 const Notification = require('../models/Notification');
 const PostView = require('../models/PostView');
 const SuggestedVideo = require('../models/SuggestedVideo');
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 200 * 1024 * 1024 }
-});
 
 function hashIp(ip) {
   const salt = process.env.SESSION_SECRET || 'change_me_please';
@@ -27,20 +20,6 @@ function resourceTypeFromMime(mimetype = '') {
   if (mimetype.startsWith('audio/')) return 'audio';
   if (mimetype.startsWith('image/')) return 'image';
   return null;
-}
-
-async function uploadFileToImageKit(file) {
-  const result = await imagekit.upload({
-    file: new Blob([file.buffer], { type: file.mimetype }),
-    fileName: file.originalname,
-    folder: '/myfeed',
-    useUniqueFileName: true
-  });
-  return {
-    url: result.url,
-    publicId: result.fileId,
-    resourceType: resourceTypeFromMime(file.mimetype)
-  };
 }
 
 function buildDateFilter(period) {
@@ -289,54 +268,29 @@ router.get('/post/:shortId/edit', requireAuth, async (req, res) => {
   res.render('edit', { post, error: null });
 });
 
-router.post('/post/:shortId/edit', requireAuth, upload.array('newFiles', 10), async (req, res) => {
+// Редактирование поста ограничено названием и описанием — категория, файлы
+// и отметка NSFW больше не меняются через эту форму.
+router.post('/post/:shortId/edit', requireAuth, asyncHandler(async (req, res) => {
+  const wantsJson = req.get('Accept') === 'application/json';
   const post = await Post.findOne({ shortId: req.params.shortId });
-  if (!post) return res.status(404).render('404');
+
+  if (!post) {
+    if (wantsJson) return res.status(404).json({ ok: false, error: 'Пост не найден' });
+    return res.status(404).render('404');
+  }
   if (post.author.toString() !== req.user._id.toString() && !req.user.isAdmin) {
-    return res.status(403).send('Вы не можете редактировать чужой пост');
+    const message = 'Вы не можете редактировать чужой пост';
+    if (wantsJson) return res.status(403).json({ ok: false, error: message });
+    return res.status(403).send(message);
   }
 
-  try {
-    post.title = (req.body.title || '').trim() || 'untitled';
-    post.description = (req.body.description || '').trim();
-    const allowedCategories = new Set(['image', 'video', 'audio', 'album']);
-    if (req.body.category && allowedCategories.has(req.body.category)) {
-      post.category = req.body.category;
-    }
-    post.isNsfw = req.body.isNsfw === 'on';
+  post.title = (req.body.title || '').trim();
+  post.description = (req.body.description || '').trim();
+  await post.save();
 
-    if (req.files && req.files.length) {
-      const types = req.files.map(file => resourceTypeFromMime(file.mimetype));
-      if (types.some(type => !type)) {
-        return res.render('edit', { post, error: 'Поддерживаются только изображения, видео и аудио' });
-      }
-    }
-
-    const removeIds = [].concat(req.body.removeFiles || []);
-    if (removeIds.length) {
-      const toRemove = post.files.filter(f => removeIds.includes(f.publicId));
-      await Promise.all(toRemove.map(f =>
-        imagekit.deleteFile(f.publicId).catch(err => console.error('ImageKit delete error:', err.message))
-      ));
-      post.files = post.files.filter(f => !removeIds.includes(f.publicId));
-    }
-
-    if (req.files && req.files.length) {
-      const newFiles = await Promise.all(req.files.map(uploadFileToImageKit));
-      post.files.push(...newFiles);
-    }
-
-    if (post.files.length === 0) {
-      return res.render('edit', { post, error: 'У поста должен остаться хотя бы один файл' });
-    }
-
-    await post.save();
-    res.redirect('/post/' + post.shortId);
-  } catch (err) {
-    console.error(err);
-    res.render('edit', { post, error: 'Ошибка сохранения. Попробуйте ещё раз.' });
-  }
-});
+  if (wantsJson) return res.json({ ok: true, shortId: post.shortId });
+  res.redirect('/post/' + post.shortId);
+}));
 
 router.post('/post/:shortId/delete', requireAuth, asyncHandler(async (req, res) => {
   const post = await Post.findOne({ shortId: req.params.shortId });
