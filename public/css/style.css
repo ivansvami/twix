@@ -1461,6 +1461,23 @@ a { color: inherit; text-decoration: none; }
 
 /* На мобильных устройствах */
 @media (max-width: 760px) {
+  /* Фильтры — вертикальный список на всю ширину */
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .filter-dropdown {
+    width: 100%;
+  }
+
+  .filter-dropdown-toggle {
+    height: 48px;
+    border-radius: 14px;
+  }
+
   /* Скрываем кнопку в фильтрах сверху */
   .desktop-suggest-btn {
     display: none !important;
