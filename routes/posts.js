@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
-const imagekit = require('../config/imagekit');
+const cloudinaryClient = require('../config/cloudinary');
 const { requireAuth } = require('../middleware/auth');
 const asyncHandler = require('../middleware/asyncHandler');
 const Post = require('../models/Post');
@@ -130,11 +130,11 @@ function renderFeedJson(forcedCategory) {
 router.get('/api/feed', renderFeedJson(null));
 router.get('/api/videos', renderFeedJson('video'));
 
-router.get('/api/imagekit-auth', requireAuth, asyncHandler(async (req, res) => {
+router.get('/api/cloudinary-auth', requireAuth, asyncHandler(async (req, res) => {
   try {
-    res.json({ ok: true, ...imagekit.getClientAuth() });
+    res.json({ ok: true, ...cloudinaryClient.getClientAuth() });
   } catch (err) {
-    console.error('ImageKit auth error:', err);
+    console.error('Cloudinary auth error:', err);
     res.status(500).json({ ok: false, error: 'Не удалось подготовить загрузку' });
   }
 }));
@@ -300,7 +300,7 @@ router.post('/post/:shortId/delete', requireAuth, asyncHandler(async (req, res) 
   }
 
   await Promise.all(post.files.map(f =>
-    imagekit.deleteFile(f.publicId).catch(err => console.error('ImageKit delete error:', err.message))
+    cloudinaryClient.deleteFile(f.publicId, f.resourceType).catch(err => console.error('Cloudinary delete error:', err.message))
   ));
   await Comment.deleteMany({ post: post._id });
   await Notification.deleteMany({ post: post._id });
