@@ -712,22 +712,23 @@ a { color: inherit; text-decoration: none; }
   padding-left: 2px;
 }
 
-/* ---- Громкость: иконка + всплывающий вертикальный слайдер ---- */
+/* ---- Громкость: иконка + всплывающий вертикальный слайдер ----
+   Пропорции и цвета взяты из присланного volume_bar.svg (26×126,
+   тёмная подложка 54%, белый трек/бегунок) */
 .cp-volume-wrap { position: relative; display: flex; align-items: center; }
 .cp-volume-popup {
   position: absolute;
   bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
-  width: 36px;
-  height: 110px;
-  background: rgba(20, 20, 20, 0.95);
-  border-radius: 10px;
-  padding: 12px 0;
+  width: 26px;
+  height: 126px;
+  background: rgba(0, 0, 0, 0.54);
+  border-radius: 13px;
+  padding: 13px 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -748,18 +749,18 @@ a { color: inherit; text-decoration: none; }
 }
 .cp-volume-track {
   position: absolute; inset: 0;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.29);
   border-radius: 2px;
 }
 .cp-volume-fill {
   position: absolute; left: 0; right: 0; bottom: 0;
   height: 20%;
-  background: var(--cp-accent);
+  background: #fff;
   border-radius: 2px;
 }
 .cp-volume-handle {
   position: absolute; left: 50%; bottom: 20%;
-  width: 12px; height: 12px;
+  width: 16px; height: 16px;
   background: #fff;
   border-radius: 50%;
   transform: translate(-50%, 50%);
