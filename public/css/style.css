@@ -712,13 +712,26 @@ a { color: inherit; text-decoration: none; }
   padding-left: 2px;
 }
 
+/* Play/Pause и Volume on/off переключаются классами is-playing/is-muted
+   на корне плеера — так исключена сама возможность, что окажутся видны
+   сразу обе иконки состояния. */
+.cp-play .cp-icon-pause,
+.custom-player.is-playing .cp-play .cp-icon-play { display: none; }
+.custom-player.is-playing .cp-play .cp-icon-pause { display: flex; }
+
+.cp-mute .cp-icon-vol-off,
+.custom-player.is-muted .cp-mute .cp-icon-vol-on { display: none; }
+.custom-player.is-muted .cp-mute .cp-icon-vol-off { display: flex; }
+
 /* ---- Громкость: иконка + всплывающий вертикальный слайдер ----
    Пропорции и цвета взяты из присланного volume_bar.svg (26×126,
    тёмная подложка 54%, белый трек/бегунок) */
 .cp-volume-wrap { position: relative; display: flex; align-items: center; }
 .cp-volume-popup {
   position: absolute;
-  bottom: calc(100% + 8px);
+  /* Впритык к иконке, без зазора — иначе курсор "теряет" hover, пока
+     переезжает от кнопки к попапу */
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   width: 26px;
