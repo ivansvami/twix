@@ -13,6 +13,28 @@ document.addEventListener('DOMContentLoaded', function () {
     return window.matchMedia('(max-width: 760px)').matches;
   }
 
+  // Синхронизация счётчиков (лайки/просмотры/комментарии) на карточке
+  // в ленте с тем, что реально происходит в попапе/на странице поста.
+  function updateCardStats(shortId, stats) {
+    if (!shortId) return;
+    var card = document.querySelector('.card[data-shortid="' + shortId + '"]');
+    if (!card) return;
+    Object.keys(stats).forEach(function (role) {
+      var valueEl = card.querySelector('.card-stat[data-role="' + role + '"] .card-stat-value');
+      if (valueEl) valueEl.textContent = stats[role];
+    });
+  }
+
+  function syncCardFromOverlay(shortId) {
+    if (!overlayContent) return;
+    var stats = {};
+    var viewsEl = overlayContent.querySelector('#post-views-count');
+    var commentsEl = overlayContent.querySelector('#post-comments-count');
+    if (viewsEl) stats.views = viewsEl.textContent.trim();
+    if (commentsEl) stats.comments = commentsEl.textContent.trim();
+    updateCardStats(shortId, stats);
+  }
+
   function attachLikeHandler() {
     var likeBtn = overlayContent.querySelector('#like-btn') || document.getElementById('like-btn');
     if (!likeBtn || likeBtn.dataset.bound) return;
@@ -25,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var countEl = likeBtn.querySelector('#like-count') || document.getElementById('like-count');
           if (countEl) countEl.textContent = data.count;
           likeBtn.classList.toggle('liked', data.liked);
+          updateCardStats(likeBtn.dataset.shortid, { likes: data.count });
         });
     });
   }
@@ -173,6 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
         attachLikeHandler();
         attachCopyLinkHandler(overlayContent);
         attachEditPostHandler(overlayContent);
+        syncCardFromOverlay(shortId);
         if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
         if (window.initPostCarousels) window.initPostCarousels(overlayContent);
       });
@@ -357,6 +381,7 @@ overlayContent.innerHTML = data.html;
         attachLikeHandler();
         attachCopyLinkHandler(overlayContent);
         attachEditPostHandler(overlayContent);
+        syncCardFromOverlay(shortId);
         if (window.initCustomPlayers) window.initCustomPlayers(overlayContent);
         if (window.initPostCarousels) window.initPostCarousels(overlayContent);
       })
