@@ -93,13 +93,19 @@
 
               <span class="cp-time">0:00 / 0:00</span>
 
-              <a href="<%= f.url %>" target="_blank" rel="noopener noreferrer" class="cp-btn cp-open" aria-label="Открыть файл в новой вкладке">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h5"/></svg>
-              </a>
-
-              <button type="button" class="cp-btn cp-fullscreen" aria-label="Полный экран">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
-              </button>
+              <div class="cp-volume-wrap">
+                <button type="button" class="cp-btn cp-mute" aria-label="Звук">
+                  <svg class="cp-icon-vol-on" width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16.5 12a4.5 4.5 0 00-2.5-4.03v8.06A4.5 4.5 0 0016.5 12z"/></svg>
+                  <svg class="cp-icon-vol-off" width="16" height="16" viewBox="0 0 24 24" fill="#fff" hidden><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M19 8l-4 4m0-4l4 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+                </button>
+                <div class="cp-volume-popup">
+                  <div class="cp-volume-slider" role="slider" aria-label="Громкость" aria-valuemin="0" aria-valuemax="100" tabindex="0">
+                    <div class="cp-volume-track"></div>
+                    <div class="cp-volume-fill"></div>
+                    <div class="cp-volume-handle"></div>
+                  </div>
+                </div>
+              </div>
 
               <div class="cp-speed-wrap">
                 <button type="button" class="cp-btn cp-speed-toggle" aria-label="Настройки">
@@ -117,13 +123,13 @@
                 </div>
               </div>
 
-              <div class="cp-volume-wrap">
-                <button type="button" class="cp-btn cp-mute" aria-label="Звук">
-                  <svg class="cp-icon-vol-on" width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16.5 12a4.5 4.5 0 00-2.5-4.03v8.06A4.5 4.5 0 0016.5 12z"/></svg>
-                  <svg class="cp-icon-vol-off" width="16" height="16" viewBox="0 0 24 24" fill="#fff" hidden><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M19 8l-4 4m0-4l4 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
-                </button>
-                <input type="range" class="cp-volume" min="0" max="1" step="0.01" value="0.2" aria-label="Громкость">
-              </div>
+              <a href="<%= f.url %>" target="_blank" rel="noopener noreferrer" class="cp-btn cp-open" aria-label="Открыть файл в новой вкладке">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v5a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h5"/></svg>
+              </a>
+
+              <button type="button" class="cp-btn cp-fullscreen" aria-label="Полный экран">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+              </button>
             </div>
           </div>
         </div>
