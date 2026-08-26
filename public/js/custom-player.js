@@ -15,11 +15,7 @@
     var video = root.querySelector('.cp-video');
     var bigPlay = root.querySelector('.cp-bigplay');
     var playBtn = root.querySelector('.cp-play');
-    var iconPlay = root.querySelector('.cp-icon-play');
-    var iconPause = root.querySelector('.cp-icon-pause');
     var muteBtn = root.querySelector('.cp-mute');
-    var iconVolOn = root.querySelector('.cp-icon-vol-on');
-    var iconVolOff = root.querySelector('.cp-icon-vol-off');
     var volumeWrap = root.querySelector('.cp-volume-wrap');
     var volumeSlider = root.querySelector('.cp-volume-slider');
     var volumeFill = root.querySelector('.cp-volume-fill');
@@ -40,8 +36,6 @@
 
     function setPlayingUI(playing) {
       root.classList.toggle('is-playing', playing);
-      if (iconPlay) iconPlay.hidden = playing;
-      if (iconPause) iconPause.hidden = !playing;
     }
 
     function togglePlay() {
@@ -111,8 +105,7 @@
     });
 
     function setMutedUI(muted) {
-      if (iconVolOn) iconVolOn.hidden = muted;
-      if (iconVolOff) iconVolOff.hidden = !muted;
+      root.classList.toggle('is-muted', muted);
     }
 
     function setVolumeUI(vol) {
