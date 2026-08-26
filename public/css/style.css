@@ -228,7 +228,7 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   position: relative;
   flex-wrap: wrap;
 }
