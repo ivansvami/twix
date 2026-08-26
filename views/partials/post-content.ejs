@@ -370,7 +370,7 @@
             />
           </svg>
 
-          <span><%= post.views || 0 %></span>
+          <span id="post-views-count"><%= post.views || 0 %></span>
         </span>
 
       </div>
@@ -384,7 +384,7 @@
   <div class="comments comments-new">
 
     <h2>
-      <%= post.commentsCount || 0 %> комментар<%= (post.commentsCount || 0) === 1 ? 'ий' : 'иев' %>
+      <span id="post-comments-count"><%= post.commentsCount || 0 %></span> комментар<%= (post.commentsCount || 0) === 1 ? 'ий' : 'иев' %>
     </h2>
 
     <div class="comments-list-new">
