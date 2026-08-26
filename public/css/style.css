@@ -628,65 +628,141 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
   padding: 18px 12px 8px;
   z-index: 3;
+  /* Плеер показывается только пока курсор находится над ним; во время
+     перемотки/регулировки громкости держим его видимым через is-scrubbing,
+     даже если курсор на мгновение окажется вне зоны наведения. */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease;
+}
+.custom-player:hover .cp-controls,
+.custom-player:focus-within .cp-controls,
+.custom-player.is-scrubbing .cp-controls {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .cp-progress {
   position: relative;
   height: 4px;
   margin: 0 4px 10px;
+  padding: 6px 0;
   cursor: pointer;
 }
 .cp-progress-track {
-  position: absolute; inset: 0;
+  position: absolute; top: 6px; left: 0; right: 0;
+  height: 4px;
   background: rgba(255, 255, 255, 0.25);
   border-radius: 2px;
 }
 .cp-progress-buffered {
-  position: absolute; top: 0; left: 0; bottom: 0;
+  position: absolute; top: 6px; left: 0;
+  height: 4px;
   width: 0%;
   background: rgba(255, 255, 255, 0.45);
   border-radius: 2px;
 }
 .cp-progress-fill {
-  position: absolute; top: 0; left: 0; bottom: 0;
+  position: absolute; top: 6px; left: 0;
+  height: 4px;
   width: 0%;
   background: var(--cp-accent);
   border-radius: 2px;
 }
 .cp-progress-handle {
-  position: absolute; top: 50%; left: 0%;
-  width: 12px; height: 12px;
+  position: absolute; top: 8px; left: 0%;
+  width: 14px; height: 14px;
   background: var(--cp-accent);
   border-radius: 50%;
   transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+/* Кружок для перемотки — только при наведении на сам прогресс-бар
+   (или пока идёт перемотка) */
+.cp-progress:hover .cp-progress-handle,
+.cp-progress.is-seeking .cp-progress-handle {
+  opacity: 1;
 }
 
 .cp-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
 }
 .cp-btn {
-  background: none; border: none; padding: 4px;
+  background: none; border: none;
+  width: 30px; height: 30px;
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   opacity: 0.9;
   color: #fff;
   text-decoration: none;
+  transition: background-color .15s ease, opacity .15s ease;
 }
-.cp-btn:hover { opacity: 1; }
+/* Круглая подложка при наведении на любую иконку плеера */
+.cp-btn:hover { opacity: 1; background: rgba(255, 255, 255, 0.12); }
 .cp-time {
   color: #fff;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  margin-right: auto;
+  padding-left: 2px;
 }
 
-.cp-volume-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; }
-.cp-volume {
-  width: 70px;
-  accent-color: var(--cp-accent);
+/* ---- Громкость: иконка + всплывающий вертикальный слайдер ---- */
+.cp-volume-wrap { position: relative; display: flex; align-items: center; }
+.cp-volume-popup {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 110px;
+  background: rgba(20, 20, 20, 0.95);
+  border-radius: 10px;
+  padding: 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .15s ease;
+}
+.cp-volume-wrap:hover .cp-volume-popup,
+.cp-volume-wrap.is-dragging .cp-volume-popup {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.cp-volume-slider {
+  position: relative;
+  width: 4px;
+  height: 100%;
+  border-radius: 2px;
   cursor: pointer;
+}
+.cp-volume-track {
+  position: absolute; inset: 0;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+}
+.cp-volume-fill {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 20%;
+  background: var(--cp-accent);
+  border-radius: 2px;
+}
+.cp-volume-handle {
+  position: absolute; left: 50%; bottom: 20%;
+  width: 12px; height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
 }
 
 .cp-speed-wrap { position: relative; }
