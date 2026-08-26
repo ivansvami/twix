@@ -20,7 +20,10 @@
     var muteBtn = root.querySelector('.cp-mute');
     var iconVolOn = root.querySelector('.cp-icon-vol-on');
     var iconVolOff = root.querySelector('.cp-icon-vol-off');
-    var volumeSlider = root.querySelector('.cp-volume');
+    var volumeWrap = root.querySelector('.cp-volume-wrap');
+    var volumeSlider = root.querySelector('.cp-volume-slider');
+    var volumeFill = root.querySelector('.cp-volume-fill');
+    var volumeHandle = root.querySelector('.cp-volume-handle');
     var timeEl = root.querySelector('.cp-time');
     var progress = root.querySelector('.cp-progress');
     var progressFill = root.querySelector('.cp-progress-fill');
@@ -34,7 +37,6 @@
 
     // Громкость по умолчанию — 20%
     video.volume = DEFAULT_VOLUME;
-    if (volumeSlider) volumeSlider.value = DEFAULT_VOLUME;
 
     function setPlayingUI(playing) {
       root.classList.toggle('is-playing', playing);
@@ -81,30 +83,96 @@
     }
 
     var seeking = false;
-    progress.addEventListener('mousedown', function (e) { seeking = true; seekFromEvent(e); });
+    progress.addEventListener('mousedown', function (e) {
+      seeking = true;
+      progress.classList.add('is-seeking');
+      root.classList.add('is-scrubbing');
+      seekFromEvent(e);
+    });
     document.addEventListener('mousemove', function (e) { if (seeking) seekFromEvent(e); });
-    document.addEventListener('mouseup', function () { seeking = false; });
-    progress.addEventListener('touchstart', function (e) { seeking = true; seekFromEvent(e); });
+    document.addEventListener('mouseup', function () {
+      if (!seeking) return;
+      seeking = false;
+      progress.classList.remove('is-seeking');
+      root.classList.remove('is-scrubbing');
+    });
+    progress.addEventListener('touchstart', function (e) {
+      seeking = true;
+      progress.classList.add('is-seeking');
+      root.classList.add('is-scrubbing');
+      seekFromEvent(e);
+    });
     progress.addEventListener('touchmove', function (e) { if (seeking) seekFromEvent(e); });
-    document.addEventListener('touchend', function () { seeking = false; });
+    document.addEventListener('touchend', function () {
+      if (!seeking) return;
+      seeking = false;
+      progress.classList.remove('is-seeking');
+      root.classList.remove('is-scrubbing');
+    });
 
     function setMutedUI(muted) {
       if (iconVolOn) iconVolOn.hidden = muted;
       if (iconVolOff) iconVolOff.hidden = !muted;
     }
 
+    function setVolumeUI(vol) {
+      var pct = Math.round(vol * 100);
+      if (volumeFill) volumeFill.style.height = pct + '%';
+      if (volumeHandle) volumeHandle.style.bottom = pct + '%';
+      if (volumeSlider) volumeSlider.setAttribute('aria-valuenow', pct);
+    }
+
+    setVolumeUI(video.muted ? 0 : video.volume);
+
     if (muteBtn) {
       muteBtn.addEventListener('click', function () {
         video.muted = !video.muted;
         setMutedUI(video.muted);
+        setVolumeUI(video.muted ? 0 : video.volume);
       });
     }
 
+    // Вертикальный слайдер громкости — всплывает при наведении на иконку
+    // (см. CSS .cp-volume-wrap:hover .cp-volume-popup)
     if (volumeSlider) {
-      volumeSlider.addEventListener('input', function () {
-        video.volume = parseFloat(volumeSlider.value);
-        video.muted = video.volume === 0;
+      var draggingVolume = false;
+
+      function volumeFromEvent(e) {
+        var rect = volumeSlider.getBoundingClientRect();
+        var clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+        // Низ слайдера = 0, верх = 1 (вертикальная шкала)
+        var pct = Math.min(Math.max((rect.bottom - clientY) / rect.height, 0), 1);
+        video.volume = pct;
+        video.muted = pct === 0;
         setMutedUI(video.muted);
+        setVolumeUI(pct);
+      }
+
+      volumeSlider.addEventListener('mousedown', function (e) {
+        draggingVolume = true;
+        if (volumeWrap) volumeWrap.classList.add('is-dragging');
+        root.classList.add('is-scrubbing');
+        volumeFromEvent(e);
+      });
+      document.addEventListener('mousemove', function (e) { if (draggingVolume) volumeFromEvent(e); });
+      document.addEventListener('mouseup', function () {
+        if (!draggingVolume) return;
+        draggingVolume = false;
+        if (volumeWrap) volumeWrap.classList.remove('is-dragging');
+        root.classList.remove('is-scrubbing');
+      });
+      volumeSlider.addEventListener('touchstart', function (e) {
+        draggingVolume = true;
+        if (volumeWrap) volumeWrap.classList.add('is-dragging');
+        root.classList.add('is-scrubbing');
+        volumeFromEvent(e);
+      });
+      volumeSlider.addEventListener('touchmove', function (e) { if (draggingVolume) volumeFromEvent(e); });
+      document.addEventListener('touchend', function () {
+        if (!draggingVolume) return;
+        draggingVolume = false;
+        if (volumeWrap) volumeWrap.classList.remove('is-dragging');
+        root.classList.remove('is-scrubbing');
       });
     }
 
