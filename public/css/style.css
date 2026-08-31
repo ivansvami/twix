@@ -43,7 +43,7 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 24px;
   padding: 14px 24px;
-  background: #0E0E10;
+  background: #0F0F0F;
   position: sticky; top: 0; z-index: 10;
   max-width: 1600px;
   margin: 14px auto 0 auto;
