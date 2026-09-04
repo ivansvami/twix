@@ -44,4 +44,14 @@ async function connectDB() {
   return cached.conn;
 }
 
+// Отдаёт нативный MongoClient той же самой (закэшированной) mongoose-сессии —
+// нужно, чтобы connect-mongo (хранилище express-session) не открывал
+// ВТОРОЕ отдельное подключение к базе на каждый холодный старт.
+// Именно это удвоение подключений и было главной причиной долгого cold start.
+async function getClient() {
+  const conn = await connectDB();
+  return conn.connection.getClient();
+}
+
 module.exports = connectDB;
+module.exports.getClient = getClient;
