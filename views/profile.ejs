@@ -1,0 +1,40 @@
+<%- include('partials/header', { pageTitle }) %>
+
+<div class="profile-page-header">
+  <h1>Профиль</h1>
+
+  <nav class="profile-tabs">
+    <a href="/profile" class="<%= activeTab === 'feed' ? 'active' : '' %>">Лента</a>
+    <a href="/profile/unlisted" class="<%= activeTab === 'unlisted' ? 'active' : '' %>">По ссылке</a>
+    <a href="/profile/videos" class="<%= activeTab === 'videos' ? 'active' : '' %>">Видосы</a>
+  </nav>
+</div>
+
+<div
+  class="grid"
+  id="posts-grid"
+  data-endpoint="<%= activeTab === 'unlisted' ? '/api/profile/unlisted' : activeTab === 'videos' ? '/api/profile/videos' : '/api/profile/feed' %>"
+  data-page="<%= page || 1 %>"
+  data-has-more="<%= hasMore ? '1' : '0' %>"
+>
+  <% if (posts.length === 0) { %>
+    <p class="empty" id="empty-feed">
+      <% if (activeTab === 'unlisted') { %>
+        Нет постов, опубликованных "по ссылке"
+      <% } else if (activeTab === 'videos') { %>
+        Нет предложенных видео
+      <% } else { %>
+        Нет постов в ленте
+      <% } %>
+    </p>
+  <% } %>
+
+  <%- include('partials/post-cards', { posts }) %>
+</div>
+
+<!-- Бесконечная подгрузка -->
+<div id="feed-sentinel" aria-hidden="true"></div>
+<p id="feed-loading" class="feed-status" hidden>Загрузка…</p>
+<p id="feed-end" class="feed-status" <%= (posts.length === 0 || hasMore) ? 'hidden' : '' %>>Это все публикации</p>
+
+<%- include('partials/footer') %>
