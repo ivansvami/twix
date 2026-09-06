@@ -38,12 +38,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'change_me_please',
   resave: false,
   saveUninitialized: false,
-  // Раньше здесь был mongoUrl — connect-mongo сам открывал ВТОРОЕ подключение
-  // к MongoDB в дополнение к mongoose, и на холодном старте оба подключения
-  // (два TLS+auth рукопожатия к Atlas) складывались в задержку 3-4 секунды.
-  // clientPromise переиспользует уже установленное (и закэшированное между
-  // тёплыми вызовами) соединение mongoose — теперь рукопожатие одно, а не два.
-  store: MongoStore.create({ clientPromise: connectDB.getClient() }),
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 30,
     httpOnly: true,
@@ -56,6 +51,7 @@ app.use(loadUser);
 
 app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/twitchAuth'));
+app.use('/', require('./routes/profile'));
 app.use('/', require('./routes/posts'));
 app.use('/', require('./routes/comments'));
 app.use('/', require('./routes/notifications'));
