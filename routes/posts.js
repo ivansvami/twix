@@ -292,6 +292,16 @@ router.post('/post/:shortId/edit', requireAuth, asyncHandler(async (req, res) =>
   res.redirect('/post/' + post.shortId);
 }));
 
+function isSafeLocalRedirect(target) {
+  // Разрешаем редирект только на локальный относительный путь этого же
+  // сайта — чтобы через это поле нельзя было увести пользователя на
+  // сторонний домен (открытый редирект).
+  if (typeof target !== 'string' || !target) return false;
+  if (!target.startsWith('/') || target.startsWith('//')) return false;
+  if (target.includes('\\') || target.includes('://')) return false;
+  return true;
+}
+
 router.post('/post/:shortId/delete', requireAuth, asyncHandler(async (req, res) => {
   const post = await Post.findOne({ shortId: req.params.shortId });
   if (!post) return res.status(404).render('404');
@@ -317,7 +327,10 @@ router.post('/post/:shortId/delete', requireAuth, asyncHandler(async (req, res) 
 
   await post.deleteOne();
 
-  res.redirect('/');
+  // Возвращаем пользователя туда, откуда он удалил пост (например, на ту же
+  // вкладку профиля), а не всегда на главную ленту.
+  const redirectTo = req.body.redirectTo;
+  res.redirect(isSafeLocalRedirect(redirectTo) ? redirectTo : '/');
 }));
 
 module.exports = router;
