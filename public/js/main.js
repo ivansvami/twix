@@ -355,6 +355,20 @@ document.addEventListener('DOMContentLoaded', function () {
     submitCommentForm(form);
   });
 
+  // Удаление поста — обычная отправка формы (полная перезагрузка страницы),
+  // но перед отправкой подставляем страницу, с которой пользователь
+  // фактически удаляет пост (например, вкладку профиля), чтобы после
+  // удаления вернуться туда же, а не на главную ленту.
+  document.addEventListener('submit', function (e) {
+    var form = e.target.closest('.post-delete-form-new');
+    if (!form) return;
+
+    var redirectInput = form.querySelector('.post-delete-redirect-input');
+    if (redirectInput) {
+      redirectInput.value = savedFeedUrl || '/';
+    }
+  });
+
   function openPostModal(shortId, pushState) {
     if (!overlay) return;
     if (isMobileLayout()) {
